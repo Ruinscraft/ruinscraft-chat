@@ -1,10 +1,12 @@
-package com.ruinscraft.chat;
+package com.ruinscraft.chat.listeners;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
+import com.ruinscraft.chat.ChatMessage;
+import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.players.ChatPlayer;
 
 public class ChatListener implements Listener {
