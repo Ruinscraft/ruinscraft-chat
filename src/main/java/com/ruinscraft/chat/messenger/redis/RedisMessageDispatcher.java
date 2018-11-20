@@ -4,28 +4,14 @@ import com.ruinscraft.chat.messenger.Message;
 import com.ruinscraft.chat.messenger.MessageDispatcher;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 
 public class RedisMessageDispatcher implements MessageDispatcher {
 
-	private JedisPool pool;
-
-	public RedisMessageDispatcher() {
-		// setup redis pool
-	}
-
 	@Override
 	public void dispatch(Message message) {
-		try (Jedis jedis = pool.getResource()) {
-			
-			
-			
+		try (Jedis jedis = RedisMessageManager.pool.getResource()) {
+			jedis.publish(RedisMessageManager.REDIS_CHAT_CHANNEL, message.serialize());
 		}
-	}
-
-	@Override
-	public void close() {
-		pool.close();
 	}
 
 }

@@ -14,10 +14,19 @@ public class ChatPlugin extends JavaPlugin {
 		return instance;
 	}
 	
+	/*
+	 * When a message is received by the MessageConsumer,
+	 * if it is a ChatMessage, it will have an associated
+	 * server where the ChatMessage needs to be received.
+	 * The server must be aware of what "server" it actually
+	 * is.
+	 */
 	private String serverName;
 	
 	private ChatPlayerManager chatPlayerManager;
 	private ChatChannelManager chatChannelManager;
+	
+	// TODO: implement logging
 	private ChatLogger logging;
 	
 	@Override
