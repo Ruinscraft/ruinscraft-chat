@@ -1,20 +1,9 @@
 package com.ruinscraft.chat.messenger;
 
-public abstract class MessageManager implements AutoCloseable {
+public interface MessageManager extends AutoCloseable {
 
-	private MessageConsumer consumer;
-	private MessageDispatcher dispatcher;
+	MessageConsumer getConsumer();
 	
-	public MessageManager() {
-		
-	}
-	
-	public MessageConsumer getConsumer() {
-		return consumer;
-	}
-	
-	public MessageDispatcher getDispatcher() {
-		return dispatcher;
-	}
+	MessageDispatcher getDispatcher();
 
 }

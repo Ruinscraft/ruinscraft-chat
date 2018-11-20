@@ -9,6 +9,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import com.ruinscraft.chat.ChatMessage;
+import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.messenger.Message;
+import com.ruinscraft.chat.messenger.MessageManager;
 
 public interface ChatChannel {
 
@@ -26,7 +29,12 @@ public interface ChatChannel {
 
 	boolean isLogged();
 
-	void send(ChatMessage message);
+	default void send(ChatMessage chatMessage) {
+		MessageManager mm = ChatPlugin.getInstance().getMessageManager();
+		Message message = new Message(chatMessage);
+		
+		mm.getDispatcher().dispatch(message);
+	}
 	
 	default Set<UUID> getRecipients(UUID sender) {
 		return Bukkit.getOnlinePlayers().stream().map(Player::getUniqueId).collect(Collectors.toSet());

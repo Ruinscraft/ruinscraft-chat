@@ -27,26 +27,20 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 	
 	@Override
 	public void loadChatPlayer(ChatPlayer chatPlayer) {
-		try (PreparedStatement select = connection.prepareStatement("")) {
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		System.out.println("mysql loading chat player");
 	}
 
 	@Override
 	public void saveChatPlayer(ChatPlayer chatPlayer) {
-		try (PreparedStatement update = connection.prepareStatement("")) {
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		System.out.println("mysql saving chat player");
 	}
 
 	@Override
 	public void close() {
 		try {
-			connection.close();
+			if (connection != null && !connection.isClosed()) {
+				connection.close();
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -59,7 +53,7 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 			
 			if (connection == null || connection.isClosed()) {
 				connection = DriverManager.getConnection(
-						String.format("jdbc:mysql://%s:%i/%s", address, port, database),
+						String.format("jdbc:mysql://%s:%d/%s", address, port, database),
 						username,
 						new String(password));
 			}

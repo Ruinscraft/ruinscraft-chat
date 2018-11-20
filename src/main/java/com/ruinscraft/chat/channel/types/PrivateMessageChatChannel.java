@@ -1,10 +1,11 @@
-package com.ruinscraft.chat.channel;
+package com.ruinscraft.chat.channel.types;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import com.ruinscraft.chat.ChatMessage;
+import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.playerstatus.PlayerStatus;
 import com.ruinscraft.playerstatus.PlayerStatusPlugin;
 

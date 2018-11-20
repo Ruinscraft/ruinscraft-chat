@@ -44,5 +44,10 @@ public class ChatMessage {
 	public long getInceptionTime() {
 		return time;
 	}
+
+	@Override
+	public String toString() {
+		return "ChatMessage [sender=" + sender + ", payload=" + payload + ", time=" + time + "]";
+	}
 	
 }

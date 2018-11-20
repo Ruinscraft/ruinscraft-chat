@@ -1,24 +1,24 @@
-package com.ruinscraft.chat.channel;
+package com.ruinscraft.chat.channel.types;
 
 import org.bukkit.ChatColor;
 
-import com.ruinscraft.chat.ChatMessage;
+import com.ruinscraft.chat.channel.ChatChannel;
 
-public class DefaultLocalChatChannel implements ChatChannel {
+public class GlobalChatChannel implements ChatChannel {
 
 	@Override
 	public String getName() {
-		return "local";
+		return "global";
 	}
-	
+
 	@Override
 	public String getFormat(String context) {
-		return "[L] [%prefix%] %player% > " + getMessageColor() + " %message%";
+		return "[G] [%prefix%] %player% > " + getMessageColor() + " %message%";
 	}
 
 	@Override
 	public ChatColor getMessageColor() {
-		return ChatColor.YELLOW;
+		return ChatColor.WHITE;
 	}
 
 	@Override
@@ -28,7 +28,7 @@ public class DefaultLocalChatChannel implements ChatChannel {
 
 	@Override
 	public String[] getCommands() {
-		return new String[] {"local"};
+		return new String[] {"global"};
 	}
 
 	@Override
@@ -36,14 +36,8 @@ public class DefaultLocalChatChannel implements ChatChannel {
 		return false;
 	}
 
-	@Override
 	public boolean isLogged() {
 		return true;
 	}
 
-	@Override
-	public void send(ChatMessage message) {
-		
-	}
-	
 }

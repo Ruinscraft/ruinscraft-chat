@@ -1,15 +1,22 @@
 package com.ruinscraft.chat.channel;
 
+import org.bukkit.configuration.ConfigurationSection;
+
+import com.ruinscraft.chat.channel.types.DefaultLocalChatChannel;
+import com.ruinscraft.chat.channel.types.GlobalChatChannel;
+
 public class ChatChannelManager {
 
 	private ChatChannel globalChannel;
 	private ChatChannel localChannel;
 	
-	public ChatChannelManager(String localChannelImplementation) {
+	public ChatChannelManager(ConfigurationSection channelSection) {
 		this.globalChannel = new GlobalChatChannel();
 		
-		switch (localChannelImplementation) {
-		
+		switch (channelSection.getString("local-type")) {
+		case "default":
+			localChannel = new DefaultLocalChatChannel();
+			break;
 		}
 	}
 	

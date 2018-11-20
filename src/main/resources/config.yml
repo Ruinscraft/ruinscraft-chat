@@ -1,0 +1,20 @@
+messaging:
+  redis:
+    use: true
+    address: localhost
+    
+player-storage:
+  mysql:
+    use: true
+    address: localhost
+    port: 3306
+    database: minecraft
+    username: root
+    password: password
+  sqlite:
+    use: false
+    file: chatplayers.db
+    
+channels:
+  local-type: default
+  
