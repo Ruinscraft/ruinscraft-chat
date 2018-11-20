@@ -2,7 +2,7 @@ package com.ruinscraft.chat.players.storage;
 
 import java.sql.Connection;
 
-public interface SQLPlayerStorage extends PlayerStorage, AutoCloseable {
+public interface SQLChatPlayerStorage extends ChatPlayerStorage {
 	
 	Connection getConnection();
 	

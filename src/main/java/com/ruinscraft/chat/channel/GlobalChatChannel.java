@@ -36,14 +36,13 @@ public class GlobalChatChannel implements ChatChannel {
 		return false;
 	}
 
-	@Override
 	public boolean isLogged() {
 		return true;
 	}
 
 	@Override
 	public void send(ChatMessage message) {
-
+		// send over message dispatcher
 	}
 
 }

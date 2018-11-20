@@ -2,16 +2,22 @@ package com.ruinscraft.chat;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.ruinscraft.chat.channel.ChatChannelManager;
 import com.ruinscraft.chat.logging.ChatLogger;
+import com.ruinscraft.chat.players.ChatPlayerManager;
 
 public class ChatPlugin extends JavaPlugin {
-
+	
 	private static ChatPlugin instance;
 	
 	public static ChatPlugin getInstance() {
 		return instance;
 	}
 	
+	private String serverName;
+	
+	private ChatPlayerManager chatPlayerManager;
+	private ChatChannelManager chatChannelManager;
 	private ChatLogger logging;
 	
 	@Override
@@ -28,6 +34,7 @@ public class ChatPlugin extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		try {
+			chatPlayerManager.close();
 			logging.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -35,6 +42,22 @@ public class ChatPlugin extends JavaPlugin {
 		
 		
 		instance = null;
+	}
+
+	public void setServerName(String serverName) {
+		this.serverName = serverName;
+	}
+	
+	public String getServerName() {
+		return serverName;
+	}
+	
+	public ChatPlayerManager getChatPlayerManager() {
+		return chatPlayerManager;
+	}
+
+	public ChatChannelManager getChatChannelManager() {
+		return chatChannelManager;
 	}
 	
 	public ChatLogger getLogging() {

@@ -1,11 +1,11 @@
 package com.ruinscraft.chat.channel;
 
-public class ChannelManager {
+public class ChatChannelManager {
 
 	private ChatChannel globalChannel;
 	private ChatChannel localChannel;
 	
-	public ChannelManager(String localChannelImplementation) {
+	public ChatChannelManager(String localChannelImplementation) {
 		this.globalChannel = new GlobalChatChannel();
 		
 		switch (localChannelImplementation) {
