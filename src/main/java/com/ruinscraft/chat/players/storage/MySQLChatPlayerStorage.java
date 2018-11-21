@@ -2,7 +2,6 @@ package com.ruinscraft.chat.players.storage;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.ruinscraft.chat.players.ChatPlayer;

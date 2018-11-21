@@ -1,31 +1,29 @@
 package com.ruinscraft.chat;
 
-import java.util.UUID;
-
 public class ChatMessage {
 
-	private UUID sender;
+	private String sender;
 	private String payload;
 	private long time;
 	
 	public ChatMessage() {}
 	
-	public ChatMessage(UUID sender, String payload) {
+	public ChatMessage(String sender, String payload) {
 		this.sender = sender;
 		this.payload = payload;
 		this.time = System.currentTimeMillis();
 	}
 
-	public ChatMessage(UUID sender, String payload, long time) {
+	public ChatMessage(String sender, String payload, long time) {
 		this(sender, payload);
 		this.time = time;
 	}
 	
-	public void setSender(UUID sender) {
+	public void setSender(String sender) {
 		this.sender = sender;
 	}
 	
-	public UUID getSender() {
+	public String getSender() {
 		return sender;
 	}
 	

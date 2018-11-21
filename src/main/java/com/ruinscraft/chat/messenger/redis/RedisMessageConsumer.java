@@ -14,6 +14,10 @@ public class RedisMessageConsumer extends JedisPubSub implements MessageConsumer
 
 	@Override
 	public void onMessage(String channel, String messageRaw) {
+		if (!channel.equals(RedisMessageManager.REDIS_CHAT_CHANNEL)) {
+			return;
+		}
+
 		Message message = null;
 
 		try {
@@ -29,9 +33,19 @@ public class RedisMessageConsumer extends JedisPubSub implements MessageConsumer
 
 	@Override
 	public void consume(Message message) {
-		if (message.getPayload() instanceof ChatMessage) {
-			System.out.println("received chat message: " + message.getPayload());
+		ChatMessage chatMessage = null;
+
+		try {
+			chatMessage = GSON.fromJson(message.getPayload(), ChatMessage.class);
+		} catch (JsonParseException e) {
+			e.printStackTrace();
 		}
+
+		if (chatMessage == null) {
+			return;
+		}
+
+		System.out.println(chatMessage.getSender() + " > " + chatMessage.getPayload());
 	}
 
 }

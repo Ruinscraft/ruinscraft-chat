@@ -31,7 +31,7 @@ public class ChatListener implements Listener {
 			return;
 		}
 
-		ChatMessage chatMessage = new ChatMessage(player.getUniqueId(), payload);
+		ChatMessage chatMessage = new ChatMessage(player.getName(), payload);
 
 		chatPlayer.getFocused().send(chatMessage);
 	}

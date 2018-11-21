@@ -10,7 +10,7 @@ public class Message {
 	
 	private UUID messageId;
 	private long inceptionTime;
-	private Object payload;
+	private String payload;
 	
 	public Message() {
 		messageId = UUID.randomUUID();
@@ -19,13 +19,13 @@ public class Message {
 	
 	public Message(Object payload) {
 		this();
-		this.payload = payload;
+		this.payload = GSON.toJson(payload);
 	}
 	
 	public Message(UUID messageId, long inceptionTime, Object payload) {
 		this.messageId = messageId;
 		this.inceptionTime = inceptionTime;
-		this.payload = payload;
+		this.payload = GSON.toJson(payload);
 	}
 
 	public UUID getMessageId() {
@@ -36,12 +36,17 @@ public class Message {
 		return inceptionTime;
 	}
 	
-	public Object getPayload() {
+	public String getPayload() {
 		return payload;
 	}
 	
 	public String serialize() {
 		return GSON.toJson(this);
+	}
+
+	@Override
+	public String toString() {
+		return "Message [messageId=" + messageId + ", inceptionTime=" + inceptionTime + ", payload=" + payload + "]";
 	}
 	
 }
