@@ -54,7 +54,7 @@ public class RedisMessageManager implements MessageManager {
 	}
 
 	@Override
-	public void close() throws Exception {
+	public void close() {
 		consumer.unsubscribe();
 		pool.close();
 	}

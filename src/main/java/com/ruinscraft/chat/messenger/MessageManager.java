@@ -5,5 +5,8 @@ public interface MessageManager extends AutoCloseable {
 	MessageConsumer getConsumer();
 	
 	MessageDispatcher getDispatcher();
+	
+	@Override
+	default void close() {}
 
 }
