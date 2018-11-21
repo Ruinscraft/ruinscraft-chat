@@ -68,9 +68,9 @@ public class PrivateMessageChatChannel implements ChatChannel {
 
 	@Override
 	public void send(ChatMessage message) {
-		Player player = Bukkit.getPlayer(message.getSender());
+		Player sender = Bukkit.getPlayer(message.getSender());
 		
-		if (player == null || !player.isOnline()) {
+		if (sender == null || !sender.isOnline()) {
 			return;
 		}
 		
@@ -83,9 +83,10 @@ public class PrivateMessageChatChannel implements ChatChannel {
 		}
 		
 		if (playerStatus == null || !playerStatus.isOnline()) {
-			player.sendMessage(recipient + " is not online.");
+			sender.sendMessage(recipient + " is not online.");
 			return;
 		}
+		
 		
 		
 		

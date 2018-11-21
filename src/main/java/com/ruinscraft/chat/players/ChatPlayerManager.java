@@ -1,6 +1,8 @@
 package com.ruinscraft.chat.players;
 
 import java.util.UUID;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 
 import org.bukkit.configuration.ConfigurationSection;
@@ -14,11 +16,13 @@ import com.ruinscraft.chat.players.storage.MySQLChatPlayerStorage;
 
 public class ChatPlayerManager implements AutoCloseable {
 
+	private BlockingQueue<UUID> toLoad;
 	private LoadingCache<UUID, ChatPlayer> cache;
 	private ChatPlayerStorage storage;
 
 	public ChatPlayerManager(ConfigurationSection playerStorageSection) {
 		/* Setup cache*/
+		toLoad = new ArrayBlockingQueue<>(256);
 		cache = CacheBuilder.newBuilder()
 				.build(new ChatPlayerCacheLoader());
 
@@ -31,19 +35,29 @@ public class ChatPlayerManager implements AutoCloseable {
 			char[] password = playerStorageSection.getString("mysql.password").toCharArray();
 
 			storage = new MySQLChatPlayerStorage(address, port, database, username, password);
-			
+
 			ChatPlugin.info("Using MySQL for player storage");
 		}
+		
+		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
+			while (toLoad != null) {
+				try {
+					cache.get(toLoad.take());
+				} catch (ExecutionException e) {
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
 	public void loadChatPlayer(UUID uuid) {
-		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
-			try {
-				cache.get(uuid);
-			} catch (ExecutionException e) {
-				e.printStackTrace();
-			}
-		});
+		try {
+			toLoad.put(uuid);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void unloadChatPlayer(UUID uuid) {
@@ -58,6 +72,9 @@ public class ChatPlayerManager implements AutoCloseable {
 	public void close() throws Exception {
 		cache.invalidateAll();
 		storage.close();
+		
+		cache = null;
+		storage = null;
 	}
 
 	private final class ChatPlayerCacheLoader extends CacheLoader<UUID, ChatPlayer> {
