@@ -5,35 +5,36 @@ import org.bukkit.ChatColor;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.GenericChatMessage;
 
-public class GlobalChatChannel implements ChatChannel<GenericChatMessage> {
+public class MBAChatChannel implements ChatChannel<GenericChatMessage> {
 
 	@Override
 	public String getName() {
-		return "global";
+		return "mba";
 	}
 
 	@Override
 	public String getFormat(GenericChatMessage context) {
-		return "[G] [%prefix%] %player% > " + getMessageColor() + " %message%";
+		return "";
 	}
 
 	@Override
 	public ChatColor getMessageColor() {
-		return ChatColor.WHITE;
+		return ChatColor.DARK_RED;
 	}
 
 	@Override
 	public String getPermission() {
-		return null;
+		return "ruinscraft.chat.channel.mba";
 	}
 
 	@Override
 	public String[] getCommands() {
-		return new String[] {"global"};
+		return new String[] {"mba"};
 	}
 
+	@Override
 	public boolean isLogged() {
-		return true;
+		return false;
 	}
-
+	
 }

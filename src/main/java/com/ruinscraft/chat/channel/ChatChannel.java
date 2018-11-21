@@ -24,8 +24,6 @@ public interface ChatChannel<T> {
 
 	String[] getCommands();
 
-	boolean isOneToOne();
-
 	boolean isLogged();
 
 	default void send(T chatMessage) {

@@ -33,11 +33,6 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 	}
 
 	@Override
-	public boolean isOneToOne() {
-		return false;
-	}
-
-	@Override
 	public boolean isLogged() {
 		return true;
 	}

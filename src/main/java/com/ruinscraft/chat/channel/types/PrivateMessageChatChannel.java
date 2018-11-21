@@ -38,11 +38,6 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 	}
 
 	@Override
-	public boolean isOneToOne() {
-		return true;
-	}
-
-	@Override
 	public boolean isLogged() {
 		return true;
 	}
