@@ -4,40 +4,21 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import com.ruinscraft.chat.ChatMessage;
 import com.ruinscraft.chat.channel.ChatChannel;
+import com.ruinscraft.chat.message.PrivateChatMessage;
 import com.ruinscraft.playerstatus.PlayerStatus;
 import com.ruinscraft.playerstatus.PlayerStatusPlugin;
 
-public class PrivateMessageChatChannel implements ChatChannel {
+public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage> {
 
-	private String initiator;
-	private String recipient;
-
-	public PrivateMessageChatChannel(String initiator, String recipient) {
-		this.initiator = initiator;
-		this.recipient = recipient;
-	}
-	
-	public String getInitiator() {
-		return initiator;
-	}
-	
-	public String getRecipient() {
-		return recipient;
-	}
-	
 	@Override
 	public String getName() {
 		return "pm";
 	}
 
 	@Override
-	public String getFormat(String context) {
-		if (context.equals(recipient)) {
-			return getMessageColor() + "[from: %from%] %message";
-		}
-		return getMessageColor() + "[to: %to%] %message%";
+	public String getFormat(PrivateChatMessage context) {
+		return null;
 	}
 
 	@Override
@@ -67,29 +48,28 @@ public class PrivateMessageChatChannel implements ChatChannel {
 	}
 
 	@Override
-	public void send(ChatMessage message) {
-		Player sender = Bukkit.getPlayer(message.getSender());
-		
+	public void send(PrivateChatMessage chatMessage) {
+		Player sender = Bukkit.getPlayer(chatMessage.getSender());
+
 		if (sender == null || !sender.isOnline()) {
 			return;
 		}
-		
+
 		PlayerStatus playerStatus = null;
-		
+
 		try {
-			playerStatus = PlayerStatusPlugin.getAPI().getPlayerStatus(recipient);
+			playerStatus = PlayerStatusPlugin.getAPI().getPlayerStatus(chatMessage.getRecipient());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		if (playerStatus == null || !playerStatus.isOnline()) {
-			sender.sendMessage(recipient + " is not online.");
+			sender.sendMessage(chatMessage.getRecipient() + " is not online.");
 			return;
 		}
+
 		
-		
-		
-		
+
 	}
-	
+
 }

@@ -3,8 +3,9 @@ package com.ruinscraft.chat.channel.types;
 import org.bukkit.ChatColor;
 
 import com.ruinscraft.chat.channel.ChatChannel;
+import com.ruinscraft.chat.message.GenericChatMessage;
 
-public class DefaultLocalChatChannel implements ChatChannel {
+public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> {
 
 	@Override
 	public String getName() {
@@ -12,7 +13,7 @@ public class DefaultLocalChatChannel implements ChatChannel {
 	}
 	
 	@Override
-	public String getFormat(String context) {
+	public String getFormat(GenericChatMessage chatMessage) {
 		return "[L] [%prefix%] %player% > " + getMessageColor() + " %message%";
 	}
 

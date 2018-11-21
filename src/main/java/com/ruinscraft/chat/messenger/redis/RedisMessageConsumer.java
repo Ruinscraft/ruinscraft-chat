@@ -2,7 +2,7 @@ package com.ruinscraft.chat.messenger.redis;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
-import com.ruinscraft.chat.ChatMessage;
+import com.ruinscraft.chat.message.GenericChatMessage;
 import com.ruinscraft.chat.messenger.Message;
 import com.ruinscraft.chat.messenger.MessageConsumer;
 
@@ -33,10 +33,11 @@ public class RedisMessageConsumer extends JedisPubSub implements MessageConsumer
 
 	@Override
 	public void consume(Message message) {
-		ChatMessage chatMessage = null;
+		GenericChatMessage chatMessage = null;
+		// TODO: handle other types of messages
 
 		try {
-			chatMessage = GSON.fromJson(message.getPayload(), ChatMessage.class);
+			chatMessage = GSON.fromJson(message.getPayload(), GenericChatMessage.class);
 		} catch (JsonParseException e) {
 			e.printStackTrace();
 		}
