@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
+import com.ruinscraft.chat.message.GenericChatMessage;
 
 /*
  * TODO:
@@ -14,11 +15,11 @@ import com.ruinscraft.chat.channel.ChatChannel;
 public class ChatPlayer {
 
 	private UUID mojangUUID;
-	private ChatChannel focused;
+	private ChatChannel<? extends GenericChatMessage> focused;
 
 	public ChatPlayer() {}
 
-	public ChatPlayer(UUID mojangUUID, ChatChannel focused) {
+	public ChatPlayer(UUID mojangUUID, ChatChannel<? extends GenericChatMessage> focused) {
 		this.mojangUUID = mojangUUID;
 		this.focused = focused;
 	}
@@ -31,11 +32,11 @@ public class ChatPlayer {
 		return mojangUUID;
 	}
 	
-	public void setFocused(ChatChannel focused) {
+	public void setFocused(ChatChannel<? extends GenericChatMessage> focused) {
 		this.focused = focused;
 	}
 	
-	public ChatChannel getFocused() {
+	public ChatChannel<? extends GenericChatMessage> getFocused() {
 		if (focused == null) {
 			focused = ChatPlugin.getInstance().getChatChannelManager().getGlobalChannel();
 		}
