@@ -9,10 +9,11 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.messenger.Message;
 import com.ruinscraft.chat.messenger.MessageManager;
 
-public interface ChatChannel<T> {
+public interface ChatChannel<T extends ChatMessage> {
 
 	String getName();
 
