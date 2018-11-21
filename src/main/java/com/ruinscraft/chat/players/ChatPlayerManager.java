@@ -39,6 +39,7 @@ public class ChatPlayerManager implements AutoCloseable {
 			ChatPlugin.info("Using MySQL for player storage");
 		}
 		
+		/* Setup cache loader */
 		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
 			while (toLoad != null) {
 				try {
@@ -52,6 +53,11 @@ public class ChatPlayerManager implements AutoCloseable {
 		});
 	}
 
+	/**
+	 * Schedule loading in a ChatPlayer from a UUID asynchronously. Non-blocking
+	 * 
+	 * @param 	uuid	UUID of the player
+	 */
 	public void loadChatPlayer(UUID uuid) {
 		try {
 			toLoad.put(uuid);
@@ -60,10 +66,21 @@ public class ChatPlayerManager implements AutoCloseable {
 		}
 	}
 
+	/**
+	 * Unload a UUID immediately if exists. Non-blocking
+	 * 
+	 * @param 	uuid	UUID of the player
+	 */
 	public void unloadChatPlayer(UUID uuid) {
 		cache.invalidate(uuid);
 	}
 
+	/**
+	 * Get a ChatPlayer from a UUID. Non-blocking
+	 * 
+	 * @param 	uuid	UUID of the player
+	 * @return	the ChatPlayer associated with the UUID, null if not loaded
+	 */
 	public ChatPlayer getChatPlayer(UUID uuid) {
 		return cache.getIfPresent(uuid);
 	}
