@@ -1,9 +1,12 @@
 package com.ruinscraft.chat.channel.types;
 
+import java.util.concurrent.Callable;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.PrivateChatMessage;
 import com.ruinscraft.playerstatus.PlayerStatus;
@@ -46,25 +49,23 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 	public void send(PrivateChatMessage chatMessage) {
 		Player sender = Bukkit.getPlayer(chatMessage.getSender());
 
-		if (sender == null || !sender.isOnline()) {
-			return;
-		}
+		Callable<PlayerStatus> callable = PlayerStatusPlugin.getAPI().getPlayerStatus(chatMessage.getRecipient());
 
-		PlayerStatus playerStatus = null;
-
-		try {
-			playerStatus = PlayerStatusPlugin.getAPI().getPlayerStatus(chatMessage.getRecipient());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		if (playerStatus == null || !playerStatus.isOnline()) {
-			sender.sendMessage(chatMessage.getRecipient() + " is not online.");
-			return;
-		}
-
-		
-
+		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
+			try {
+				PlayerStatus playerStatus = callable.call();
+				
+				if (sender == null || !sender.isOnline()) {
+					return;
+				}
+				
+				if (!playerStatus.isOnline()) {
+					sender.sendMessage(ChatColor.RED + chatMessage.getRecipient() + " is not online.");
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
 	}
 
 }

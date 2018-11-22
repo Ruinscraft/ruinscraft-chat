@@ -15,11 +15,11 @@ import com.ruinscraft.chat.message.GenericChatMessage;
 public class ChatPlayer {
 
 	private UUID mojangUUID;
-	private ChatChannel<? extends GenericChatMessage> focused;
+	private ChatChannel<GenericChatMessage> focused;
 
 	public ChatPlayer() {}
 
-	public ChatPlayer(UUID mojangUUID, ChatChannel<? extends GenericChatMessage> focused) {
+	public ChatPlayer(UUID mojangUUID, ChatChannel<GenericChatMessage> focused) {
 		this.mojangUUID = mojangUUID;
 		this.focused = focused;
 	}
@@ -32,11 +32,11 @@ public class ChatPlayer {
 		return mojangUUID;
 	}
 	
-	public void setFocused(ChatChannel<? extends GenericChatMessage> focused) {
+	public void setFocused(ChatChannel<GenericChatMessage> focused) {
 		this.focused = focused;
 	}
 	
-	public ChatChannel<? extends GenericChatMessage> getFocused() {
+	public ChatChannel<GenericChatMessage> getFocused() {
 		if (focused == null) {
 			focused = ChatPlugin.getInstance().getChatChannelManager().getGlobalChannel();
 		}
