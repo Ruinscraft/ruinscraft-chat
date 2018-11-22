@@ -6,9 +6,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 /**
- *	A command allowing for Players to send private messages to each other.
+ *	A command for Players set a nickname (for use in local ChatChannel).
  */
-public class PMCommand implements CommandExecutor {
+public class NicknameCommand implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
