@@ -17,9 +17,11 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 
 	private ReplyStorage replyStorage;
 
-	public PrivateMessageChatChannel(ConfigurationSection replyStorageSection) {
-		if (replyStorageSection.getBoolean("redis.use")) {
-			replyStorage = new RedisReplyStorage(replyStorageSection.getConfigurationSection("redis"));
+	public PrivateMessageChatChannel(ConfigurationSection replySection) {
+		ConfigurationSection storageSection = replySection.getConfigurationSection("storage");
+		
+		if (storageSection.getBoolean("redis.use")) {
+			replyStorage = new RedisReplyStorage(storageSection.getConfigurationSection("redis"));
 		}
 	}
 

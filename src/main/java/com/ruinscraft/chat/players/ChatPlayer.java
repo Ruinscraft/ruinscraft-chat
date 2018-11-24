@@ -17,7 +17,9 @@ public class ChatPlayer {
 	private UUID mojangUUID;
 	private ChatChannel<GenericChatMessage> focused;
 
-	public ChatPlayer() {}
+	public ChatPlayer(UUID mojangUUID) {
+		this.mojangUUID = mojangUUID;
+	}
 
 	public ChatPlayer(UUID mojangUUID, ChatChannel<GenericChatMessage> focused) {
 		this.mojangUUID = mojangUUID;

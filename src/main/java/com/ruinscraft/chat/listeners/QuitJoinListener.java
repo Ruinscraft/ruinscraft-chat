@@ -11,11 +11,11 @@ import com.ruinscraft.chat.ChatPlugin;
 public class QuitJoinListener implements Listener {
 
 	private static ChatPlugin chatPlugin = ChatPlugin.getInstance();
-	
+
 	@EventHandler
 	public void onQuit(PlayerQuitEvent event) {
 		Player player = event.getPlayer();
-		
+
 		chatPlugin.getChatPlayerManager().unloadChatPlayer(player.getUniqueId());
 	}
 
@@ -23,8 +23,10 @@ public class QuitJoinListener implements Listener {
 	@EventHandler
 	public void onJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
-		
+
 		chatPlugin.getChatPlayerManager().loadChatPlayer(player.getUniqueId());
+
+		chatPlugin.checkServerName();
 	}
 
 }

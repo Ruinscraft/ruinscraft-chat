@@ -97,7 +97,7 @@ public class ChatPlayerManager implements AutoCloseable {
 	private final class ChatPlayerCacheLoader extends CacheLoader<UUID, ChatPlayer> {
 		@Override
 		public ChatPlayer load(UUID uuid) throws Exception {
-			ChatPlayer chatPlayer = new ChatPlayer();
+			ChatPlayer chatPlayer = new ChatPlayer(uuid);
 
 			/* Blocking */
 			storage.loadChatPlayer(chatPlayer);

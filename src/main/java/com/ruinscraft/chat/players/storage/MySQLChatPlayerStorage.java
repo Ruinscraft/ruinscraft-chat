@@ -81,7 +81,7 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 			
 			if (connection == null || connection.isClosed()) {
 				connection = DriverManager.getConnection(
-						String.format("jdbc:mysql://%s:%d/%s", address, port, database),
+						String.format("jdbc:mysql://%s:%d/%s?useSSL=false", address, port, database),
 						username,
 						new String(password));
 			}

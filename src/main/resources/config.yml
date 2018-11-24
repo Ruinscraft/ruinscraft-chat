@@ -21,5 +21,11 @@ reply-storage:
     address: localhost
     
 channels:
-  local-type: default
+  local:
+    type: default
+  private-message:
+    storage:
+      redis:
+        use: true
+        address: localhost
   
