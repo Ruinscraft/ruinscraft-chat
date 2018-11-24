@@ -15,16 +15,16 @@ import com.ruinscraft.playerstatus.PlayerStatusPlugin;
 
 public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage> {
 
-	private ReplyCache replyCache;
+	private ReplyStorage replyStorage;
 
-	public PrivateMessageChatChannel(ConfigurationSection pmCacheSection) {
-		if (pmCacheSection.getBoolean("redis.use")) {
-			replyCache = new RedisReplyCache(pmCacheSection.getConfigurationSection("redis"));
+	public PrivateMessageChatChannel(ConfigurationSection replyStorageSection) {
+		if (replyStorageSection.getBoolean("redis.use")) {
+			replyStorage = new RedisReplyStorage(replyStorageSection.getConfigurationSection("redis"));
 		}
 	}
 
-	public ReplyCache getReplyCache() {
-		return replyCache;
+	public ReplyStorage getReplyCache() {
+		return replyStorage;
 	}
 
 	@Override

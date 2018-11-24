@@ -15,7 +15,7 @@ player-storage:
     use: false
     file: chatplayers.db
 
-pm-replies-cache:
+reply-storage:
   redis:
     use: true
     address: localhost
