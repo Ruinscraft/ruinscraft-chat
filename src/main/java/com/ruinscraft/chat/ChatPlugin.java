@@ -12,7 +12,6 @@ import com.google.common.io.ByteStreams;
 import com.ruinscraft.chat.channel.ChatChannelManager;
 import com.ruinscraft.chat.listeners.ChatListener;
 import com.ruinscraft.chat.listeners.QuitJoinListener;
-import com.ruinscraft.chat.logging.ChatLogger;
 import com.ruinscraft.chat.messenger.MessageManager;
 import com.ruinscraft.chat.messenger.redis.RedisMessageManager;
 import com.ruinscraft.chat.players.ChatPlayerManager;
@@ -20,7 +19,7 @@ import com.ruinscraft.chat.players.ChatPlayerManager;
 public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 
 	public static final String RUINSCRAFT_CHAT = "ruinscraft-chat";
-	
+
 	private static ChatPlugin instance;
 
 	public static ChatPlugin getInstance() {
@@ -46,7 +45,6 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 	private MessageManager messageManager;
 	private ChatPlayerManager chatPlayerManager;
 	private ChatChannelManager chatChannelManager;
-	private ChatLogger logging; // TODO: implement logging
 
 	@Override
 	public void onEnable() {
@@ -93,7 +91,6 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 		try {
 			messageManager.close();
 			chatPlayerManager.close();
-			//logging.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -132,19 +129,15 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 		return chatChannelManager;
 	}
 
-	public ChatLogger getLogging() {
-		return logging;
-	}
-
 	@Override
 	public void onPluginMessageReceived(String channel, Player player, byte[] message) {
 		if (!channel.equals("BungeeCord")) {
 			return;
 		}
-		
+
 		ByteArrayDataInput in = ByteStreams.newDataInput(message);
 		String subchannel = in.readUTF();
-		
+
 		switch (subchannel) {
 		case "GetServer":
 			String serverName = in.readUTF();
