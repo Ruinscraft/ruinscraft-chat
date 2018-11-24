@@ -39,19 +39,21 @@ public interface ChatChannel<T extends ChatMessage> {
 
 		mm.getDispatcher().dispatch(message);
 	}
-	
-	default void sendToChat(ChatChannelManager chatChannelManager, ChatMessage chatMessage) {
+
+	default void sendToChat(ChatChannelManager chatChannelManager, T chatMessage) {
 		Bukkit.getOnlinePlayers().forEach(p -> {
 			if (getPermission() == null || p.hasPermission(getPermission())) {
 				p.sendMessage(chatMessage.getSender() + " > " + chatMessage.getPayload());
 			}
 		});
-		
+
 		log(chatChannelManager, chatMessage);
 	}
-	
-	default void log(ChatChannelManager chatChannelManager, ChatMessage chatMessage) {
-		chatChannelManager.getChatLoggers().forEach(l -> l.log(chatMessage));
+
+	default void log(ChatChannelManager chatChannelManager, T chatMessage) {
+		if (isLogged()) {
+			chatChannelManager.getChatLoggers().forEach(l -> l.log(chatMessage));
+		}
 	}
 
 	default Set<UUID> getRecipients(UUID sender) {
@@ -60,18 +62,18 @@ public interface ChatChannel<T extends ChatMessage> {
 
 	default void registerCommands() {
 		Command command = getCommand();
-		
+
 		if (command == null) {
 			return;
 		}
-		
+
 		Plugin plugin = ChatPlugin.getInstance();
 
 		try {
 			Field bukkitCommandMap = plugin.getServer().getClass().getDeclaredField("commandMap");
 
 			bukkitCommandMap.setAccessible(true);
-			
+
 			CommandMap commandMap = (CommandMap) bukkitCommandMap.get(plugin.getServer());
 
 			commandMap.register(ChatPlugin.RUINSCRAFT_CHAT, command);
