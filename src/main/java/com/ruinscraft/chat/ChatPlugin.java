@@ -39,10 +39,6 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 	}
 	
 	public static Chat getVaultChat() {
-		if (vaultChat == null) {
-	        RegisteredServiceProvider<Chat> rsp = instance.getServer().getServicesManager().getRegistration(Chat.class);
-	        vaultChat = rsp.getProvider();
-		}
 		return vaultChat;
 	}
 
@@ -81,20 +77,16 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 		}
 
 		/* Setup MessageManager*/
-		info("Setting up MessageManager");
 		ConfigurationSection messagingSection = getConfig().getConfigurationSection("messaging");
 		if (messagingSection.getBoolean("redis.use")) {
 			messageManager = new RedisMessageManager(messagingSection.getConfigurationSection("redis"));
 		}
 
-		info("Setting up ChatPlayerManager");
 		/* Setup ChatPlayerManager */
 		chatPlayerManager = new ChatPlayerManager(getConfig().getConfigurationSection("player-storage"));
 
-		info("Setting up ChannelManager");
 		/* Setup ChatChannelManager */
 		chatChannelManager = new ChatChannelManager(getConfig().getConfigurationSection("channels"));
-
 
 		/* Register Bukkit Listeners */
 		pm.registerEvents(new ChatListener(), this);
@@ -103,6 +95,12 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 		/* Register PluginMessenger */
 		getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 		getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", this);
+		
+		/* Setup Vault Chat */
+		RegisteredServiceProvider<Chat> chatProvider = getServer().getServicesManager().getRegistration(Chat.class);
+		if (chatProvider != null) {
+			vaultChat = chatProvider.getProvider();
+		}
 	}
 
 	@Override

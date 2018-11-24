@@ -122,7 +122,14 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 
 				replyStorage.setReply(sender.getName(), recipient);
 
-				PrivateChatMessage pm = new PrivateChatMessage(sender.getName(), recipient, getName(), message);
+				String senderPrefix = "";
+				
+				if (sender instanceof Player) {
+					Player senderPlayer = (Player) sender;
+					senderPrefix = ChatPlugin.getVaultChat().getPlayerPrefix(senderPlayer);
+				}
+				
+				PrivateChatMessage pm = new PrivateChatMessage(senderPrefix, sender.getName(), recipient, getName(), message);
 
 				dispatch(ChatPlugin.getInstance().getMessageManager().getDispatcher(), sender, pm);
 

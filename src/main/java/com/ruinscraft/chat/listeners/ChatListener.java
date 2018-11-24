@@ -33,7 +33,10 @@ public class ChatListener implements Listener {
 		}
 
 		ChatChannel<GenericChatMessage> chatChannel = chatPlayer.getFocused();
-		GenericChatMessage chatMessage = new GenericChatMessage(player.getName(), chatChannel.getName(), payload);
+		
+		String senderPrefix = ChatPlugin.getVaultChat().getPlayerPrefix(player);
+		
+		GenericChatMessage chatMessage = new GenericChatMessage(senderPrefix, player.getName(), chatChannel.getName(), payload);
 
 		chatChannel.dispatch(chatPlugin.getMessageManager().getDispatcher(), player, chatMessage);
 	}

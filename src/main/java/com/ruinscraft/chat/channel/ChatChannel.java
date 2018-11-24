@@ -58,17 +58,15 @@ public interface ChatChannel<T extends ChatMessage> {
 				return;
 			}
 		}
-		
+
 		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
 			// if no permission defined or they have it
 			if (getPermission() == null || onlinePlayer.hasPermission(getPermission())) {
 				String format = getFormat(onlinePlayer.getName(), chatMessage);
-
-				String prefix = ChatPlugin.getVaultChat().getPlayerPrefix(onlinePlayer);
 				
 				format = format
+						.replace("%prefix%", chatMessage.getSenderPrefix())
 						.replace("%sender%", chatMessage.getSender())
-						.replace("%prefix%", prefix)
 						.replace("%message%", message);
 				
 				onlinePlayer.sendMessage(format);
