@@ -1,59 +1,43 @@
 package com.ruinscraft.chat.channel;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.bukkit.configuration.ConfigurationSection;
 
 import com.ruinscraft.chat.channel.types.DefaultLocalChatChannel;
 import com.ruinscraft.chat.channel.types.GlobalChatChannel;
 import com.ruinscraft.chat.channel.types.pm.PrivateMessageChatChannel;
-import com.ruinscraft.chat.message.GenericChatMessage;
-import com.ruinscraft.chat.message.PrivateChatMessage;
+import com.ruinscraft.chat.message.ChatMessage;
 
 public class ChatChannelManager {
 
-	private ChatChannel<GenericChatMessage> globalChannel;
-	private ChatChannel<GenericChatMessage> localChannel;
-	private ChatChannel<PrivateChatMessage> privateMessageChannel;
-
+	private Set<ChatChannel<?>> channels;
+	
 	public ChatChannelManager(ConfigurationSection channelSection) {
-		this.globalChannel = new GlobalChatChannel();
+		channels = new HashSet<>();
+		
+		channels.add(new GlobalChatChannel());
 
 		switch (channelSection.getString("local.type")) {
 		case "default":
-			localChannel = new DefaultLocalChatChannel();
+			channels.add(new DefaultLocalChatChannel());
 			break;
 		}
 		
-		this.privateMessageChannel = new PrivateMessageChatChannel(channelSection.getConfigurationSection("private-message"));
-		privateMessageChannel.registerCommands();
+		channels.add(new PrivateMessageChatChannel(channelSection.getConfigurationSection("private-message")));
+
+		channels.forEach(c -> c.registerCommands());
 	}
 
-	public ChatChannel<GenericChatMessage> getGlobalChannel() {
-		return globalChannel;
-	}
-
-	public ChatChannel<GenericChatMessage> getLocalChannel() {
-		return localChannel;
-	}
-	
-	public ChatChannel<PrivateChatMessage> getPrivateMessageChannel() {
-		return privateMessageChannel;
-	}
-
-	// TODO: make this better
-	public ChatChannel<?> getByName(String name) {
-		if (name.equalsIgnoreCase("global")) {
-			return globalChannel;
-		}
-
-		else if (name.equalsIgnoreCase("local")) {
-			return localChannel;
+	public <T extends ChatMessage> ChatChannel<T> getByName(String name) {
+		for (ChatChannel<?> chatChannel : channels) {
+			if (chatChannel.getName().equalsIgnoreCase(name)) {
+				return (ChatChannel<T>) chatChannel;
+			}
 		}
 		
-		else if (name.equalsIgnoreCase("pm")) {
-			return privateMessageChannel;
-		}
-
-		return globalChannel;
+		return (ChatChannel<T>) new GlobalChatChannel();
 	}
 
 }

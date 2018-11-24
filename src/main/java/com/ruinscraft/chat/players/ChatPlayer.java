@@ -39,10 +39,7 @@ public class ChatPlayer {
 	}
 	
 	public ChatChannel<GenericChatMessage> getFocused() {
-		if (focused == null) {
-			focused = ChatPlugin.getInstance().getChatChannelManager().getGlobalChannel();
-		}
-		return focused;
+		return focused == null ? focused = ChatPlugin.getInstance().getChatChannelManager().getByName("global") : focused;
 	}
 
 }

@@ -23,6 +23,7 @@ public interface MessageConsumer {
 
 		if (payload instanceof ChatMessage) {
 			ChatMessage chatMessage = (ChatMessage) payload;
+			
 			ChatChannel<? extends ChatMessage> intendedChannel = ChatPlugin.getInstance().getChatChannelManager().getByName(chatMessage.getIntendedChannelName());
 
 			intendedChannel.sendToChat(chatMessage);
