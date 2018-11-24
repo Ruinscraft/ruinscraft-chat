@@ -14,6 +14,11 @@ player-storage:
   sqlite:
     use: false
     file: chatplayers.db
+
+pm-replies-cache:
+  redis:
+    use: true
+    address: localhost
     
 channels:
   local-type: default

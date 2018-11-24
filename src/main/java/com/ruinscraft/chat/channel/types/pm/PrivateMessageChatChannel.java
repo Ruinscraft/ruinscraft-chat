@@ -1,9 +1,10 @@
-package com.ruinscraft.chat.channel.types;
+package com.ruinscraft.chat.channel.types.pm;
 
 import java.util.concurrent.Callable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import com.ruinscraft.chat.ChatPlugin;
@@ -13,6 +14,18 @@ import com.ruinscraft.playerstatus.PlayerStatus;
 import com.ruinscraft.playerstatus.PlayerStatusPlugin;
 
 public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage> {
+
+	private ReplyCache replyCache;
+
+	public PrivateMessageChatChannel(ConfigurationSection pmCacheSection) {
+		if (pmCacheSection.getBoolean("redis.use")) {
+			replyCache = new RedisReplyCache(pmCacheSection.getConfigurationSection("redis"));
+		}
+	}
+
+	public ReplyCache getReplyCache() {
+		return replyCache;
+	}
 
 	@Override
 	public String getName() {
@@ -54,11 +67,11 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
 			try {
 				PlayerStatus playerStatus = callable.call();
-				
+
 				if (sender == null || !sender.isOnline()) {
 					return;
 				}
-				
+
 				if (!playerStatus.isOnline()) {
 					sender.sendMessage(ChatColor.RED + chatMessage.getRecipient() + " is not online.");
 				}
