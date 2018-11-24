@@ -23,7 +23,7 @@ public interface ChatChannel<T extends ChatMessage> {
 
 	String getName();
 
-	String getFormat(T context);
+	String getFormat(String viewer, T context);
 
 	ChatColor getMessageColor();
 

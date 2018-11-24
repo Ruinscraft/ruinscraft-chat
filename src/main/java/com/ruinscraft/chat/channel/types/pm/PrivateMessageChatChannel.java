@@ -41,8 +41,26 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 	}
 
 	@Override
-	public String getFormat(PrivateChatMessage context) {
-		return null;
+	public String getFormat(String viewer, PrivateChatMessage context) {
+		/* sent to themself */
+		if (context.getSender().equals(context.getRecipient())) {
+			return "(you say to yourself) '%message%'";
+		}
+		
+		/* viewer is the sender */
+		if (viewer.equals(context.getSender())) {
+			return "[to %recipient%] %message%";
+		}
+		
+		/* viewer is the recipient */
+		else if (viewer.equals(context.getRecipient())) {
+			return "[from %sender%] %message%";
+		}
+		
+		/* some default format */
+		else {
+			return "[%sender% -> %recipient%] %message%";
+		}
 	}
 
 	@Override
@@ -99,7 +117,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 					}
 
 					recipient = args[0];
-					message = args[1]; // TODO: fix this
+					message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 				}
 
 				replyStorage.setReply(sender.getName(), recipient);
@@ -172,15 +190,46 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 
 	@Override
 	public void sendToChat(ChatChannelManager chatChannelManager, PrivateChatMessage chatMessage) {
+		Player sender = Bukkit.getPlayerExact(chatMessage.getSender());
 		Player recipient = Bukkit.getPlayerExact(chatMessage.getRecipient());
+		boolean log = false;
 		
-		if (recipient == null || !recipient.isOnline()) {
-			return;
+		if (sender != null) {
+			if (sender == recipient) {
+				// sending to themself
+				String format = getFormat(chatMessage.getRecipient(), chatMessage);
+				recipient.sendMessage(format(format, chatMessage.getSender(), chatMessage.getRecipient(), chatMessage.getPayload()));
+				log = true;
+				return;
+			}
+			
+			if (sender.isOnline()) {
+				// viewer is the sender
+				String format = getFormat(chatMessage.getSender(), chatMessage);
+				sender.sendMessage(format(format, chatMessage.getSender(), chatMessage.getRecipient(), chatMessage.getPayload()));
+				log = true;
+			}
+		}
+
+		if (recipient != null) {
+			if (recipient.isOnline()) {
+				// viewer is the recipient
+				String format = getFormat(chatMessage.getRecipient(), chatMessage);
+				recipient.sendMessage(format(format, chatMessage.getSender(), chatMessage.getRecipient(), chatMessage.getPayload()));
+				log = true;
+			}
 		}
 		
-		recipient.sendMessage(chatMessage.getSender() + " whispers " + chatMessage.getPayload());
-		
-		log(chatChannelManager, chatMessage);
+		if (log) {
+			log(chatChannelManager, chatMessage);
+		}
+	}
+	
+	private static String format(String format, String sender, String recipient, String message) {
+		return format
+				.replace("%sender%", sender)
+				.replace("%recipient%", recipient)
+				.replace("%message%", message);
 	}
 
 }

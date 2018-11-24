@@ -14,7 +14,7 @@ public class GlobalChatChannel implements ChatChannel<GenericChatMessage> {
 	}
 
 	@Override
-	public String getFormat(GenericChatMessage context) {
+	public String getFormat(String viewer, GenericChatMessage context) {
 		return "[G] [%prefix%] %player% > " + getMessageColor() + " %message%";
 	}
 
