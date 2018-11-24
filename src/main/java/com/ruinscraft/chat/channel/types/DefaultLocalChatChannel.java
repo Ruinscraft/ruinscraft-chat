@@ -15,7 +15,7 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 	
 	@Override
 	public String getFormat(String viewer, GenericChatMessage chatMessage) {
-		return "[L] [%prefix%] %player% > " + getMessageColor() + " %message%";
+		return "[L] [%prefix%] %sender% > " + getMessageColor() + " %message%";
 	}
 
 	@Override

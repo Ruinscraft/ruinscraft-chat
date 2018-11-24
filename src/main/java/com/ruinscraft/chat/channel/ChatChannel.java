@@ -59,12 +59,19 @@ public interface ChatChannel<T extends ChatMessage> {
 			}
 		}
 		
-		Bukkit.getOnlinePlayers().forEach(p -> {
-			if (getPermission() == null || p.hasPermission(getPermission())) {
-				p.sendMessage(chatMessage.getSender() + " > " + chatMessage.getPayload());
-			}
-		});
+		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+			// if no permission defined or they have it
+			if (getPermission() == null || onlinePlayer.hasPermission(getPermission())) {
+				String format = getFormat(onlinePlayer.getName(), chatMessage);
 
+				format = format
+						.replace("%sender%", chatMessage.getSender())
+						.replace("%message%", message);
+				
+				onlinePlayer.sendMessage(format);
+			}
+		}
+		
 		log(chatChannelManager, chatMessage);
 	}
 
