@@ -15,7 +15,7 @@ public class GlobalChatChannel implements ChatChannel<GenericChatMessage> {
 
 	@Override
 	public String getFormat(String viewer, GenericChatMessage context) {
-		return "[G] [%prefix%] %sender% > " + getMessageColor() + " %message%";
+		return "[G] [%prefix%] %sender% >" + getMessageColor() + " %message%";
 	}
 
 	@Override
@@ -30,7 +30,6 @@ public class GlobalChatChannel implements ChatChannel<GenericChatMessage> {
 
 	@Override
 	public Command getCommand() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

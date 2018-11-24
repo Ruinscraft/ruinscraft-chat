@@ -3,6 +3,7 @@ package com.ruinscraft.chat;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
@@ -16,11 +17,14 @@ import com.ruinscraft.chat.messenger.MessageManager;
 import com.ruinscraft.chat.messenger.redis.RedisMessageManager;
 import com.ruinscraft.chat.players.ChatPlayerManager;
 
+import net.milkbowl.vault.chat.Chat;
+
 public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 
 	public static final String RUINSCRAFT_CHAT = "ruinscraft-chat";
 
 	private static ChatPlugin instance;
+	private static Chat vaultChat;
 
 	public static ChatPlugin getInstance() {
 		return instance;
@@ -32,6 +36,14 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 
 	public static void warning(String message) {
 		instance.getLogger().warning(message);
+	}
+	
+	public static Chat getVaultChat() {
+		if (vaultChat == null) {
+	        RegisteredServiceProvider<Chat> rsp = instance.getServer().getServicesManager().getRegistration(Chat.class);
+	        vaultChat = rsp.getProvider();
+		}
+		return vaultChat;
 	}
 
 	/*
@@ -45,7 +57,7 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 	private MessageManager messageManager;
 	private ChatPlayerManager chatPlayerManager;
 	private ChatChannelManager chatChannelManager;
-
+	
 	@Override
 	public void onEnable() {
 		instance = this;
@@ -54,6 +66,13 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 
 		saveDefaultConfig();
 
+		/* Check for Vault */
+		if (pm.getPlugin("Vault") == null) {
+			warning("Vault required");
+			pm.disablePlugin(this);
+			return;
+		}
+		
 		/* Check for ruinscraft-player-status */
 		if (pm.getPlugin("ruinscraft-player-status") == null) {
 			warning("ruinscraft-player-status required");

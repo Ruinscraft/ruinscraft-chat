@@ -44,17 +44,17 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 	public String getFormat(String viewer, PrivateChatMessage context) {
 		/* sent to themself */
 		if (context.getSender().equals(context.getRecipient())) {
-			return "(you say to yourself) '%message%'";
+			return ChatColor.DARK_AQUA + "(you say to yourself)" + getMessageColor() + " '%message%'";
 		}
 		
 		/* viewer is the sender */
 		if (viewer.equals(context.getSender())) {
-			return "[to %recipient%] %message%";
+			return ChatColor.DARK_AQUA + "[to: %recipient%]" + getMessageColor() + " %message%";
 		}
 		
 		/* viewer is the recipient */
 		else if (viewer.equals(context.getRecipient())) {
-			return "[from %sender%] %message%";
+			return ChatColor.DARK_AQUA + "[from: %sender%]" + getMessageColor() + " %message%";
 		}
 		
 		/* some default format */
