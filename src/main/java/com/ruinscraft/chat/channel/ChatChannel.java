@@ -14,6 +14,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.filters.ChatFilter;
+import com.ruinscraft.chat.filters.NotSendableException;
 import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.messenger.Message;
 import com.ruinscraft.chat.messenger.MessageDispatcher;
@@ -41,6 +43,22 @@ public interface ChatChannel<T extends ChatMessage> {
 	}
 
 	default void sendToChat(ChatChannelManager chatChannelManager, T chatMessage) {
+		String message = chatMessage.getPayload();
+		
+		for (ChatFilter filter : chatChannelManager.getChatFilters()) {
+			try {
+				message = filter.filter(message);
+			} catch (NotSendableException e) {
+				Player sender = Bukkit.getPlayerExact(chatMessage.getSender());
+				
+				if (sender != null && sender.isOnline()) {
+					sender.sendMessage(e.getMessage());
+				}
+				
+				return;
+			}
+		}
+		
 		Bukkit.getOnlinePlayers().forEach(p -> {
 			if (getPermission() == null || p.hasPermission(getPermission())) {
 				p.sendMessage(chatMessage.getSender() + " > " + chatMessage.getPayload());
