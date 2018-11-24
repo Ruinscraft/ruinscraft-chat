@@ -36,7 +36,9 @@ public class ChatListener implements Listener {
 		
 		String senderPrefix = ChatPlugin.getVaultChat().getPlayerPrefix(player);
 		
-		GenericChatMessage chatMessage = new GenericChatMessage(senderPrefix, player.getName(), chatChannel.getName(), payload);
+		boolean allowColor = player.hasPermission(ChatPlugin.PERMISSION_COLORIZE_MESSAGES);
+		
+		GenericChatMessage chatMessage = new GenericChatMessage(senderPrefix, player.getName(), chatChannel.getName(), allowColor, payload);
 
 		chatChannel.dispatch(chatPlugin.getMessageManager().getDispatcher(), player, chatMessage);
 	}

@@ -66,8 +66,13 @@ public interface ChatChannel<T extends ChatMessage> {
 				
 				format = format
 						.replace("%prefix%", chatMessage.getSenderPrefix())
-						.replace("%sender%", chatMessage.getSender())
-						.replace("%message%", message);
+						.replace("%sender%", chatMessage.getSender());
+				
+				if (chatMessage.colorizePayload()) {
+					format = format.replace("%message%", ChatColor.translateAlternateColorCodes('&', message));
+				} else {
+					format = format.replace("%message%", message);
+				}
 				
 				onlinePlayer.sendMessage(format);
 			}

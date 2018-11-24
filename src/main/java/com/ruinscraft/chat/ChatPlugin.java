@@ -22,6 +22,8 @@ import net.milkbowl.vault.chat.Chat;
 public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 
 	public static final String RUINSCRAFT_CHAT = "ruinscraft-chat";
+	
+	public static final String PERMISSION_COLORIZE_MESSAGES = "ruinscraft.chat.colorize";
 
 	private static ChatPlugin instance;
 	private static Chat vaultChat;

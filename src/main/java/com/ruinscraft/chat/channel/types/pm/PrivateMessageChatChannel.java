@@ -129,7 +129,9 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 					senderPrefix = ChatPlugin.getVaultChat().getPlayerPrefix(senderPlayer);
 				}
 				
-				PrivateChatMessage pm = new PrivateChatMessage(senderPrefix, sender.getName(), recipient, getName(), message);
+				boolean colorizeMessages = sender.hasPermission(ChatPlugin.PERMISSION_COLORIZE_MESSAGES);
+				
+				PrivateChatMessage pm = new PrivateChatMessage(senderPrefix, sender.getName(), recipient, getName(), colorizeMessages, message);
 
 				dispatch(ChatPlugin.getInstance().getMessageManager().getDispatcher(), sender, pm);
 
