@@ -24,6 +24,7 @@ public class ChatChannelManager {
 		}
 		
 		this.privateMessageChannel = new PrivateMessageChatChannel(channelSection.getConfigurationSection("private-message"));
+		privateMessageChannel.registerCommands();
 	}
 
 	public ChatChannel<GenericChatMessage> getGlobalChannel() {

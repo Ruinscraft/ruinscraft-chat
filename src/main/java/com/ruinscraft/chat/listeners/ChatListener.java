@@ -33,7 +33,7 @@ public class ChatListener implements Listener {
 
 		GenericChatMessage chatMessage = new GenericChatMessage(System.currentTimeMillis(), player.getName(), payload);
 
-		chatPlayer.getFocused().send(chatMessage);
+		chatPlayer.getFocused().send(player, chatMessage);
 	}
 
 }

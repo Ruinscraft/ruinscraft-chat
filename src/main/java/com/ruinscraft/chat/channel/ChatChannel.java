@@ -1,6 +1,6 @@
 package com.ruinscraft.chat.channel;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandMap;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -30,7 +32,7 @@ public interface ChatChannel<T extends ChatMessage> {
 
 	boolean isLogged();
 
-	default void send(T chatMessage) {
+	default void send(CommandSender caller, T chatMessage) {
 		MessageManager mm = ChatPlugin.getInstance().getMessageManager();
 		Message message = new Message(chatMessage);
 
@@ -43,15 +45,17 @@ public interface ChatChannel<T extends ChatMessage> {
 
 	default void registerCommands() {
 		Command command = getCommand();
-		
 		Plugin plugin = ChatPlugin.getInstance();
 
 		try {
-			Method getCommandMap = plugin.getServer().getClass().getMethod("getCommandMap");
-			getCommandMap.setAccessible(true);
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
+			Field bukkitCommandMap = plugin.getServer().getClass().getDeclaredField("commandMap");
+
+			bukkitCommandMap.setAccessible(true);
+			
+			CommandMap commandMap = (CommandMap) bukkitCommandMap.get(plugin.getServer());
+
+			commandMap.register(ChatPlugin.RUINSCRAFT_CHAT, command);
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
 	}

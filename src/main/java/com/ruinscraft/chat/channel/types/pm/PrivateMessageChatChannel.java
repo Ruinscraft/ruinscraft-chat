@@ -89,20 +89,21 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 					}
 					
 					message = String.join(" ", args);
+				} else {
+					if (args.length < 2) {
+						sender.sendMessage(getUsage());
+						return true;
+					}
+					
+					recipient = args[0];
+					message = args[1]; // TODO: fix this
 				}
-
-				if (args.length < 2) {
-					sender.sendMessage(getUsage());
-					return true;
-				}
-				
-				recipient = args[0];
 				
 				replyStorage.setReply(sender.getName(), recipient);
-
+				
 				PrivateChatMessage pm = new PrivateChatMessage(System.currentTimeMillis(), sender.getName(), recipient, message);
 				
-				send(pm);
+				send(sender, pm);
 				
 				return true;
 			}
@@ -121,6 +122,8 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 				"r"
 				));
 
+		command.setLabel(getName());
+		
 		// TODO: fix this for replies
 		command.setUsage(command.getLabel() + " message");
 		
@@ -135,21 +138,23 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 	}
 
 	@Override
-	public void send(PrivateChatMessage chatMessage) {
-		Player sender = Bukkit.getPlayer(chatMessage.getSender());
-
+	public void send(CommandSender caller, PrivateChatMessage chatMessage) {
 		Callable<PlayerStatus> callable = PlayerStatusPlugin.getAPI().getPlayerStatus(chatMessage.getRecipient());
 
 		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
 			try {
-				PlayerStatus playerStatus = callable.call();
+				PlayerStatus recipientStatus = callable.call();
 
-				if (sender == null || !sender.isOnline()) {
-					return;
+				if (caller instanceof Player) {
+					Player callerPlayer = (Player) caller;
+					
+					if (!callerPlayer.isOnline()) {
+						return;
+					}
 				}
 
-				if (!playerStatus.isOnline()) {
-					sender.sendMessage(ChatColor.RED + chatMessage.getRecipient() + " is not online.");
+				if (!recipientStatus.isOnline()) {
+					caller.sendMessage(ChatColor.RED + chatMessage.getRecipient() + " is not online.");
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

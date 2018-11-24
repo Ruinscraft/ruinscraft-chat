@@ -19,6 +19,8 @@ import com.ruinscraft.chat.players.ChatPlayerManager;
 
 public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 
+	public static final String RUINSCRAFT_CHAT = "ruinscraft-chat";
+	
 	private static ChatPlugin instance;
 
 	public static ChatPlugin getInstance() {
