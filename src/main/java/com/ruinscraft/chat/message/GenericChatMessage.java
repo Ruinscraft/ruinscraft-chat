@@ -4,13 +4,15 @@ public class GenericChatMessage implements ChatMessage {
 
 	private final String senderPrefix;
 	private final String sender;
+	private final String serverSentFrom;
 	private final String intendedChannelName;
 	private final boolean colorizePayload;
 	private final String payload;
 	
-	public GenericChatMessage(String senderPrefix, String sender, String intendedChannelName, boolean colorizePayload, String payload) {
+	public GenericChatMessage(String senderPrefix, String sender, String serverSentFrom, String intendedChannelName, boolean colorizePayload, String payload) {
 		this.senderPrefix = senderPrefix;
 		this.sender = sender;
+		this.serverSentFrom = serverSentFrom;
 		this.intendedChannelName = intendedChannelName;
 		this.colorizePayload = colorizePayload;
 		this.payload = payload;
@@ -26,6 +28,11 @@ public class GenericChatMessage implements ChatMessage {
 		return sender;
 	}
 
+	@Override
+	public String getServerSentFrom() {
+		return serverSentFrom;
+	}
+	
 	@Override
 	public boolean colorizePayload() {
 		return colorizePayload;

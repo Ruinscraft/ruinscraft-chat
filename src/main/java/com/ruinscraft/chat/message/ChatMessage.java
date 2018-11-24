@@ -6,10 +6,12 @@ public interface ChatMessage {
 	
 	String getSender();
 	
+	String getServerSentFrom();
+	
+	String getIntendedChannelName();
+	
 	boolean colorizePayload();
 	
 	String getPayload();
-	
-	String getIntendedChannelName();
 	
 }
