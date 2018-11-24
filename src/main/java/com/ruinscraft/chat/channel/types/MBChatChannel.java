@@ -1,6 +1,7 @@
 package com.ruinscraft.chat.channel.types;
 
 import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
 
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.GenericChatMessage;
@@ -28,13 +29,14 @@ public class MBChatChannel implements ChatChannel<GenericChatMessage> {
 	}
 
 	@Override
-	public String[] getCommands() {
-		return new String[] {"mb"};
+	public Command getCommand() {
+		// TODO Auto-generated method stub
+		return null;
 	}
-
+	
 	@Override
 	public boolean isLogged() {
 		return false;
 	}
-	
+
 }
