@@ -16,6 +16,7 @@ import org.bukkit.plugin.Plugin;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.messenger.Message;
+import com.ruinscraft.chat.messenger.MessageDispatcher;
 import com.ruinscraft.chat.messenger.MessageManager;
 
 public interface ChatChannel<T extends ChatMessage> {
@@ -32,11 +33,19 @@ public interface ChatChannel<T extends ChatMessage> {
 
 	boolean isLogged();
 
-	default void send(CommandSender caller, T chatMessage) {
+	default void dispatch(MessageDispatcher dispatcher, CommandSender caller, T chatMessage) {
 		MessageManager mm = ChatPlugin.getInstance().getMessageManager();
 		Message message = new Message(chatMessage);
 
 		mm.getDispatcher().dispatch(message);
+	}
+	
+	default void sendToChat(ChatMessage chatMessage) {
+		Bukkit.getOnlinePlayers().forEach(p -> {
+			if (getPermission() == null || p.hasPermission(getPermission())) {
+				p.sendMessage(chatMessage.getSender() + " > " + chatMessage.getPayload());
+			}
+		});
 	}
 
 	default Set<UUID> getRecipients(UUID sender) {

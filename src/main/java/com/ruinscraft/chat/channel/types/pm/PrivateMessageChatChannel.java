@@ -3,7 +3,6 @@ package com.ruinscraft.chat.channel.types.pm;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -13,6 +12,8 @@ import org.bukkit.entity.Player;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.PrivateChatMessage;
+import com.ruinscraft.chat.messenger.Message;
+import com.ruinscraft.chat.messenger.MessageDispatcher;
 import com.ruinscraft.playerstatus.PlayerStatus;
 import com.ruinscraft.playerstatus.PlayerStatusPlugin;
 
@@ -101,9 +102,9 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 				
 				replyStorage.setReply(sender.getName(), recipient);
 				
-				PrivateChatMessage pm = new PrivateChatMessage(System.currentTimeMillis(), sender.getName(), recipient, message);
+				PrivateChatMessage pm = new PrivateChatMessage(sender.getName(), getName(), recipient, message);
 				
-				send(sender, pm);
+				dispatch(ChatPlugin.getInstance().getMessageManager().getDispatcher(), sender, pm);
 				
 				return true;
 			}
@@ -138,7 +139,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 	}
 
 	@Override
-	public void send(CommandSender caller, PrivateChatMessage chatMessage) {
+	public void dispatch(MessageDispatcher dispatcher, CommandSender caller, PrivateChatMessage chatMessage) {
 		Callable<PlayerStatus> callable = PlayerStatusPlugin.getAPI().getPlayerStatus(chatMessage.getRecipient());
 
 		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
@@ -155,7 +156,12 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 
 				if (!recipientStatus.isOnline()) {
 					caller.sendMessage(ChatColor.RED + chatMessage.getRecipient() + " is not online.");
+					return;
 				}
+				
+				Message dispatchable = new Message(chatMessage);
+				
+				dispatcher.dispatch(dispatchable);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

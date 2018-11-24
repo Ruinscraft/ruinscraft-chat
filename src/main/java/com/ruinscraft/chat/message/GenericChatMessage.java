@@ -2,21 +2,16 @@ package com.ruinscraft.chat.message;
 
 public class GenericChatMessage implements ChatMessage {
 
-	private long time;
 	private String sender;
+	private String intendedChannelName;
 	private String payload;
 	
-	public GenericChatMessage(long time, String sender, String payload) {
-		this.time = time;
+	public GenericChatMessage(String sender, String intendedChannelName, String payload) {
 		this.sender = sender;
+		this.intendedChannelName = intendedChannelName;
 		this.payload = payload;
 	}
 	
-	@Override
-	public long getTimeSent() {
-		return time;
-	}
-
 	@Override
 	public String getSender() {
 		return sender;
@@ -26,5 +21,10 @@ public class GenericChatMessage implements ChatMessage {
 	public String getPayload() {
 		return payload;
 	}
-	
+
+	@Override
+	public String getIntendedChannelName() {
+		return intendedChannelName;
+	}
+
 }

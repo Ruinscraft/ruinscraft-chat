@@ -48,6 +48,10 @@ public class ChatChannelManager {
 		else if (name.equalsIgnoreCase("local")) {
 			return localChannel;
 		}
+		
+		else if (name.equalsIgnoreCase("pm")) {
+			return privateMessageChannel;
+		}
 
 		return globalChannel;
 	}

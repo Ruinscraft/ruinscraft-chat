@@ -10,6 +10,7 @@ public class Message {
 	
 	private UUID messageId;
 	private long inceptionTime;
+	private String payloadClass;
 	private String payload;
 	
 	public Message() {
@@ -19,6 +20,7 @@ public class Message {
 	
 	public Message(Object payload) {
 		this();
+		this.payloadClass = payload.getClass().getName();
 		this.payload = GSON.toJson(payload);
 	}
 	
@@ -36,6 +38,10 @@ public class Message {
 		return inceptionTime;
 	}
 	
+	public String getPayloadClass() {
+		return payloadClass;
+	}
+	
 	public String getPayload() {
 		return payload;
 	}
@@ -44,9 +50,4 @@ public class Message {
 		return GSON.toJson(this);
 	}
 
-	@Override
-	public String toString() {
-		return "Message [messageId=" + messageId + ", inceptionTime=" + inceptionTime + ", payload=" + payload + "]";
-	}
-	
 }

@@ -6,6 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.GenericChatMessage;
 import com.ruinscraft.chat.players.ChatPlayer;
 
@@ -31,9 +32,10 @@ public class ChatListener implements Listener {
 			return;
 		}
 
-		GenericChatMessage chatMessage = new GenericChatMessage(System.currentTimeMillis(), player.getName(), payload);
+		ChatChannel<GenericChatMessage> chatChannel = chatPlayer.getFocused();
+		GenericChatMessage chatMessage = new GenericChatMessage(player.getName(), chatChannel.getName(), payload);
 
-		chatPlayer.getFocused().send(player, chatMessage);
+		chatChannel.dispatch(chatPlugin.getMessageManager().getDispatcher(), player, chatMessage);
 	}
 
 }
