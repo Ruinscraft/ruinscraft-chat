@@ -1,7 +1,9 @@
 package com.ruinscraft.chat.logging;
 
-public interface ChatLogger extends AutoCloseable {
+import com.ruinscraft.chat.message.ChatMessage;
 
-	
+public interface ChatLogger {
+
+	void log(ChatMessage message);
 	
 }

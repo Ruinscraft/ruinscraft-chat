@@ -8,13 +8,17 @@ import org.bukkit.configuration.ConfigurationSection;
 import com.ruinscraft.chat.channel.types.DefaultLocalChatChannel;
 import com.ruinscraft.chat.channel.types.GlobalChatChannel;
 import com.ruinscraft.chat.channel.types.pm.PrivateMessageChatChannel;
+import com.ruinscraft.chat.logging.ChatLogger;
+import com.ruinscraft.chat.logging.ConsoleChatLogger;
 import com.ruinscraft.chat.message.ChatMessage;
 
 public class ChatChannelManager {
 
 	private Set<ChatChannel<?>> channels;
+	private Set<ChatLogger> loggers;
 	
 	public ChatChannelManager(ConfigurationSection channelSection) {
+		/* Setup channels */
 		channels = new HashSet<>();
 		
 		channels.add(new GlobalChatChannel());
@@ -28,6 +32,11 @@ public class ChatChannelManager {
 		channels.add(new PrivateMessageChatChannel(channelSection.getConfigurationSection("private-message")));
 
 		channels.forEach(c -> c.registerCommands());
+		
+		/* Setup loggers */
+		loggers = new HashSet<>();
+		
+		loggers.add(new ConsoleChatLogger());
 	}
 
 	public <T extends ChatMessage> ChatChannel<T> getByName(String name) {
@@ -38,6 +47,10 @@ public class ChatChannelManager {
 		}
 		
 		return (ChatChannel<T>) new GlobalChatChannel();
+	}
+	
+	public Set<ChatLogger> getChatLoggers() {
+		return loggers;
 	}
 
 }

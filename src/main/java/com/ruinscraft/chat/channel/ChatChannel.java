@@ -40,12 +40,18 @@ public interface ChatChannel<T extends ChatMessage> {
 		mm.getDispatcher().dispatch(message);
 	}
 	
-	default void sendToChat(ChatMessage chatMessage) {
+	default void sendToChat(ChatChannelManager chatChannelManager, ChatMessage chatMessage) {
 		Bukkit.getOnlinePlayers().forEach(p -> {
 			if (getPermission() == null || p.hasPermission(getPermission())) {
 				p.sendMessage(chatMessage.getSender() + " > " + chatMessage.getPayload());
 			}
 		});
+		
+		log(chatChannelManager, chatMessage);
+	}
+	
+	default void log(ChatChannelManager chatChannelManager, ChatMessage chatMessage) {
+		chatChannelManager.getChatLoggers().forEach(l -> l.log(chatMessage));
 	}
 
 	default Set<UUID> getRecipients(UUID sender) {
@@ -54,6 +60,11 @@ public interface ChatChannel<T extends ChatMessage> {
 
 	default void registerCommands() {
 		Command command = getCommand();
+		
+		if (command == null) {
+			return;
+		}
+		
 		Plugin plugin = ChatPlugin.getInstance();
 
 		try {

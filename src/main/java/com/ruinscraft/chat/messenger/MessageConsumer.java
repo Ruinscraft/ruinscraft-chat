@@ -26,7 +26,7 @@ public interface MessageConsumer {
 			
 			ChatChannel<? extends ChatMessage> intendedChannel = ChatPlugin.getInstance().getChatChannelManager().getByName(chatMessage.getIntendedChannelName());
 
-			intendedChannel.sendToChat(chatMessage);
+			intendedChannel.sendToChat(ChatPlugin.getInstance().getChatChannelManager(), chatMessage);
 		}
 	}
 	
