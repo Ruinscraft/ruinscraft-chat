@@ -6,9 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.ruinscraft.chat.ChatPlugin;
-import com.ruinscraft.chat.channel.ChatChannel;
-import com.ruinscraft.chat.message.GenericChatMessage;
 import com.ruinscraft.chat.players.ChatPlayer;
 
 public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {

@@ -11,9 +11,6 @@ player-storage:
     database: minecraft
     username: root
     password: password
-  sqlite:
-    use: false
-    file: chatplayers.db
 
 reply-storage:
   redis:

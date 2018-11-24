@@ -13,7 +13,6 @@ import org.bukkit.entity.Player;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.channel.ChatChannelManager;
-import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.message.PrivateChatMessage;
 import com.ruinscraft.chat.messenger.Message;
 import com.ruinscraft.chat.messenger.MessageDispatcher;

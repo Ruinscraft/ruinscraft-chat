@@ -2,9 +2,9 @@ package com.ruinscraft.chat.message;
 
 public class GenericChatMessage implements ChatMessage {
 
-	private String sender;
-	private String intendedChannelName;
-	private String payload;
+	private final String sender;
+	private final String intendedChannelName;
+	private final String payload;
 	
 	public GenericChatMessage(String sender, String intendedChannelName, String payload) {
 		this.sender = sender;
