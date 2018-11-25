@@ -19,7 +19,14 @@ public class GlobalChatChannel implements ChatChannel<GenericChatMessage> {
 
 	@Override
 	public String getFormat(String viewer, GenericChatMessage context) {
-		String noColor = "&a[G] &7[%prefix%&7] %sender% &8&l>&r" + getMessageColor() + " %message%";
+		ChatColor globalColor = ChatColor.GRAY;
+		String currentServer = ChatPlugin.getInstance().getServerName();
+		
+		if (context.getServerSentFrom().equals(currentServer)) {
+			globalColor = ChatColor.GREEN;
+		}
+		
+		String noColor = globalColor + "[G] &7[%prefix%&7] %sender% &8&l>&r" + getMessageColor() + " %message%";
 		return ChatColor.translateAlternateColorCodes('&', noColor);
 	}
 
