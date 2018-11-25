@@ -7,6 +7,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
+import com.ruinscraft.chat.events.DummyAsyncPlayerChatEvent;
 import com.ruinscraft.chat.message.GenericChatMessage;
 import com.ruinscraft.chat.players.ChatPlayer;
 
@@ -16,6 +17,14 @@ public class ChatListener implements Listener {
 
 	@EventHandler
 	public void onAsyncChat(AsyncPlayerChatEvent event) {
+		if (event instanceof DummyAsyncPlayerChatEvent) {
+			return;
+		}
+		
+		if (event.isCancelled()) {
+			return;
+		}
+		
 		Player player = event.getPlayer();
 		String payload = event.getMessage();
 

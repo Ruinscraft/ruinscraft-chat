@@ -52,7 +52,7 @@ public interface ChatChannel<T extends ChatMessage> {
 		};
 	}
 
-	default void dispatch(MessageDispatcher dispatcher, CommandSender sender, boolean filter, T chatMessage) {
+	default void dispatch(MessageDispatcher dispatcher, Player sender, boolean filter, T chatMessage) {
 		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
 			if (filter) {
 				try {
