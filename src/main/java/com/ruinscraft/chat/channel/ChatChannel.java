@@ -57,7 +57,7 @@ public interface ChatChannel<T extends ChatMessage> {
 					filter(ChatPlugin.getInstance().getChatChannelManager(), ChatPlugin.getInstance().getChatFilterManager(), sender, chatMessage).call();
 				} catch (NotSendableException e) {
 					if (sender != null) {
-						sender.sendMessage(e.getMessage());
+						sender.sendMessage(ChatColor.RED + e.getMessage());
 						return;
 					}
 				} catch (Exception e) {
