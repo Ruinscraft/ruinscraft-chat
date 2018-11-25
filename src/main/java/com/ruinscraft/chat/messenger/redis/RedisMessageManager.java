@@ -21,6 +21,9 @@ public class RedisMessageManager implements MessageManager {
 	private RedisMessageDispatcher dispatcher;
 
 	public RedisMessageManager(ConfigurationSection redisConfig) {
+		consumer = new RedisMessageConsumer();
+		dispatcher = new RedisMessageDispatcher();
+		
 		String address = redisConfig.getString("address");
 		int port = redisConfig.getInt("port");
 		String password = redisConfig.getString("password");
@@ -31,13 +34,9 @@ public class RedisMessageManager implements MessageManager {
 				port == 0 ? Protocol.DEFAULT_PORT : port,
 						Protocol.DEFAULT_TIMEOUT,
 						password);
-
-		consumer = new RedisMessageConsumer();
-		dispatcher = new RedisMessageDispatcher();
 		
 		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
 			try (Jedis jedis = pool.getResource()) {
-				/* Blocking task */
 				jedis.subscribe(consumer, REDIS_CHAT_CHANNEL);
 			}
 		});
