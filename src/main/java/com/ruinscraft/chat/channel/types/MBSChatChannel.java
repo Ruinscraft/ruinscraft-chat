@@ -79,5 +79,10 @@ public class MBSChatChannel implements ChatChannel<GenericChatMessage> {
 	public boolean isLogged() {
 		return false;
 	}
+	
+	@Override
+	public boolean isLoggedGlobally() {
+		return false;
+	}
 
 }

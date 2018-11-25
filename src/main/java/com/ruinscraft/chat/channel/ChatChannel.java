@@ -36,6 +36,8 @@ public interface ChatChannel<T extends ChatMessage> {
 	Command getCommand();
 
 	boolean isLogged();
+	
+	boolean isLoggedGlobally();
 
 	default Callable<Void> filter(ChatChannelManager chatChannelManager, ChatFilterManager chatFilterManager, CommandSender sender, ChatMessage chatMessage) throws NotSendableException {
 		return new Callable<Void>() {

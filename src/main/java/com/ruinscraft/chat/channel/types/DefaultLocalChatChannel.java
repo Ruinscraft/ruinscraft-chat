@@ -73,6 +73,11 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 	public boolean isLogged() {
 		return true;
 	}
+	
+	@Override
+	public boolean isLoggedGlobally() {
+		return false;
+	}
 
 	@Override
 	public void sendToChat(GenericChatMessage chatMessage) {

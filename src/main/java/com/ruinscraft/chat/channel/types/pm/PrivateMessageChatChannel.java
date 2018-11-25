@@ -179,6 +179,11 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 	public boolean isLogged() {
 		return true;
 	}
+	
+	@Override
+	public boolean isLoggedGlobally() {
+		return true;
+	}
 
 	@Override
 	public void dispatch(MessageDispatcher dispatcher, CommandSender sender, boolean filter, PrivateChatMessage chatMessage) {

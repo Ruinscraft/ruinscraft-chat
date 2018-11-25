@@ -76,5 +76,10 @@ public class GlobalChatChannel implements ChatChannel<GenericChatMessage> {
 	public boolean isLogged() {
 		return true;
 	}
+	
+	@Override
+	public boolean isLoggedGlobally() {
+		return true;
+	}
 
 }
