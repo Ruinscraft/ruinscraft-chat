@@ -1,5 +1,6 @@
 package com.ruinscraft.chat.channel.types.pm;
 
+import java.io.IOException;
 import java.util.concurrent.Callable;
 
 import org.bukkit.configuration.ConfigurationSection;
@@ -9,6 +10,7 @@ import com.ruinscraft.chat.ChatPlugin;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Protocol;
 
 public class RedisReplyStorage implements ReplyStorage {
@@ -47,8 +49,13 @@ public class RedisReplyStorage implements ReplyStorage {
 	public void setReply(String username, String _username) {
 		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
 			try (Jedis jedis = pool.getResource()) {
-				jedis.setex(REPLY + "." + username, EXPIRE_AFTER_SEC, _username);
-				jedis.setex(REPLY + "." + _username, EXPIRE_AFTER_SEC, username);
+				try (Pipeline pipeline = jedis.pipelined()) {
+					pipeline.setex(REPLY + "." + username, EXPIRE_AFTER_SEC, _username);
+					pipeline.setex(REPLY + "." + _username, EXPIRE_AFTER_SEC, username);
+					pipeline.sync();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 	}
