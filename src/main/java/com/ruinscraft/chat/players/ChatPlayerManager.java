@@ -127,8 +127,11 @@ public class ChatPlayerManager implements AutoCloseable {
 		public ChatPlayer load(UUID uuid) throws Exception {
 			ChatPlayer chatPlayer = new ChatPlayer(uuid);
 
-			/* Blocking */
-			storage.loadChatPlayer(chatPlayer);
+			storage.loadChatPlayer(chatPlayer).call();
+			
+			if (chatPlayer.getChatPlayerId() == 0) {
+				storage.saveChatPlayer(chatPlayer).call();
+			}
 
 			return chatPlayer;
 		}
