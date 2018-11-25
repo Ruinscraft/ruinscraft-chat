@@ -1,6 +1,8 @@
 package com.ruinscraft.chat.channel.types.pm;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.bukkit.Bukkit;
@@ -76,6 +78,12 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 	@Override
 	public Command getCommand() {
 		Command command = new Command(getName()) {
+			
+			@Override
+			public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
+				return PlayerStatusPlugin.getAPI().getOnlyPlayers();
+			}
+			
 			@Override
 			public boolean execute(CommandSender sender, String commandLabel, String[] args) {
 				String message = null;
@@ -158,7 +166,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 		command.setUsage(command.getLabel() + " message");
 
 		command.setDescription("Message or reply to someone on the server");
-
+		
 		return command;
 	}
 
