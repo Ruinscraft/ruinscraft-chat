@@ -1,6 +1,5 @@
 package com.ruinscraft.chat.channel.types.pm;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
