@@ -17,12 +17,14 @@ import com.ruinscraft.chat.players.storage.MySQLChatPlayerStorage;
 public class ChatPlayerManager implements AutoCloseable {
 
 	private BlockingQueue<UUID> toLoad;
+	private BlockingQueue<UUID> toSave;
 	private LoadingCache<UUID, ChatPlayer> cache;
 	private ChatPlayerStorage storage;
 
 	public ChatPlayerManager(ConfigurationSection playerStorageSection) {
 		/* Setup cache*/
 		toLoad = new ArrayBlockingQueue<>(256);
+		toSave = new ArrayBlockingQueue<>(256);
 		cache = CacheBuilder.newBuilder()
 				.build(new ChatPlayerCacheLoader());
 
@@ -44,6 +46,20 @@ public class ChatPlayerManager implements AutoCloseable {
 			while (toLoad != null) {
 				try {
 					cache.get(toLoad.take());
+				} catch (ExecutionException e) {
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		
+		/* Setup saving task */
+		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
+			while (toSave != null) {
+				try {
+					ChatPlayer saving = cache.get(toSave.take());
+					storage.saveChatPlayer(saving);
 				} catch (ExecutionException e) {
 					e.printStackTrace();
 				} catch (InterruptedException e) {
@@ -84,14 +100,26 @@ public class ChatPlayerManager implements AutoCloseable {
 	public ChatPlayer getChatPlayer(UUID uuid) {
 		return cache.getIfPresent(uuid);
 	}
+	
+	public void save(ChatPlayer chatPlayer) {
+		try {
+			toSave.put(chatPlayer.getMojangUUID());
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 
 	@Override
 	public void close() throws Exception {
 		cache.invalidateAll();
 		storage.close();
+		toLoad.clear();
+		toSave.clear();
 		
 		cache = null;
 		storage = null;
+		toLoad = null;
+		toSave = null;
 	}
 
 	private final class ChatPlayerCacheLoader extends CacheLoader<UUID, ChatPlayer> {
