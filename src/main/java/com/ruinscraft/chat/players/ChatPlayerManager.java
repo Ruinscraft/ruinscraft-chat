@@ -133,6 +133,11 @@ public class ChatPlayerManager implements AutoCloseable {
 
 			storage.loadChatPlayer(chatPlayer).call();
 			
+			/* New player */
+			if (chatPlayer.getChatPlayerId() == 0) {
+				storage.saveChatPlayer(chatPlayer).call();
+			}
+			
 			return chatPlayer;
 		}
 	}
