@@ -13,8 +13,9 @@ import com.ruinscraft.chat.message.GenericChatMessage;
  */
 public class ChatPlayer {
 
-	private int chatPlayerId;
 	private final UUID mojangUUID;
+	
+	private int chatPlayerId;
 	private ChatChannel<GenericChatMessage> focused;
 	private String nickname;
 
@@ -22,6 +23,10 @@ public class ChatPlayer {
 		this.mojangUUID = mojangUUID;
 	}
 
+	public UUID getMojangUUID() {
+		return mojangUUID;
+	}
+	
 	public void setChatPlayerId(int chatPlayerId) {
 		this.chatPlayerId = chatPlayerId;
 		save();
@@ -29,10 +34,6 @@ public class ChatPlayer {
 	
 	public int getChatPlayerId() {
 		return chatPlayerId;
-	}
-	
-	public UUID getMojangUUID() {
-		return mojangUUID;
 	}
 	
 	public void setFocused(ChatChannel<GenericChatMessage> chatChannel) {

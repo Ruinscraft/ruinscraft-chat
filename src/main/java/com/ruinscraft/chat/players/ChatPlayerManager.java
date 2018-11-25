@@ -58,11 +58,15 @@ public class ChatPlayerManager implements AutoCloseable {
 		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
 			while (toSave != null) {
 				try {
-					ChatPlayer saving = cache.get(toSave.take());
-					storage.saveChatPlayer(saving);
-				} catch (ExecutionException e) {
-					e.printStackTrace();
+					ChatPlayer saving = cache.getIfPresent(toSave.take());
+					
+					if (saving != null) {
+						storage.saveChatPlayer(saving).call();
+					}
 				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -129,10 +133,6 @@ public class ChatPlayerManager implements AutoCloseable {
 
 			storage.loadChatPlayer(chatPlayer).call();
 			
-			if (chatPlayer.getChatPlayerId() == 0) {
-				storage.saveChatPlayer(chatPlayer).call();
-			}
-
 			return chatPlayer;
 		}
 	}
