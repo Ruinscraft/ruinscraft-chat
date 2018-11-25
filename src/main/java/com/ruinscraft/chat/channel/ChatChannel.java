@@ -16,6 +16,7 @@ import org.bukkit.plugin.Plugin;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.filters.ChatFilter;
+import com.ruinscraft.chat.filters.ChatFilterManager;
 import com.ruinscraft.chat.filters.NotSendableException;
 import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.messenger.Message;
@@ -36,11 +37,11 @@ public interface ChatChannel<T extends ChatMessage> {
 
 	boolean isLogged();
 
-	default Callable<Void> filter(ChatChannelManager chatChannelManager, CommandSender sender, ChatMessage chatMessage) throws NotSendableException {
+	default Callable<Void> filter(ChatChannelManager chatChannelManager, ChatFilterManager chatFilterManager, CommandSender sender, ChatMessage chatMessage) throws NotSendableException {
 		return new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				for (ChatFilter filter : chatChannelManager.getChatFilters()) {
+				for (ChatFilter filter : chatFilterManager.getChatFilters()) {
 					chatMessage.setPayload(filter.filter(chatMessage.getPayload()));
 				}
 
@@ -53,7 +54,7 @@ public interface ChatChannel<T extends ChatMessage> {
 		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
 			if (filter) {
 				try {
-					filter(ChatPlugin.getInstance().getChatChannelManager(), sender, chatMessage).call();
+					filter(ChatPlugin.getInstance().getChatChannelManager(), ChatPlugin.getInstance().getChatFilterManager(), sender, chatMessage).call();
 				} catch (NotSendableException e) {
 					if (sender != null) {
 						sender.sendMessage(e.getMessage());
@@ -71,7 +72,7 @@ public interface ChatChannel<T extends ChatMessage> {
 		});
 	}
 
-	default void sendToChat(ChatChannelManager chatChannelManager, T chatMessage) {
+	default void sendToChat(T chatMessage) {
 		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
 			// if no permission defined or they have it
 			if (getPermission() == null || onlinePlayer.hasPermission(getPermission())) {
@@ -92,7 +93,7 @@ public interface ChatChannel<T extends ChatMessage> {
 			}
 		}
 
-		log(chatChannelManager, chatMessage);
+		log(ChatPlugin.getInstance().getChatChannelManager(), chatMessage);
 	}
 
 	default void log(ChatChannelManager chatChannelManager, T chatMessage) {

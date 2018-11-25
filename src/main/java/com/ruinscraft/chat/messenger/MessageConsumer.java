@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
-import com.ruinscraft.chat.channel.ChatChannelManager;
 import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.message.GenericChatMessage;
 import com.ruinscraft.chat.message.PrivateChatMessage;
@@ -26,18 +25,17 @@ public interface MessageConsumer {
 
 		if (payload instanceof ChatMessage) {
 			ChatMessage chatMessage = (ChatMessage) payload;
-			ChatChannelManager manager = ChatPlugin.getInstance().getChatChannelManager();
 
 			if (chatMessage instanceof PrivateChatMessage) {
 				PrivateChatMessage privateChatMessage = (PrivateChatMessage) chatMessage;
 				ChatChannel<PrivateChatMessage> intendedChannel = ChatPlugin.getInstance().getChatChannelManager().getByName(chatMessage.getIntendedChannelName());
-				intendedChannel.sendToChat(manager, privateChatMessage);
+				intendedChannel.sendToChat(privateChatMessage);
 			}
 
 			else if (chatMessage instanceof GenericChatMessage) {
 				GenericChatMessage genericChatMessage = (GenericChatMessage) chatMessage;
 				ChatChannel<GenericChatMessage> intendedChannel = ChatPlugin.getInstance().getChatChannelManager().getByName(chatMessage.getIntendedChannelName());
-				intendedChannel.sendToChat(manager, genericChatMessage);
+				intendedChannel.sendToChat(genericChatMessage);
 			}
 		}
 	}

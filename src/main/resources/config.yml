@@ -12,11 +12,6 @@ player-storage:
     username: root
     password: password
 
-reply-storage:
-  redis:
-    use: true
-    address: localhost
-    
 channels:
   local:
     type: default
@@ -25,4 +20,7 @@ channels:
       redis:
         use: true
         address: localhost
-  
+
+chat-filters:
+  profanity:
+    webpurify-key: abc123

@@ -13,7 +13,6 @@ import org.bukkit.entity.Player;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
-import com.ruinscraft.chat.channel.ChatChannelManager;
 import com.ruinscraft.chat.filters.NotSendableException;
 import com.ruinscraft.chat.message.PrivateChatMessage;
 import com.ruinscraft.chat.messenger.Message;
@@ -204,7 +203,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 				
 				if (filter) {
 					try {
-						filter(ChatPlugin.getInstance().getChatChannelManager(), sender, chatMessage).call();
+						filter(ChatPlugin.getInstance().getChatChannelManager(), ChatPlugin.getInstance().getChatFilterManager(), sender, chatMessage).call();
 					} catch (NotSendableException e) {
 						if (sender != null) {
 							sender.sendMessage(e.getMessage());
@@ -223,7 +222,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 	}
 
 	@Override
-	public void sendToChat(ChatChannelManager chatChannelManager, PrivateChatMessage chatMessage) {
+	public void sendToChat(PrivateChatMessage chatMessage) {
 		Player sender = Bukkit.getPlayerExact(chatMessage.getSender());
 		Player recipient = Bukkit.getPlayerExact(chatMessage.getRecipient());
 		boolean log = false;
@@ -255,7 +254,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 		}
 		
 		if (log) {
-			log(chatChannelManager, chatMessage);
+			log(ChatPlugin.getInstance().getChatChannelManager(), chatMessage);
 		}
 	}
 	

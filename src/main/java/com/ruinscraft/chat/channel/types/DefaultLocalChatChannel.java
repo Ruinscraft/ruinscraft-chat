@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
-import com.ruinscraft.chat.channel.ChatChannelManager;
 import com.ruinscraft.chat.filters.ChatFilter;
 import com.ruinscraft.chat.filters.NotSendableException;
 import com.ruinscraft.chat.message.GenericChatMessage;
@@ -76,7 +75,7 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 	}
 
 	@Override
-	public void sendToChat(ChatChannelManager chatChannelManager, GenericChatMessage chatMessage) {
+	public void sendToChat(GenericChatMessage chatMessage) {
 		if (ChatPlugin.getInstance().getServerName() == null) {
 			return;
 		}
@@ -87,7 +86,7 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 		
 		String message = chatMessage.getPayload();
 
-		for (ChatFilter filter : chatChannelManager.getChatFilters()) {
+		for (ChatFilter filter : ChatPlugin.getInstance().getChatFilterManager().getChatFilters()) {
 			try {
 				message = filter.filter(message);
 			} catch (NotSendableException e) {
@@ -120,7 +119,7 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 			}
 		}
 
-		log(chatChannelManager, chatMessage);
+		log(ChatPlugin.getInstance().getChatChannelManager(), chatMessage);
 	}
 
 }

@@ -11,6 +11,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.ruinscraft.chat.channel.ChatChannelManager;
+import com.ruinscraft.chat.filters.ChatFilterManager;
 import com.ruinscraft.chat.listeners.ChatListener;
 import com.ruinscraft.chat.listeners.QuitJoinListener;
 import com.ruinscraft.chat.messenger.MessageManager;
@@ -55,6 +56,7 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 	private MessageManager messageManager;
 	private ChatPlayerManager chatPlayerManager;
 	private ChatChannelManager chatChannelManager;
+	private ChatFilterManager chatFilterManager;
 	
 	@Override
 	public void onEnable() {
@@ -90,6 +92,9 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 		/* Setup ChatChannelManager */
 		chatChannelManager = new ChatChannelManager(getConfig().getConfigurationSection("channels"));
 
+		/* Setup ChatFilterManager */
+		chatFilterManager = new ChatFilterManager(getConfig().getConfigurationSection("chat-filters"));
+		
 		/* Register Bukkit Listeners */
 		pm.registerEvents(new ChatListener(), this);
 		pm.registerEvents(new QuitJoinListener(), this);
@@ -148,6 +153,10 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 		return chatChannelManager;
 	}
 
+	public ChatFilterManager getChatFilterManager() {
+		return chatFilterManager;
+	}
+	
 	@Override
 	public void onPluginMessageReceived(String channel, Player player, byte[] message) {
 		if (!channel.equals("BungeeCord")) {
