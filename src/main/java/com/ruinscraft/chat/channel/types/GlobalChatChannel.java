@@ -38,6 +38,10 @@ public class GlobalChatChannel implements ChatChannel<GenericChatMessage> {
 		Command command = new Command(getName()) {
 			@Override
 			public boolean execute(CommandSender sender, String commandLabel, String[] args) {
+				if (!testPermission(sender)) {
+					return true;
+				}
+				
 				if (!(sender instanceof Player)) {
 					return true;
 				}
@@ -57,6 +61,7 @@ public class GlobalChatChannel implements ChatChannel<GenericChatMessage> {
 		command.setLabel(getName());
 		command.setUsage("/global");
 		command.setDescription("Set your focused chat channel to global");
+		command.setPermissionMessage(null);
 		
 		return command;
 	}

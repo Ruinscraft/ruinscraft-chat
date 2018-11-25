@@ -85,6 +85,10 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 			
 			@Override
 			public boolean execute(CommandSender sender, String commandLabel, String[] args) {
+				if (!testPermission(sender)) {
+					return true;
+				}
+				
 				String message = null;
 				String recipient = null;
 				boolean reply = false;
@@ -99,7 +103,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 
 				if (reply) {
 					if (args.length < 1) {
-						sender.sendMessage(getUsage());
+						sender.sendMessage("/reply <msg>");
 						return true;
 					}
 
@@ -164,11 +168,9 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 				));
 
 		command.setLabel(getName());
-
-		// TODO: fix this for replies
-		command.setUsage(command.getLabel() + " message");
-
+		command.setUsage("/" + command.getLabel() + " <name> <msg>");
 		command.setDescription("Message or reply to someone on the server");
+		command.setPermissionMessage(null);
 		
 		return command;
 	}

@@ -37,6 +37,10 @@ public class MBHChatChannel implements ChatChannel<GenericChatMessage> {
 		Command command = new Command(getName()) {
 			@Override
 			public boolean execute(CommandSender sender, String commandLabel, String[] args) {
+				if (!testPermission(sender)) {
+					return true;
+				}
+				
 				if (!(sender instanceof Player)) {
 					return true;
 				}
@@ -66,6 +70,7 @@ public class MBHChatChannel implements ChatChannel<GenericChatMessage> {
 		
 		command.setUsage("/" + command.getLabel() + " <msg>");
 		command.setPermission(getPermission());
+		command.setPermissionMessage(null);
 		
 		return command;
 	}

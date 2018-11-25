@@ -28,32 +28,25 @@ public class ChatChannelManager {
 	public ChatChannelManager(ConfigurationSection channelSection) {
 		/* Setup channels */
 		channels = new HashSet<>();
-
 		channels.add(new GlobalChatChannel());
-
 		switch (channelSection.getString("local.type")) {
 		case "default":
 			channels.add(new DefaultLocalChatChannel());
 			break;
 		}
-
 		channels.add(new PrivateMessageChatChannel(channelSection.getConfigurationSection("private-message")));
-
 		channels.add(new MBChatChannel());
 		channels.add(new MBHChatChannel());
 		channels.add(new MBSChatChannel());
 		channels.add(new MBAChatChannel());
-
 		channels.forEach(c -> c.registerCommands());
 
 		/* Setup loggers */
 		loggers = new HashSet<>();
-
 		loggers.add(new ConsoleChatLogger());
 
 		/* Setup filters */
 		filters = new HashSet<>();
-
 		filters.add(new CapsFilter());
 		filters.add(new LengthFilter());
 	}

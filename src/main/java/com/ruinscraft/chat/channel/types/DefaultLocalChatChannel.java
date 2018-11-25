@@ -42,6 +42,10 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 		Command command = new Command(getName()) {
 			@Override
 			public boolean execute(CommandSender sender, String commandLabel, String[] args) {
+				if (!testPermission(sender)) {
+					return true;
+				}
+				
 				if (!(sender instanceof Player)) {
 					return true;
 				}
@@ -61,6 +65,7 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 		command.setLabel(getName());
 		command.setUsage("/local");
 		command.setDescription("Set your focused chat channel to local");
+		command.setPermissionMessage(null);
 
 		return command;
 	}

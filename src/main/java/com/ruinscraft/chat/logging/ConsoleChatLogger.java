@@ -11,7 +11,7 @@ public class ConsoleChatLogger implements ChatLogger {
 			PrivateChatMessage pm = (PrivateChatMessage) message;
 			System.out.println("[" + pm.getSender() + " -> " + pm.getRecipient() + "] " + pm.getPayload());
 		} else {
-			System.out.println("[" + message.getSender() + "] " + message.getPayload());
+			System.out.println("[" + message.getSender() + "] " + "[" + message.getServerSentFrom() + "] " + message.getPayload());
 		}
 	}
 	
