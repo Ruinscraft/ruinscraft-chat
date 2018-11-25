@@ -49,13 +49,15 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 					select.setString(1, chatPlayer.getMojangUUID().toString());
 					
 					try (ResultSet rs = select.executeQuery()) {
-						int chatPlayerId = rs.getInt("chat_player_id");
-						String nickname = rs.getString("nickname");
-						String focused = rs.getString("focused");
-						
-						chatPlayer.setChatPlayerId(chatPlayerId);
-						chatPlayer.setNickname(nickname);
-						chatPlayer.setFocused(focused);
+						while (rs.next()) {
+							int chatPlayerId = rs.getInt("chat_player_id");
+							String nickname = rs.getString("nickname");
+							String focused = rs.getString("focused");
+							
+							chatPlayer.setChatPlayerId(chatPlayerId);
+							chatPlayer.setNickname(nickname);
+							chatPlayer.setFocused(focused);
+						}
 					}
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -79,8 +81,10 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 						insert.execute();
 						
 						try (ResultSet rs = insert.getGeneratedKeys()) {
-							int chatPlayerId = rs.getInt(1);
-							chatPlayer.setChatPlayerId(chatPlayerId);
+							while (rs.next()) {
+								int chatPlayerId = rs.getInt(1);
+								chatPlayer.setChatPlayerId(chatPlayerId);
+							}
 						}
 					} catch (SQLException e) {
 						e.printStackTrace();
