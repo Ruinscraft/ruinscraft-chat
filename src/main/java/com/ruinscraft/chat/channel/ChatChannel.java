@@ -65,6 +65,7 @@ public interface ChatChannel<T extends ChatMessage> {
 				String format = getFormat(onlinePlayer.getName(), chatMessage);
 				
 				format = format
+						.replace("%server%", chatMessage.getServerSentFrom())
 						.replace("%prefix%", chatMessage.getSenderPrefix())
 						.replace("%sender%", chatMessage.getSender());
 				

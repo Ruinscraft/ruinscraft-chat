@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.Callable;
 
 import com.ruinscraft.chat.players.ChatPlayer;
 
@@ -39,25 +40,38 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 	}
 	
 	@Override
-	public void loadChatPlayer(ChatPlayer chatPlayer) {
-		try (PreparedStatement select = getConnection().prepareStatement(sql_select_player_by_uuid)) {
-			select.setString(1, chatPlayer.getMojangUUID().toString());
-			
-			try (ResultSet rs = select.executeQuery()) {
-				String focusedName = rs.getString("focused");
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+	public Callable<Void> loadChatPlayer(ChatPlayer chatPlayer) {
+		return new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				try (PreparedStatement select = getConnection().prepareStatement(sql_select_player_by_uuid)) {
+					select.setString(1, chatPlayer.getMojangUUID().toString());
+					
+					try (ResultSet rs = select.executeQuery()) {
+						String focusedName = rs.getString("focused");
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				
+				return null;
+			}};
 	}
 
 	@Override
-	public void saveChatPlayer(ChatPlayer chatPlayer) {
-		try (PreparedStatement update = getConnection().prepareStatement("")) {
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+	public Callable<Void> saveChatPlayer(ChatPlayer chatPlayer) {
+		return new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				try (PreparedStatement update = getConnection().prepareStatement("")) {
+					
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				
+				return null;
+			}
+		};
 	}
 
 	@Override

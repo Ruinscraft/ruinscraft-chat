@@ -72,6 +72,10 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 
 	@Override
 	public void sendToChat(ChatChannelManager chatChannelManager, GenericChatMessage chatMessage) {
+		if (ChatPlugin.getInstance().getServerName() == null) {
+			return;
+		}
+		
 		if (!ChatPlugin.getInstance().getServerName().equals(chatMessage.getServerSentFrom())) {
 			return;
 		}

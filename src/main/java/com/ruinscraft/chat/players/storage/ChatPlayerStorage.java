@@ -1,12 +1,14 @@
 package com.ruinscraft.chat.players.storage;
 
+import java.util.concurrent.Callable;
+
 import com.ruinscraft.chat.players.ChatPlayer;
 
 public interface ChatPlayerStorage extends AutoCloseable {
 
-	void loadChatPlayer(ChatPlayer chatPlayer);
+	Callable<Void> loadChatPlayer(ChatPlayer chatPlayer);
 	
-	void saveChatPlayer(ChatPlayer chatPlayer);
+	Callable<Void> saveChatPlayer(ChatPlayer chatPlayer);
 	
 	@Override
 	default void close() {}
