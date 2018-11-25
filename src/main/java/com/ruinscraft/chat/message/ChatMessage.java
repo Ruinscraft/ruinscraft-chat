@@ -4,6 +4,8 @@ public interface ChatMessage {
 
 	String getSenderPrefix();
 	
+	String getSenderNickname();
+	
 	String getSender();
 	
 	String getServerSentFrom();

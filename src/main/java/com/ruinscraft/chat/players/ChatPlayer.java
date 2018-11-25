@@ -8,22 +8,17 @@ import com.ruinscraft.chat.message.GenericChatMessage;
 
 /*
  * TODO:
- * 		Implement ignoring
- * 		Implement muted channels
- * 		Other stuff?
+ * 		- Implement ignoring
+ * 		- Implement muted channels
  */
 public class ChatPlayer {
 
 	private UUID mojangUUID;
 	private ChatChannel<GenericChatMessage> focused;
+	private String nickname;
 
 	public ChatPlayer(UUID mojangUUID) {
 		this.mojangUUID = mojangUUID;
-	}
-
-	public ChatPlayer(UUID mojangUUID, ChatChannel<GenericChatMessage> focused) {
-		this.mojangUUID = mojangUUID;
-		this.focused = focused;
 	}
 
 	public void setMojangUUID(UUID mojangUUID) {
@@ -40,6 +35,14 @@ public class ChatPlayer {
 	
 	public ChatChannel<GenericChatMessage> getFocused() {
 		return focused == null ? focused = ChatPlugin.getInstance().getChatChannelManager().getByName("global") : focused;
+	}
+	
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
+	}
+	
+	public String getNickname() {
+		return nickname;
 	}
 
 }

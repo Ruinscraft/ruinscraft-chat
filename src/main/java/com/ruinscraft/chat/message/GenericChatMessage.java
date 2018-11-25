@@ -3,14 +3,16 @@ package com.ruinscraft.chat.message;
 public class GenericChatMessage implements ChatMessage {
 
 	private final String senderPrefix;
+	private final String senderNickname;
 	private final String sender;
 	private final String serverSentFrom;
 	private final String intendedChannelName;
 	private final boolean colorizePayload;
 	private final String payload;
 	
-	public GenericChatMessage(String senderPrefix, String sender, String serverSentFrom, String intendedChannelName, boolean colorizePayload, String payload) {
+	public GenericChatMessage(String senderPrefix, String senderNickname, String sender, String serverSentFrom, String intendedChannelName, boolean colorizePayload, String payload) {
 		this.senderPrefix = senderPrefix;
+		this.senderNickname = senderNickname;
 		this.sender = sender;
 		this.serverSentFrom = serverSentFrom;
 		this.intendedChannelName = intendedChannelName;
@@ -21,6 +23,11 @@ public class GenericChatMessage implements ChatMessage {
 	@Override
 	public String getSenderPrefix() {
 		return senderPrefix;
+	}
+	
+	@Override
+	public String getSenderNickname() {
+		return senderNickname;
 	}
 	
 	@Override

@@ -26,19 +26,11 @@ public class ChatListener implements Listener {
 		event.setCancelled(true);
 
 		ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().getChatPlayer(player.getUniqueId());
-
-		if (chatPlayer == null) {
-			player.sendMessage("Failed to send message");
-			return;
-		}
-
 		ChatChannel<GenericChatMessage> chatChannel = chatPlayer.getFocused();
-		
 		String senderPrefix = ChatPlugin.getVaultChat().getPlayerPrefix(player);
-		
+		String nickname = null;
 		boolean allowColor = player.hasPermission(ChatPlugin.PERMISSION_COLORIZE_MESSAGES);
-		
-		GenericChatMessage chatMessage = new GenericChatMessage(senderPrefix, player.getName(), chatPlugin.getServerName(), chatChannel.getName(), allowColor, payload);
+		GenericChatMessage chatMessage = new GenericChatMessage(senderPrefix, nickname, player.getName(), chatPlugin.getServerName(), chatChannel.getName(), allowColor, payload);
 
 		chatChannel.dispatch(chatPlugin.getMessageManager().getDispatcher(), player, chatMessage);
 	}

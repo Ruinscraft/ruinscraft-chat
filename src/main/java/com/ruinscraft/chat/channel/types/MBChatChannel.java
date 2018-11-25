@@ -49,13 +49,14 @@ public class MBChatChannel implements ChatChannel<GenericChatMessage> {
 				}
 				
 				String prefix = ChatPlugin.getVaultChat().getPlayerPrefix(player);
+				String nickname = null;
 				String name = player.getName();
 				String server = ChatPlugin.getInstance().getServerName();
 				String channel = getName();
 				boolean colorize = player.hasPermission(ChatPlugin.PERMISSION_COLORIZE_MESSAGES);
 				String message = String.join(" ", args);
 				
-				GenericChatMessage chatMessage = new GenericChatMessage(prefix, name, server, channel, colorize, message);
+				GenericChatMessage chatMessage = new GenericChatMessage(prefix, nickname, name, server, channel, colorize, message);
 				
 				dispatch(ChatPlugin.getInstance().getMessageManager().getDispatcher(), sender, chatMessage);
 				
