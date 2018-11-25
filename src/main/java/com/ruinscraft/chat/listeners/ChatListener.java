@@ -32,7 +32,7 @@ public class ChatListener implements Listener {
 		boolean allowColor = player.hasPermission(ChatPlugin.PERMISSION_COLORIZE_MESSAGES);
 		GenericChatMessage chatMessage = new GenericChatMessage(senderPrefix, nickname, player.getName(), chatPlugin.getServerName(), chatChannel.getName(), allowColor, payload);
 
-		chatChannel.dispatch(chatPlugin.getMessageManager().getDispatcher(), player, chatMessage);
+		chatChannel.dispatch(chatPlugin.getMessageManager().getDispatcher(), player, true, chatMessage);
 	}
 
 }

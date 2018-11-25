@@ -13,6 +13,8 @@ public interface ChatMessage {
 	String getIntendedChannelName();
 	
 	boolean colorizePayload();
+
+	void setPayload(String payload);
 	
 	String getPayload();
 	

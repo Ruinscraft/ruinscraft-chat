@@ -3,6 +3,7 @@ package com.ruinscraft.chat.channel;
 import java.lang.reflect.Field;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
@@ -35,50 +36,62 @@ public interface ChatChannel<T extends ChatMessage> {
 
 	boolean isLogged();
 
-	default void dispatch(MessageDispatcher dispatcher, CommandSender caller, T chatMessage) {
-		MessageManager mm = ChatPlugin.getInstance().getMessageManager();
-		Message message = new Message(chatMessage);
+	default Callable<Void> filter(ChatChannelManager chatChannelManager, CommandSender sender, ChatMessage chatMessage) throws NotSendableException {
+		return new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				for (ChatFilter filter : chatChannelManager.getChatFilters()) {
+					chatMessage.setPayload(filter.filter(chatMessage.getPayload()));
+				}
 
-		mm.getDispatcher().dispatch(message);
+				return null;
+			}
+		};
+	}
+
+	default void dispatch(MessageDispatcher dispatcher, CommandSender sender, boolean filter, T chatMessage) {
+		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
+			if (filter) {
+				try {
+					filter(ChatPlugin.getInstance().getChatChannelManager(), sender, chatMessage).call();
+				} catch (NotSendableException e) {
+					if (sender != null) {
+						sender.sendMessage(e.getMessage());
+						return;
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+
+			MessageManager mm = ChatPlugin.getInstance().getMessageManager();
+			Message message = new Message(chatMessage);
+
+			mm.getDispatcher().dispatch(message);
+		});
 	}
 
 	default void sendToChat(ChatChannelManager chatChannelManager, T chatMessage) {
-		String message = chatMessage.getPayload();
-		
-		for (ChatFilter filter : chatChannelManager.getChatFilters()) {
-			try {
-				message = filter.filter(message);
-			} catch (NotSendableException e) {
-				Player sender = Bukkit.getPlayerExact(chatMessage.getSender());
-				
-				if (sender != null && sender.isOnline()) {
-					sender.sendMessage(e.getMessage());
-				}
-				
-				return;
-			}
-		}
-
 		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
 			// if no permission defined or they have it
 			if (getPermission() == null || onlinePlayer.hasPermission(getPermission())) {
 				String format = getFormat(onlinePlayer.getName(), chatMessage);
-				
+
 				format = format
 						.replace("%server%", chatMessage.getServerSentFrom())
 						.replace("%prefix%", chatMessage.getSenderPrefix())
 						.replace("%sender%", chatMessage.getSender());
-				
+
 				if (chatMessage.colorizePayload()) {
-					format = format.replace("%message%", ChatColor.translateAlternateColorCodes('&', message));
+					format = format.replace("%message%", ChatColor.translateAlternateColorCodes('&', chatMessage.getPayload()));
 				} else {
-					format = format.replace("%message%", message);
+					format = format.replace("%message%", chatMessage.getPayload());
 				}
-				
+
 				onlinePlayer.sendMessage(format);
 			}
 		}
-		
+
 		log(chatChannelManager, chatMessage);
 	}
 

@@ -8,7 +8,7 @@ public class GenericChatMessage implements ChatMessage {
 	private final String serverSentFrom;
 	private final String intendedChannelName;
 	private final boolean colorizePayload;
-	private final String payload;
+	private String payload;
 	
 	public GenericChatMessage(String senderPrefix, String senderNickname, String sender, String serverSentFrom, String intendedChannelName, boolean colorizePayload, String payload) {
 		this.senderPrefix = senderPrefix;
@@ -48,6 +48,11 @@ public class GenericChatMessage implements ChatMessage {
 	@Override
 	public String getPayload() {
 		return payload;
+	}
+	
+	@Override
+	public void setPayload(String payload) {
+		this.payload = payload;
 	}
 
 	@Override

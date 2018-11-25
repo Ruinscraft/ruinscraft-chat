@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.channel.ChatChannelManager;
+import com.ruinscraft.chat.filters.NotSendableException;
 import com.ruinscraft.chat.message.PrivateChatMessage;
 import com.ruinscraft.chat.messenger.Message;
 import com.ruinscraft.chat.messenger.MessageDispatcher;
@@ -148,7 +149,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 				
 				PrivateChatMessage pm = new PrivateChatMessage(senderPrefix, nickname, name, recipient, server, channel, colorize, message);
 
-				dispatch(ChatPlugin.getInstance().getMessageManager().getDispatcher(), sender, pm);
+				dispatch(ChatPlugin.getInstance().getMessageManager().getDispatcher(), sender, true, pm);
 
 				return true;
 			}
@@ -181,15 +182,15 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 	}
 
 	@Override
-	public void dispatch(MessageDispatcher dispatcher, CommandSender caller, PrivateChatMessage chatMessage) {
+	public void dispatch(MessageDispatcher dispatcher, CommandSender sender, boolean filter, PrivateChatMessage chatMessage) {
 		Callable<PlayerStatus> callable = PlayerStatusPlugin.getAPI().getPlayerStatus(chatMessage.getRecipient());
 
 		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
 			try {
 				PlayerStatus recipientStatus = callable.call();
 
-				if (caller instanceof Player) {
-					Player callerPlayer = (Player) caller;
+				if (sender instanceof Player) {
+					Player callerPlayer = (Player) sender;
 
 					if (!callerPlayer.isOnline()) {
 						return;
@@ -197,8 +198,19 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 				}
 
 				if (!recipientStatus.isOnline()) {
-					caller.sendMessage(ChatColor.RED + chatMessage.getRecipient() + " is not online.");
+					sender.sendMessage(ChatColor.RED + chatMessage.getRecipient() + " is not online.");
 					return;
+				}
+				
+				if (filter) {
+					try {
+						filter(ChatPlugin.getInstance().getChatChannelManager(), sender, chatMessage).call();
+					} catch (NotSendableException e) {
+						if (sender != null) {
+							sender.sendMessage(e.getMessage());
+							return;
+						}
+					}
 				}
 
 				Message dispatchable = new Message(chatMessage);
