@@ -8,8 +8,6 @@ import org.bukkit.entity.Player;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
-import com.ruinscraft.chat.filters.ChatFilter;
-import com.ruinscraft.chat.filters.NotSendableException;
 import com.ruinscraft.chat.message.GenericChatMessage;
 import com.ruinscraft.chat.players.ChatPlayer;
 
@@ -90,20 +88,6 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 		}
 		
 		String message = chatMessage.getPayload();
-
-		for (ChatFilter filter : ChatPlugin.getInstance().getChatFilterManager().getChatFilters()) {
-			try {
-				message = filter.filter(message);
-			} catch (NotSendableException e) {
-				Player sender = Bukkit.getPlayerExact(chatMessage.getSender());
-
-				if (sender != null && sender.isOnline()) {
-					sender.sendMessage(e.getMessage());
-				}
-
-				return;
-			}
-		}
 
 		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
 			// if no permission defined or they have it
