@@ -15,6 +15,7 @@ import com.ruinscraft.chat.channel.types.pm.PrivateMessageChatChannel;
 import com.ruinscraft.chat.logging.ChatLogger;
 import com.ruinscraft.chat.logging.ConsoleChatLogger;
 import com.ruinscraft.chat.message.ChatMessage;
+import com.ruinscraft.chat.message.GenericChatMessage;
 
 public class ChatChannelManager {
 
@@ -52,6 +53,10 @@ public class ChatChannelManager {
 		return (ChatChannel<T>) new GlobalChatChannel();
 	}
 
+	public ChatChannel<GenericChatMessage> getDefaultChatChannel() {
+		return getByName("global");
+	}
+	
 	public Set<ChatLogger> getChatLoggers() {
 		return loggers;
 	}
