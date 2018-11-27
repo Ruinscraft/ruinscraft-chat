@@ -12,7 +12,6 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.players.storage.ChatPlayerStorage;
-import com.ruinscraft.chat.players.storage.MutableChatPlayer;
 import com.ruinscraft.chat.players.storage.MySQLChatPlayerStorage;
 
 public class ChatPlayerManager implements AutoCloseable {
@@ -61,10 +60,8 @@ public class ChatPlayerManager implements AutoCloseable {
 				try {
 					ChatPlayer saving = cache.getIfPresent(toSave.take());
 					
-					if (saving instanceof MutableChatPlayer) {
-						MutableChatPlayer mutable = (MutableChatPlayer) saving;
-						
-						storage.saveChatPlayer(mutable).call();
+					if (saving instanceof ChatPlayer) {
+						storage.saveChatPlayer(saving).call();
 					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -132,7 +129,7 @@ public class ChatPlayerManager implements AutoCloseable {
 	private final class ChatPlayerCacheLoader extends CacheLoader<UUID, ChatPlayer> {
 		@Override
 		public ChatPlayer load(UUID uuid) throws Exception {
-			MutableChatPlayer chatPlayer = new MutableChatPlayer(uuid);
+			ChatPlayer chatPlayer = new ChatPlayer(uuid);
 
 			storage.loadChatPlayer(chatPlayer).call();
 			

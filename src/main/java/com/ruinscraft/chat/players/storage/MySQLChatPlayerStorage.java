@@ -11,6 +11,7 @@ import java.util.concurrent.Callable;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.ChatMessage;
+import com.ruinscraft.chat.players.ChatPlayer;
 import com.ruinscraft.chat.players.MinecraftIdentity;
 
 public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
@@ -81,7 +82,7 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 	}
 
 	@Override
-	public Callable<Void> loadChatPlayer(MutableChatPlayer chatPlayer) {
+	public Callable<Void> loadChatPlayer(ChatPlayer chatPlayer) {
 		return new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
@@ -141,7 +142,7 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 	}
 
 	@Override
-	public Callable<Void> saveChatPlayer(MutableChatPlayer chatPlayer) {
+	public Callable<Void> saveChatPlayer(ChatPlayer chatPlayer) {
 		return new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
