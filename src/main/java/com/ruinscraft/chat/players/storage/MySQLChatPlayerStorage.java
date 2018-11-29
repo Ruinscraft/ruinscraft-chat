@@ -208,30 +208,27 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 						}
 					}
 
-					SetView<String> view = Sets.difference(currentIgnoring, previousIgnoring);
+					SetView<String> toInsert = Sets.difference(currentIgnoring, previousIgnoring);
+					SetView<String> toDelete = Sets.difference(previousIgnoring, currentIgnoring);
 
-					for (String ignoring : view) {
-						if (!currentIgnoring.contains(ignoring)) {
-							// delete
-							try (PreparedStatement delete = getConnection().prepareStatement(SQL_DELETE_IGNORING)) {
-								delete.setInt(1, chatPlayer.getChatPlayerId());
-								delete.setString(2, ignoring);
-								delete.execute();
-							}
-						}
-
-						if (!previousIgnoring.contains(ignoring)) {
-							// add
-							try (PreparedStatement insert = getConnection().prepareStatement(SQL_INSERT_IGNORING)) {
-								insert.setInt(1, chatPlayer.getChatPlayerId());
-								insert.setString(2, ignoring);
-								insert.execute();
-							}
+					for (String inserting : toInsert) {
+						try (PreparedStatement insert = getConnection().prepareStatement(SQL_INSERT_IGNORING)) {
+							insert.setInt(1, chatPlayer.getChatPlayerId());
+							insert.setString(2, inserting);
+							insert.execute();
 						}
 					}
-				}
 
-				/* UPDATE MUTED TABLE */
+					for (String deleting : toDelete) {
+						try (PreparedStatement delete = getConnection().prepareStatement(SQL_DELETE_IGNORING)) {
+							delete.setInt(1, chatPlayer.getChatPlayerId());
+							delete.setString(2, deleting);
+							delete.execute();
+						}
+
+					}
+
+				}
 
 				return null;
 			}
