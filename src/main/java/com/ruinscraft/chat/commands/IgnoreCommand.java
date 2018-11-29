@@ -39,7 +39,14 @@ public class IgnoreCommand implements CommandExecutor {
 				return true;
 			}
 			
-			MinecraftIdentity minecraftIdentity = new MinecraftIdentity(arg0);
+			MinecraftIdentity minecraftIdentity = null;
+			OfflinePlayer potentialOfflinePlayer = Bukkit.getOfflinePlayer(arg0);
+			
+			if (potentialOfflinePlayer != null) {
+				minecraftIdentity = new MinecraftIdentity(potentialOfflinePlayer.getUniqueId().toString());
+			} else {
+				minecraftIdentity = new MinecraftIdentity(arg0);
+			}
 
 			if (chatPlayer.ignore(minecraftIdentity)) {
 				player.sendMessage(Constants.COLOR_BASE + "Ignored " + Constants.COLOR_ACCENT + minecraftIdentity.getIdentity());
