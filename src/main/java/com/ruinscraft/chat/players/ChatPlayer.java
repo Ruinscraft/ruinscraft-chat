@@ -106,6 +106,30 @@ public class ChatPlayer {
 		return success;
 	}
 
+	public boolean isIgnoring(String username) {
+		for (MinecraftIdentity minecraftIdentity : ignoring) {
+			if (minecraftIdentity.getIdentity().equalsIgnoreCase(username)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public boolean isIgnoring(UUID uuid) {
+		for (MinecraftIdentity minecraftIdentity : ignoring) {
+			if (!minecraftIdentity.isUUID()) {
+				continue;
+			}
+			
+			if (UUID.fromString(minecraftIdentity.getIdentity()).equals(uuid)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	public void save() {
 		ChatPlugin.getInstance().getChatPlayerManager().save(this);
 	}

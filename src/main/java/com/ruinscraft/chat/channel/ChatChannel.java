@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
@@ -22,6 +23,7 @@ import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.messenger.Message;
 import com.ruinscraft.chat.messenger.MessageDispatcher;
 import com.ruinscraft.chat.messenger.MessageManager;
+import com.ruinscraft.chat.players.ChatPlayer;
 
 public interface ChatChannel<T extends ChatMessage> {
 
@@ -76,6 +78,19 @@ public interface ChatChannel<T extends ChatMessage> {
 
 	default void sendToChat(T chatMessage) {
 		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+			
+			ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(onlinePlayer.getUniqueId());
+			
+			if (chatPlayer.isIgnoring(chatMessage.getSender())) {
+				continue;
+			}
+			
+			OfflinePlayer potentialOfflinePlayer = Bukkit.getOfflinePlayer(chatMessage.getSender());
+			
+			if (potentialOfflinePlayer != null && chatPlayer.isIgnoring(potentialOfflinePlayer.getUniqueId())) {
+				continue;
+			}
+			
 			// if no permission defined or they have it
 			if (getPermission() == null || onlinePlayer.hasPermission(getPermission())) {
 				String format = getFormat(onlinePlayer.getName(), chatMessage);

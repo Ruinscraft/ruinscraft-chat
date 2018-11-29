@@ -6,6 +6,7 @@ import java.util.concurrent.Callable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -13,12 +14,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.Constants;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.events.DummyAsyncPlayerChatEvent;
 import com.ruinscraft.chat.filters.NotSendableException;
 import com.ruinscraft.chat.message.PrivateChatMessage;
 import com.ruinscraft.chat.messenger.Message;
 import com.ruinscraft.chat.messenger.MessageDispatcher;
+import com.ruinscraft.chat.players.ChatPlayer;
 import com.ruinscraft.playerstatus.PlayerStatus;
 import com.ruinscraft.playerstatus.PlayerStatusPlugin;
 
@@ -124,7 +127,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 					}
 
 					if (recipient == null) {
-						player.sendMessage("No one to reply to");
+						player.sendMessage(Constants.COLOR_BASE + "No one to reply to");
 						return true;
 					}
 
@@ -208,7 +211,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 				}
 
 				if (!recipientStatus.isOnline()) {
-					player.sendMessage(ChatColor.RED + chatMessage.getRecipient() + " is not online.");
+					player.sendMessage(Constants.COLOR_ACCENT + chatMessage.getRecipient() + Constants.COLOR_BASE + " is not online.");
 					return;
 				}
 
@@ -217,7 +220,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 						filter(ChatPlugin.getInstance().getChatChannelManager(), ChatPlugin.getInstance().getChatFilterManager(), player, chatMessage).call();
 					} catch (NotSendableException e) {
 						if (player != null) {
-							player.sendMessage(ChatColor.RED + e.getMessage());
+							player.sendMessage(Constants.COLOR_BASE + e.getMessage());
 							return;
 						}
 					}
@@ -238,6 +241,25 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 		Player recipient = Bukkit.getPlayerExact(chatMessage.getRecipient());
 		boolean log = false;
 
+		ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(recipient.getUniqueId());
+		
+		boolean ignoring = false;
+		
+		if (chatPlayer.isIgnoring(chatMessage.getSender())) {
+			ignoring = true;
+		}
+		
+		OfflinePlayer potentialOfflinePlayer = Bukkit.getOfflinePlayer(chatMessage.getSender());
+		
+		if (potentialOfflinePlayer != null && chatPlayer.isIgnoring(potentialOfflinePlayer.getUniqueId())) {
+			ignoring = true;
+		}
+		
+		if (ignoring) {
+			sender.sendMessage(Constants.COLOR_BASE + "You have been ignored by this player");
+			return;
+		}
+		
 		if (sender != null) {
 			if (sender == recipient) {
 				// sending to themself

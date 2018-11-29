@@ -2,6 +2,7 @@ package com.ruinscraft.chat.channel.types;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -90,6 +91,18 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 		String message = chatMessage.getPayload();
 
 		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+			ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(onlinePlayer.getUniqueId());
+			
+			if (chatPlayer.isIgnoring(chatMessage.getSender())) {
+				continue;
+			}
+			
+			OfflinePlayer potentialOfflinePlayer = Bukkit.getOfflinePlayer(chatMessage.getSender());
+			
+			if (potentialOfflinePlayer != null && chatPlayer.isIgnoring(potentialOfflinePlayer.getUniqueId())) {
+				continue;
+			}
+			
 			// if no permission defined or they have it
 			if (getPermission() == null || onlinePlayer.hasPermission(getPermission())) {
 				String format = getFormat(onlinePlayer.getName(), chatMessage);

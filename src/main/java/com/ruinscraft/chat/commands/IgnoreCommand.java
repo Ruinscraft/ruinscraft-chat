@@ -10,6 +10,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.Constants;
 import com.ruinscraft.chat.players.ChatPlayer;
 import com.ruinscraft.chat.players.MinecraftIdentity;
 
@@ -33,22 +34,29 @@ public class IgnoreCommand implements CommandExecutor {
 		if (args.length > 0) {
 			String arg0 = args[0];
 
+			if (arg0.equalsIgnoreCase(player.getName())) {
+				player.sendMessage(Constants.COLOR_BASE + "You can't ignore yourself");
+				return true;
+			}
+			
 			MinecraftIdentity minecraftIdentity = new MinecraftIdentity(arg0);
 
 			if (chatPlayer.ignore(minecraftIdentity)) {
-				player.sendMessage("Ignored " + minecraftIdentity.getIdentity());
+				player.sendMessage(Constants.COLOR_BASE + "Ignored " + Constants.COLOR_ACCENT + minecraftIdentity.getIdentity());
 			} else {
 				chatPlayer.unignore(minecraftIdentity);
-				player.sendMessage("Unignored " + minecraftIdentity.getIdentity());
+				player.sendMessage(Constants.COLOR_BASE + "Unignored " + Constants.COLOR_ACCENT + minecraftIdentity.getIdentity());
 			}
 			
 			return true;
 		}
 		
 		if (chatPlayer.ignoring.isEmpty()) {
-			player.sendMessage("You are not ignoring anyone");
+			player.sendMessage(Constants.COLOR_BASE + "You are not ignoring anyone");
 			return true;
 		}
+
+		player.sendMessage(Constants.COLOR_BASE + "Currently Ignoring:");
 		
 		for (MinecraftIdentity minecraftIdentity : chatPlayer.ignoring) {
 			String name = "?";
@@ -65,7 +73,7 @@ public class IgnoreCommand implements CommandExecutor {
 				name = minecraftIdentity.getIdentity();
 			}
 			
-			player.sendMessage(name);
+			player.sendMessage(Constants.COLOR_ACCENT + name);
 		}
 		
 		return true;

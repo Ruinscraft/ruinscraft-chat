@@ -80,7 +80,6 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 
 		/* CREATE IGNORING TABLE */
 		try (PreparedStatement create = getConnection().prepareStatement(SQL_CREATE_IGNORING)) {
-			System.out.println(SQL_CREATE_IGNORING);
 			create.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -88,7 +87,6 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 
 		/* CREATE MUTES TABLE */
 		try (PreparedStatement create = getConnection().prepareStatement(SQL_CREATE_MUTED)) {
-			System.out.println(SQL_CREATE_MUTED);
 			create.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
