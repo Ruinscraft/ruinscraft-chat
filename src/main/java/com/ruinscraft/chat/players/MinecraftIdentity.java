@@ -32,4 +32,20 @@ public class MinecraftIdentity {
 		return true;
 	}
 	
+	@Override
+	public boolean equals(Object object) {
+		if (!(object instanceof MinecraftIdentity)) {
+			return false;
+		}
+		
+		MinecraftIdentity minecraftIdentity = (MinecraftIdentity) object;
+		
+		return identity.toLowerCase().equals(minecraftIdentity.getIdentity().toLowerCase());
+	}
+	
+	@Override
+	public int hashCode() {
+		return identity.toLowerCase().hashCode();
+	}
+	
 }

@@ -11,6 +11,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.ruinscraft.chat.channel.ChatChannelManager;
+import com.ruinscraft.chat.commands.IgnoreCommand;
 import com.ruinscraft.chat.filters.ChatFilterManager;
 import com.ruinscraft.chat.listeners.ChatListener;
 import com.ruinscraft.chat.listeners.QuitJoinListener;
@@ -23,7 +24,6 @@ import net.milkbowl.vault.chat.Chat;
 public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 
 	public static final String RUINSCRAFT_CHAT = "ruinscraft-chat";
-	
 	public static final String PERMISSION_COLORIZE_MESSAGES = "ruinscraft.chat.colorize";
 
 	private static ChatPlugin instance;
@@ -108,6 +108,9 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 		if (chatProvider != null) {
 			vaultChat = chatProvider.getProvider();
 		}
+		
+		/* Register Commands */
+		getCommand("ignore").setExecutor(new IgnoreCommand());
 	}
 
 	@Override

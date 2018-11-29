@@ -3,3 +3,6 @@ version: ${version}
 main: ${mainClass}
 
 depend: [ruinscraft-player-status, Vault]
+
+commands:
+  ignore:

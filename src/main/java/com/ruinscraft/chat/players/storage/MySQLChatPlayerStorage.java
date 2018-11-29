@@ -6,8 +6,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.ChatMessage;
@@ -19,17 +24,19 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 	/* PLAYER TABLE */
 	private static final String SQL_CREATE_PLAYERS = String.format("CREATE TABLE IF NOT EXISTS %s (chat_player_id INT AUTO_INCREMENT, mojang_uuid VARCHAR(36), nickname VARCHAR(24), focused VARCHAR(16), PRIMARY KEY (chat_player_id), UNIQUE (mojang_uuid));", Table.PLAYERS);
 	private static final String SQL_SELECT_PLAYER_BY_UUID = String.format("SELECT * FROM %s WHERE mojang_uuid = ?;", Table.PLAYERS);
-	private static final String SQL_UPDATE_PLAYER = String.format("UPDATE %s SET mojang_uuid = ?, nickname = ?, focused = ? WHERE chat_player_id = ?;", Table.PLAYERS);
-	private static final String SQL_INSERT_PLAYER = String.format("INSERT INTO %s (mojang_uuid, nickname, focused) VALUES (?, ?, ?);", Table.PLAYERS);
+	private static final String SQL_UPDATE_PLAYERS = String.format("UPDATE %s SET mojang_uuid = ?, nickname = ?, focused = ? WHERE chat_player_id = ?;", Table.PLAYERS);
+	private static final String SQL_INSERT_PLAYERS = String.format("INSERT INTO %s (mojang_uuid, nickname, focused) VALUES (?, ?, ?);", Table.PLAYERS);
 
 	/* IGNORING TABLE */
-	private static final String SQL_CREATE_IGNORING = String.format("CREATE TABLE IF NOT EXISTS %s (chat_player_id INT, minecraft_identity VARCHAR(36), FOREIGN KEY (chat_player_id) REFERENCES %s (chat_player_id);", Table.IGNORING, Table.PLAYERS);
+	private static final String SQL_CREATE_IGNORING = String.format("CREATE TABLE IF NOT EXISTS %s (chat_player_id INT, minecraft_identity VARCHAR(36), UNIQUE KEY (chat_player_id, minecraft_identity), FOREIGN KEY (chat_player_id) REFERENCES %s (chat_player_id));", Table.IGNORING, Table.PLAYERS);
 	private static final String SQL_SELECT_IGNORING = String.format("SELECT * FROM %s WHERE chat_player_id = ?;", Table.IGNORING);
+	private static final String SQL_INSERT_IGNORING = String.format("INSERT INTO %s (chat_player_id, minecraft_identity) VALUES (?, ?);", Table.IGNORING);
 	private static final String SQL_DELETE_IGNORING = String.format("DELETE FROM %s WHERE chat_player_id = ? AND minecraft_identity = ?;", Table.IGNORING);
 
 	/* MUTES TABLE */
-	private static final String SQL_CREATE_MUTED = String.format("CREATE TABLE IF NOT EXISTS %s (chat_player_id INT, channel_name VARCHAR(16), FOREIGN KEY (chat_player_id) REFERENCES %s (chat_player_id);", Table.MUTED, Table.PLAYERS);
+	private static final String SQL_CREATE_MUTED = String.format("CREATE TABLE IF NOT EXISTS %s (chat_player_id INT, channel_name VARCHAR(16), UNIQUE KEY (chat_player_id, channel_name), FOREIGN KEY (chat_player_id) REFERENCES %s (chat_player_id));", Table.MUTED, Table.PLAYERS);
 	private static final String SQL_SELECT_MUTED = String.format("SELECT * FROM %s WHERE chat_player_id = ?;", Table.MUTED);
+	private static final String SQL_INSERT_MUTED = String.format("INSERT INTO %s (chat_player_id, channel_name) VALUES (?, ?);", Table.MUTED);
 	private static final String SQL_DELETE_MUTED = String.format("DELETE FROM %s WHERE chat_player_id = ? AND channel_name = ?;", Table.MUTED);
 
 	private Connection connection;
@@ -47,34 +54,41 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 		this.password = password;
 
 		Connection connection = getConnection();
-		
+
+		boolean error = false;
+
 		try {
 			if (connection.isClosed()) {
 				ChatPlugin.warning("MySQL connection lost");
+				error = true;
 			} else {
 				ChatPlugin.info("MySQL connection established");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return;
+			error = true;
 		}
-		
+
+		if (error) return;
+
 		/* CREATE PLAYERS TABLE */
 		try (PreparedStatement create = getConnection().prepareStatement(SQL_CREATE_PLAYERS)) {
 			create.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		/* CREATE IGNORING TABLE */
 		try (PreparedStatement create = getConnection().prepareStatement(SQL_CREATE_IGNORING)) {
+			System.out.println(SQL_CREATE_IGNORING);
 			create.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		/* CREATE MUTES TABLE */
 		try (PreparedStatement create = getConnection().prepareStatement(SQL_CREATE_MUTED)) {
+			System.out.println(SQL_CREATE_MUTED);
 			create.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -104,39 +118,39 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
-				
+
 				if (chatPlayer.getChatPlayerId() == 0) {
 					return null;
 				}
-				
+
 				/* SELECT FROM IGNORING TABLE */
 				try (PreparedStatement select = getConnection().prepareStatement(SQL_SELECT_IGNORING)) {
 					select.setInt(1, chatPlayer.getChatPlayerId());
-					
+
 					try (ResultSet rs = select.executeQuery()) {
 						while (rs.next()) {
 							String identityString = rs.getString("minecraft_identity");
 							MinecraftIdentity minecraftIdentity = new MinecraftIdentity(identityString);
-							
-							chatPlayer.ignore(minecraftIdentity, false);
+
+							chatPlayer.ignoring.add(minecraftIdentity);
 						}
 					}
 				}
-				
+
 				/* SELECT FROM MUTED TABLE */
 				try (PreparedStatement select = getConnection().prepareStatement(SQL_SELECT_MUTED)) {
 					select.setInt(1, chatPlayer.getChatPlayerId());
-					
+
 					try (ResultSet rs = select.executeQuery()) {
 						while (rs.next()) {
 							String channelName = rs.getString("channel_name");
 							ChatChannel<? extends ChatMessage> chatChannel = ChatPlugin.getInstance().getChatChannelManager().getByName(channelName);
-							
-							chatPlayer.mute(chatChannel, false);
+
+							chatPlayer.muted.add(chatChannel);
 						}
 					}
 				}
-				
+
 				return null;
 			}};
 	}
@@ -148,7 +162,7 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 			public Void call() throws Exception {
 				/* Player not in database, insert */
 				if (chatPlayer.getChatPlayerId() == 0) {
-					try (PreparedStatement insert = getConnection().prepareStatement(SQL_INSERT_PLAYER, Statement.RETURN_GENERATED_KEYS)) {
+					try (PreparedStatement insert = getConnection().prepareStatement(SQL_INSERT_PLAYERS, Statement.RETURN_GENERATED_KEYS)) {
 						insert.setString(1, chatPlayer.getMojangUUID().toString());
 						insert.setString(2, chatPlayer.getNickname());
 						insert.setString(3, chatPlayer.getFocused().getName());
@@ -167,7 +181,8 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 
 				/* Player already in database, update */
 				else {
-					try (PreparedStatement update = getConnection().prepareStatement(SQL_UPDATE_PLAYER)) {
+					/* UPDATE PLAYERS TABLE */
+					try (PreparedStatement update = getConnection().prepareStatement(SQL_UPDATE_PLAYERS)) {
 						update.setString(1, chatPlayer.getMojangUUID().toString());
 						update.setString(2, chatPlayer.getNickname());
 						update.setString(3, chatPlayer.getFocused().getName());
@@ -177,7 +192,46 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
+
+					/* UPDATE IGNORING TABLE */
+					Set<String> currentIgnoring = chatPlayer.ignoring.stream().map(MinecraftIdentity::getIdentity).collect(Collectors.toSet());
+					Set<String> previousIgnoring = new HashSet<>();
+
+					try (PreparedStatement select = getConnection().prepareStatement(SQL_SELECT_IGNORING)) {
+						select.setInt(1, chatPlayer.getChatPlayerId());
+
+						try (ResultSet rs = select.executeQuery()) {
+							while (rs.next()) {
+								String raw = rs.getString("minecraft_identity");
+								previousIgnoring.add(raw);
+							}
+						}
+					}
+
+					SetView<String> view = Sets.difference(currentIgnoring, previousIgnoring);
+
+					for (String ignoring : view) {
+						if (!currentIgnoring.contains(ignoring)) {
+							// delete
+							try (PreparedStatement delete = getConnection().prepareStatement(SQL_DELETE_IGNORING)) {
+								delete.setInt(1, chatPlayer.getChatPlayerId());
+								delete.setString(2, ignoring);
+								delete.execute();
+							}
+						}
+
+						if (!previousIgnoring.contains(ignoring)) {
+							// add
+							try (PreparedStatement insert = getConnection().prepareStatement(SQL_INSERT_IGNORING)) {
+								insert.setInt(1, chatPlayer.getChatPlayerId());
+								insert.setString(2, ignoring);
+								insert.execute();
+							}
+						}
+					}
 				}
+
+				/* UPDATE MUTED TABLE */
 
 				return null;
 			}
