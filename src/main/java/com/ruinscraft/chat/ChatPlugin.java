@@ -11,6 +11,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.ruinscraft.chat.channel.ChatChannelManager;
+import com.ruinscraft.chat.commands.ClearChatCommand;
 import com.ruinscraft.chat.commands.IgnoreCommand;
 import com.ruinscraft.chat.filters.ChatFilterManager;
 import com.ruinscraft.chat.listeners.ChatListener;
@@ -111,6 +112,7 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 		
 		/* Register Commands */
 		getCommand("ignore").setExecutor(new IgnoreCommand());
+		getCommand("clearchat").setExecutor(new ClearChatCommand());
 	}
 
 	@Override

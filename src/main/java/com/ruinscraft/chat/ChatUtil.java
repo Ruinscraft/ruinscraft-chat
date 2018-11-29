@@ -9,6 +9,9 @@ import org.bukkit.entity.Player;
 
 import com.ruinscraft.chat.players.ChatPlayer;
 
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
+
 public class ChatUtil {
 
 	private static ChatPlugin chatPlugin = ChatPlugin.getInstance();
@@ -32,5 +35,9 @@ public class ChatUtil {
 		
 		return players;
 	}
+	
+    public static BaseComponent[] convertFromLegacy(final String legacyText) {
+        return TextComponent.fromLegacyText(legacyText);
+    }
 	
 }

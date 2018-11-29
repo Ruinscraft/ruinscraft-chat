@@ -6,3 +6,4 @@ depend: [ruinscraft-player-status, Vault]
 
 commands:
   ignore:
+  clearchat:

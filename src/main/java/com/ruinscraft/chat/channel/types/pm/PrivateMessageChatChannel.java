@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.ChatUtil;
 import com.ruinscraft.chat.Constants;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.events.DummyAsyncPlayerChatEvent;
@@ -24,6 +25,10 @@ import com.ruinscraft.chat.messenger.MessageDispatcher;
 import com.ruinscraft.chat.players.ChatPlayer;
 import com.ruinscraft.playerstatus.PlayerStatus;
 import com.ruinscraft.playerstatus.PlayerStatusPlugin;
+
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.HoverEvent.Action;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage> {
 
@@ -50,7 +55,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 	public String getFormat(String viewer, PrivateChatMessage context) {
 		/* sent to themself */
 		if (context.getSender().equals(context.getRecipient())) {
-			return ChatColor.DARK_AQUA + "(you say to yourself)" + getMessageColor() + " '%message%'";
+			return ChatColor.DARK_AQUA + "(you say to yourself)" + getMessageColor() + " %message%";
 		}
 
 		/* viewer is the sender */
@@ -263,16 +268,19 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 		if (sender != null) {
 			if (sender == recipient) {
 				// sending to themself
-				String format = getFormat(chatMessage.getRecipient(), chatMessage);
-				recipient.sendMessage(format(format, chatMessage.getSender(), chatMessage.getRecipient(), chatMessage.getPayload()));
+				String format = replace(getFormat(chatMessage.getRecipient(), chatMessage), chatMessage.getSender(), chatMessage.getRecipient(), chatMessage.getPayload());
+				TextComponent toSend = new TextComponent(ChatUtil.convertFromLegacy(format));
+				toSend.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, ChatUtil.convertFromLegacy("(crazy person)")));
+				recipient.spigot().sendMessage(toSend);
 				log = true;
 				return;
 			}
 
 			if (sender.isOnline()) {
 				// viewer is the sender
-				String format = getFormat(chatMessage.getSender(), chatMessage);
-				sender.sendMessage(format(format, chatMessage.getSender(), chatMessage.getRecipient(), chatMessage.getPayload()));
+				String format = replace(getFormat(chatMessage.getSender(), chatMessage), chatMessage.getSender(), chatMessage.getRecipient(), chatMessage.getPayload());
+				TextComponent toSend = new TextComponent(ChatUtil.convertFromLegacy(format));
+				sender.spigot().sendMessage(toSend);
 				log = true;
 			}
 		}
@@ -280,8 +288,10 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 		if (recipient != null) {
 			if (recipient.isOnline()) {
 				// viewer is the recipient
-				String format = getFormat(chatMessage.getRecipient(), chatMessage);
-				recipient.sendMessage(format(format, chatMessage.getSender(), chatMessage.getRecipient(), chatMessage.getPayload()));
+				String format = replace(getFormat(chatMessage.getRecipient(), chatMessage), chatMessage.getSender(), chatMessage.getRecipient(), chatMessage.getPayload());
+				TextComponent toSend = new TextComponent(ChatUtil.convertFromLegacy(format));
+				toSend.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, ChatUtil.convertFromLegacy("sent from " + chatMessage.getServerSentFrom())));
+				recipient.spigot().sendMessage(toSend);
 				log = true;
 			}
 		}
@@ -291,7 +301,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 		}
 	}
 
-	private static String format(String format, String sender, String recipient, String message) {
+	private static String replace(String format, String sender, String recipient, String message) {
 		return format
 				.replace("%sender%", sender)
 				.replace("%recipient%", recipient)
