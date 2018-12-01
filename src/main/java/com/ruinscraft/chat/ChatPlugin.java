@@ -14,6 +14,8 @@ import com.google.common.io.ByteStreams;
 import com.ruinscraft.chat.channel.ChatChannelManager;
 import com.ruinscraft.chat.commands.ClearChatCommand;
 import com.ruinscraft.chat.commands.IgnoreCommand;
+import com.ruinscraft.chat.commands.NicknameCommand;
+import com.ruinscraft.chat.commands.NicknameResetCommand;
 import com.ruinscraft.chat.filters.ChatFilterManager;
 import com.ruinscraft.chat.listeners.ChatListener;
 import com.ruinscraft.chat.listeners.QuitJoinListener;
@@ -115,10 +117,6 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 			vaultChat = chatProvider.getProvider();
 		}
 
-		/* Register Commands */
-		getCommand("ignore").setExecutor(new IgnoreCommand());
-		getCommand("clearchat").setExecutor(new ClearChatCommand());
-
 		/* In the case of a reload */
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			getChatPlayerManager().loadChatPlayer(player.getUniqueId());
@@ -127,6 +125,12 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 				checkServerName();
 			}
 		}
+		
+		/* Register Commands */
+		getCommand("ignore").setExecutor(new IgnoreCommand());
+		getCommand("clearchat").setExecutor(new ClearChatCommand());
+		getCommand("nickname").setExecutor(new NicknameCommand());
+		getCommand("nicknamereset").setExecutor(new NicknameResetCommand());
 	}
 
 	@Override

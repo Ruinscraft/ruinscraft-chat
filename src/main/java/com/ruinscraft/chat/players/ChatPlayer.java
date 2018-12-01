@@ -66,6 +66,10 @@ public class ChatPlayer {
 		return nickname;
 	}
 
+	public boolean hasNickname() {
+		return nickname != null;
+	}
+	
 	public boolean ignore(MinecraftIdentity minecraftIdentity) {
 		boolean success = ignoring.add(minecraftIdentity);
 

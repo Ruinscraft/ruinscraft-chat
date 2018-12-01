@@ -21,7 +21,12 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 
 	@Override
 	public String getFormat(String viewer, GenericChatMessage context) {
-		String noColor = "&b[L] &7[%prefix%&7] %sender% &8&l>&r" + getMessageColor() + " %message%";
+		String noColor = "";
+		if (context.getSenderNickname() != null) {
+			noColor = "&b[L] &7[%prefix%&7] %sender% &8&l>&r &6(%nickname%)&r" + getMessageColor() + " %message%";
+		} else {
+			noColor = "&b[L] &7[%prefix%&7] %sender% &8&l>&r" + getMessageColor() + " %message%";
+		}
 		return ChatColor.translateAlternateColorCodes('&', noColor);
 	}
 
@@ -110,6 +115,10 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 				format = format
 						.replace("%prefix%", chatMessage.getSenderPrefix())
 						.replace("%sender%", chatMessage.getSender());
+				
+				if (chatPlayer.hasNickname()) {
+					format = format.replace("%nickname%", chatPlayer.getNickname());
+				}
 
 				if (chatMessage.colorizePayload()) {
 					format = format.replace("%message%", ChatColor.translateAlternateColorCodes('&', message));

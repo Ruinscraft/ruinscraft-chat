@@ -22,4 +22,13 @@ public class ChatFilterManager {
 		return filters;
 	}
 	
+	public <T extends ChatFilter> ChatFilter getByType(Class<T> clazz) {
+		for (ChatFilter chatFilter : filters) {
+			if (chatFilter.getClass().getName().equals(clazz.getName())) {
+				return chatFilter;
+			}
+		}
+		return null;
+	}
+	
 }
