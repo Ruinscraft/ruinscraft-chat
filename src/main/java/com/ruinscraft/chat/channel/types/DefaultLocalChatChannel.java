@@ -116,8 +116,8 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 						.replace("%prefix%", chatMessage.getSenderPrefix())
 						.replace("%sender%", chatMessage.getSender());
 				
-				if (chatPlayer.hasNickname()) {
-					format = format.replace("%nickname%", chatPlayer.getNickname());
+				if (chatMessage.getSenderNickname() != null) {
+					format = format.replace("%nickname%", chatMessage.getSenderNickname());
 				}
 
 				if (chatMessage.colorizePayload()) {
