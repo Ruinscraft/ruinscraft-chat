@@ -216,10 +216,8 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 					return null;
 				}
 
-				Callable<PlayerStatus> callable = PlayerStatusPlugin.getAPI().getPlayerStatus(chatMessage.getRecipient());
-
 				try {
-					PlayerStatus recipientStatus = callable.call();
+					PlayerStatus recipientStatus = PlayerStatusPlugin.getAPI().getPlayerStatus(chatMessage.getRecipient()).call();
 
 					if (!player.isOnline()) {
 						return null;
@@ -235,7 +233,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 							filter(ChatPlugin.getInstance().getChatChannelManager(), ChatPlugin.getInstance().getChatFilterManager(), player, chatMessage).call();
 						} catch (NotSendableException e) {
 							if (player != null) {
-								player.sendMessage(Constants.COLOR_BASE + e.getMessage());
+								player.sendMessage(Constants.COLOR_ERROR + e.getMessage());
 								return null;
 							}
 						}

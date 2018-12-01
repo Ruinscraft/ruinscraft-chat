@@ -64,7 +64,7 @@ public interface ChatChannel<T extends ChatMessage> {
 						filter(ChatPlugin.getInstance().getChatChannelManager(), ChatPlugin.getInstance().getChatFilterManager(), sender, chatMessage).call();
 					} catch (NotSendableException e) {
 						if (sender != null) {
-							sender.sendMessage(ChatColor.RED + e.getMessage());
+							sender.sendMessage(Constants.COLOR_ERROR + e.getMessage());
 							return null;
 						}
 					} catch (Exception e) {
@@ -173,13 +173,17 @@ public interface ChatChannel<T extends ChatMessage> {
 			CommandMap commandMap = (CommandMap) bukkitCommandMap.get(plugin.getServer());
 
 			command.unregister(commandMap);
-			
+
 			Field commandMapKnownCommands = commandMap.getClass().getDeclaredField("knownCommands");
 			commandMapKnownCommands.setAccessible(true);
-			
+
 			HashMap<String, Command> knownCommands = (HashMap<String, Command>) commandMapKnownCommands.get(commandMap);
-			
+
 			knownCommands.remove(command.getName());
+
+			for (String alias : command.getAliases()) {
+				knownCommands.remove(alias);
+			}
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}

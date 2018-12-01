@@ -45,17 +45,17 @@ public class NicknameCommand implements CommandExecutor {
 			String desiredNickname = args[0];
 
 			if (desiredNickname == null) {
-				player.sendMessage(ChatColor.RED + "Nickname not valid.");
+				player.sendMessage(Constants.COLOR_ERROR + "Nickname not valid.");
 				return;
 			}
 
 			if (desiredNickname.isEmpty()) {
-				player.sendMessage(ChatColor.RED + "Nickname not valid.");
+				player.sendMessage(Constants.COLOR_ERROR + "Nickname not valid.");
 				return;
 			}
 
 			if (desiredNickname.length() > MAX_LENGTH) {
-				player.sendMessage(ChatColor.RED + "Nickname too long (max of 24 characters).");
+				player.sendMessage(Constants.COLOR_ERROR + "Nickname too long (max of 24 characters).");
 				return;
 			}
 
@@ -63,7 +63,7 @@ public class NicknameCommand implements CommandExecutor {
 				try {
 					desiredNickname = chatFilter.filter(desiredNickname);
 				} catch (NotSendableException e) {
-					player.sendMessage(ChatColor.RED + e.getMessage());
+					player.sendMessage(Constants.COLOR_ERROR + e.getMessage());
 					return;
 				}
 			}
