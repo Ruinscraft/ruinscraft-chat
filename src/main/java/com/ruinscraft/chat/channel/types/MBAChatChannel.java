@@ -57,7 +57,7 @@ public class MBAChatChannel implements ChatChannel<GenericChatMessage> {
 				String name = player.getName();
 				String server = ChatPlugin.getInstance().getServerName();
 				String channel = getName();
-				boolean colorize = player.hasPermission(ChatPlugin.PERMISSION_COLORIZE_MESSAGES);
+				boolean colorize = true;
 				String message = String.join(" ", args);
 				
 				GenericChatMessage chatMessage = new GenericChatMessage(prefix, nickname, name, server, channel, colorize, message);

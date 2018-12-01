@@ -154,7 +154,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 				String name = sender.getName();
 				String server = ChatPlugin.getInstance().getServerName();
 				String channel = getName();
-				boolean colorize = sender.hasPermission(ChatPlugin.PERMISSION_COLORIZE_MESSAGES);
+				boolean colorize = sender.hasPermission(Constants.PERMISSION_COLORIZE_MESSAGES);
 
 				PrivateChatMessage pm = new PrivateChatMessage(senderPrefix, nickname, name, recipient, server, channel, colorize, message);
 

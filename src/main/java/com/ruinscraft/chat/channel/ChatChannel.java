@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.Constants;
 import com.ruinscraft.chat.filters.ChatFilter;
 import com.ruinscraft.chat.filters.ChatFilterManager;
 import com.ruinscraft.chat.filters.NotSendableException;
@@ -141,7 +142,7 @@ public interface ChatChannel<T extends ChatMessage> {
 
 			CommandMap commandMap = (CommandMap) bukkitCommandMap.get(plugin.getServer());
 
-			commandMap.register(ChatPlugin.RUINSCRAFT_CHAT, command);
+			commandMap.register(Constants.STRING_RUINSCRAFT_CHAT_PLUGIN_NAME, command);
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}

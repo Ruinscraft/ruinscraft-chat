@@ -59,10 +59,10 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 
 		try {
 			if (connection.isClosed()) {
-				ChatPlugin.warning("MySQL connection lost");
+				ChatPlugin.warning("Player storage MySQL connection lost");
 				error = true;
 			} else {
-				ChatPlugin.info("MySQL connection established");
+				ChatPlugin.info("Player storage MySQL connection established");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
+import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.message.ChatMessage;
 
 public class MySQLChatLogger implements ChatLogger {
@@ -28,6 +29,24 @@ public class MySQLChatLogger implements ChatLogger {
 		this.username = username;
 		this.password = password.toCharArray();
 		
+		Connection connection = getConnection();
+
+		boolean error = false;
+
+		try {
+			if (connection.isClosed()) {
+				ChatPlugin.warning("Chat logging storage MySQL connection lost");
+				error = true;
+			} else {
+				ChatPlugin.info("Chat logging storage MySQL connection established");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			error = true;
+		}
+
+		if (error) return;
+		
 		try (PreparedStatement create = getConnection().prepareStatement(SQL_CREATE_CHAT_LOG_TABLE)) {
 			create.execute();
 		} catch (SQLException e) {
@@ -37,17 +56,21 @@ public class MySQLChatLogger implements ChatLogger {
 	
 	@Override
 	public Callable<Void> log(ChatMessage message) {
-		try (PreparedStatement insert = getConnection().prepareStatement(SQL_INSERT_LOG)) {
-			insert.setString(1, message.getSender());
-			insert.setLong(2, System.currentTimeMillis());
-			insert.setString(3, message.getIntendedChannelName());
-			insert.setString(4, message.getPayload());
-			insert.execute();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return null;
+		return new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				try (PreparedStatement insert = getConnection().prepareStatement(SQL_INSERT_LOG)) {
+					insert.setString(1, message.getSender());
+					insert.setLong(2, System.currentTimeMillis());
+					insert.setString(3, message.getIntendedChannelName());
+					insert.setString(4, message.getPayload());
+					insert.execute();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				return null;
+			}
+		};
 	}
 	
 	@Override

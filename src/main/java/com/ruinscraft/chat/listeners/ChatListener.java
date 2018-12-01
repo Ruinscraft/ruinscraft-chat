@@ -6,6 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.Constants;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.events.DummyAsyncPlayerChatEvent;
 import com.ruinscraft.chat.message.GenericChatMessage;
@@ -38,7 +39,7 @@ public class ChatListener implements Listener {
 		ChatChannel<GenericChatMessage> chatChannel = chatPlayer.getFocused();
 		String senderPrefix = ChatPlugin.getVaultChat().getPlayerPrefix(player);
 		String nickname = null;
-		boolean allowColor = player.hasPermission(ChatPlugin.PERMISSION_COLORIZE_MESSAGES);
+		boolean allowColor = player.hasPermission(Constants.PERMISSION_COLORIZE_MESSAGES);
 		GenericChatMessage chatMessage = new GenericChatMessage(senderPrefix, nickname, player.getName(), chatPlugin.getServerName(), chatChannel.getName(), allowColor, payload);
 
 		chatChannel.dispatch(chatPlugin.getMessageManager().getDispatcher(), player, true, chatMessage);
