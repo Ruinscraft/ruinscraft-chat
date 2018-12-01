@@ -11,8 +11,8 @@ import com.ruinscraft.chat.message.ChatMessage;
 public class MySQLChatLogger implements ChatLogger {
 
 	private static final String SQL_LOGGER_TABLE_NAME = "ruinscraft_chat_logs";
-	private static final String SQL_CREATE_CHAT_LOG_TABLE = String.format("CREATE TABLE IF NOT EXISTS %s (mojang_uuid VARCHAR(36), time BIGINT, channel VARCHAR(16), payload VARCHAR(256));", SQL_LOGGER_TABLE_NAME);
-	private static final String SQL_INSERT_LOG = String.format("INSERT INTO %s (mojang_uuid, time, channel, payload) VALUES (?, ?, ?, ?);", SQL_LOGGER_TABLE_NAME);
+	private static final String SQL_CREATE_CHAT_LOG_TABLE = String.format("CREATE TABLE IF NOT EXISTS %s (sender VARCHAR(36), time BIGINT, channel VARCHAR(16), payload VARCHAR(256));", SQL_LOGGER_TABLE_NAME);
+	private static final String SQL_INSERT_LOG = String.format("INSERT INTO %s (sender, time, channel, payload) VALUES (?, ?, ?, ?);", SQL_LOGGER_TABLE_NAME);
 	
 	private Connection connection;
 	private final String address;
@@ -38,6 +38,10 @@ public class MySQLChatLogger implements ChatLogger {
 	@Override
 	public Callable<Void> log(ChatMessage message) {
 		try (PreparedStatement insert = getConnection().prepareStatement(SQL_INSERT_LOG)) {
+			insert.setString(1, message.getSender());
+			insert.setLong(2, System.currentTimeMillis());
+			insert.setString(3, message.getIntendedChannelName());
+			insert.setString(4, message.getPayload());
 			insert.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
