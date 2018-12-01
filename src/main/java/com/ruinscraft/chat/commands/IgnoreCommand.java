@@ -42,7 +42,7 @@ public class IgnoreCommand implements CommandExecutor {
 			MinecraftIdentity minecraftIdentity = null;
 			OfflinePlayer potentialOfflinePlayer = Bukkit.getOfflinePlayer(arg0);
 			
-			if (potentialOfflinePlayer != null) {
+			if (potentialOfflinePlayer.hasPlayedBefore()) {
 				minecraftIdentity = new MinecraftIdentity(potentialOfflinePlayer.getUniqueId().toString());
 			} else {
 				minecraftIdentity = new MinecraftIdentity(arg0);
@@ -75,6 +75,8 @@ public class IgnoreCommand implements CommandExecutor {
 				
 				if (offlinePlayer.getName() != null) {
 					name = offlinePlayer.getName();
+				} else {
+					name = uuid.toString();
 				}
 			} else {
 				name = minecraftIdentity.getIdentity();
