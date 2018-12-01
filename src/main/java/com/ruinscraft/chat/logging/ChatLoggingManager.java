@@ -34,6 +34,7 @@ public class ChatLoggingManager implements AutoCloseable {
 	@Override
 	public void close() throws Exception {
 		loggers.forEach(l -> l.close());
+		loggers.clear();
 	}
 	
 }

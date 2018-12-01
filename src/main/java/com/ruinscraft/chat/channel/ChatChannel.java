@@ -118,7 +118,13 @@ public interface ChatChannel<T extends ChatMessage> {
 	default void log(final T chatMessage) {
 		if (isLogged()) {
 			ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
-				ChatPlugin.getInstance().getChatLoggingManager().getChatLoggers().forEach(l -> l.log(chatMessage));
+				ChatPlugin.getInstance().getChatLoggingManager().getChatLoggers().forEach(l -> {
+					try {
+						l.log(chatMessage).call();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				});
 			});
 		}
 	}
