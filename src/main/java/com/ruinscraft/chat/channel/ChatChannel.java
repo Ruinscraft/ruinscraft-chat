@@ -50,32 +50,35 @@ public interface ChatChannel<T extends ChatMessage> {
 				for (ChatFilter filter : chatFilterManager.getChatFilters()) {
 					chatMessage.setPayload(filter.filter(chatMessage.getPayload()));
 				}
-
 				return null;
 			}
 		};
 	}
 
-	default void dispatch(MessageDispatcher dispatcher, Player sender, boolean filter, T chatMessage) {
-		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
-			if (filter) {
-				try {
-					filter(ChatPlugin.getInstance().getChatChannelManager(), ChatPlugin.getInstance().getChatFilterManager(), sender, chatMessage).call();
-				} catch (NotSendableException e) {
-					if (sender != null) {
-						sender.sendMessage(ChatColor.RED + e.getMessage());
-						return;
+	default Callable<Void> dispatch(MessageDispatcher dispatcher, Player sender, boolean filter, T chatMessage) {
+		return new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				if (filter) {
+					try {
+						filter(ChatPlugin.getInstance().getChatChannelManager(), ChatPlugin.getInstance().getChatFilterManager(), sender, chatMessage).call();
+					} catch (NotSendableException e) {
+						if (sender != null) {
+							sender.sendMessage(ChatColor.RED + e.getMessage());
+							return null;
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
-				} catch (Exception e) {
-					e.printStackTrace();
 				}
+
+				MessageManager mm = ChatPlugin.getInstance().getMessageManager();
+				Message message = new Message(chatMessage);
+
+				mm.getDispatcher().dispatch(message);
+				return null;
 			}
-
-			MessageManager mm = ChatPlugin.getInstance().getMessageManager();
-			Message message = new Message(chatMessage);
-
-			mm.getDispatcher().dispatch(message);
-		});
+		};
 	}
 
 	default void sendToChat(T chatMessage) {
@@ -112,10 +115,10 @@ public interface ChatChannel<T extends ChatMessage> {
 			}
 		}
 
-		log(chatMessage);
+		logAsync(chatMessage);
 	}
 
-	default void log(final T chatMessage) {
+	default void logAsync(final T chatMessage) {
 		if (isLogged()) {
 			ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
 				ChatPlugin.getInstance().getChatLoggingManager().getChatLoggers().forEach(l -> {

@@ -5,8 +5,6 @@ import java.util.concurrent.Callable;
 
 import org.bukkit.configuration.ConfigurationSection;
 
-import com.ruinscraft.chat.ChatPlugin;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -17,9 +15,9 @@ public class RedisReplyStorage implements ReplyStorage {
 
 	private static final String REPLY = "reply";
 	private static final int EXPIRE_AFTER_SEC = 1200;
-	
+
 	private JedisPool pool;
-	
+
 	public RedisReplyStorage(ConfigurationSection redisConfig) {
 		String address = redisConfig.getString("address");
 		int port = redisConfig.getInt("port");
@@ -32,7 +30,7 @@ public class RedisReplyStorage implements ReplyStorage {
 						Protocol.DEFAULT_TIMEOUT,
 						password);
 	}
-	
+
 	@Override
 	public Callable<String> getReply(String username) {
 		return new Callable<String>() {
@@ -46,23 +44,27 @@ public class RedisReplyStorage implements ReplyStorage {
 	}
 
 	@Override
-	public void setReply(String username, String _username) {
-		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
-			try (Jedis jedis = pool.getResource()) {
-				try (Pipeline pipeline = jedis.pipelined()) {
-					pipeline.setex(REPLY + "." + username, EXPIRE_AFTER_SEC, _username);
-					pipeline.setex(REPLY + "." + _username, EXPIRE_AFTER_SEC, username);
-					pipeline.sync();
-				} catch (IOException e) {
-					e.printStackTrace();
+	public Callable<Void> setReply(String username, String _username) {
+		return new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				try (Jedis jedis = pool.getResource()) {
+					try (Pipeline pipeline = jedis.pipelined()) {
+						pipeline.setex(REPLY + "." + username, EXPIRE_AFTER_SEC, _username);
+						pipeline.setex(REPLY + "." + _username, EXPIRE_AFTER_SEC, username);
+						pipeline.sync();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
+				return null;
 			}
-		});
+		};
 	}
-	
+
 	@Override
 	public void close() {
 		pool.close();
 	}
-	
+
 }

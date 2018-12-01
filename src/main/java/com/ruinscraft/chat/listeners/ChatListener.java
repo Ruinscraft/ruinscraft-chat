@@ -21,11 +21,11 @@ public class ChatListener implements Listener {
 		if (event instanceof DummyAsyncPlayerChatEvent) {
 			return;
 		}
-		
+
 		if (event.isCancelled()) {
 			return;
 		}
-		
+
 		Player player = event.getPlayer();
 		String payload = event.getMessage();
 
@@ -42,7 +42,12 @@ public class ChatListener implements Listener {
 		boolean allowColor = player.hasPermission(Constants.PERMISSION_COLORIZE_MESSAGES);
 		GenericChatMessage chatMessage = new GenericChatMessage(senderPrefix, nickname, player.getName(), chatPlugin.getServerName(), chatChannel.getName(), allowColor, payload);
 
-		chatChannel.dispatch(chatPlugin.getMessageManager().getDispatcher(), player, true, chatMessage);
+		try {
+			/* Safe because this is already async */
+			chatChannel.dispatch(chatPlugin.getMessageManager().getDispatcher(), player, true, chatMessage).call();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }

@@ -130,7 +130,7 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 			}
 		}
 
-		log(chatMessage);
+		logAsync(chatMessage);
 	}
 
 }

@@ -62,7 +62,13 @@ public class MBAChatChannel implements ChatChannel<GenericChatMessage> {
 				
 				GenericChatMessage chatMessage = new GenericChatMessage(prefix, nickname, name, server, channel, colorize, message);
 				
-				dispatch(ChatPlugin.getInstance().getMessageManager().getDispatcher(), player, false, chatMessage);
+				ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
+					try {
+						dispatch(ChatPlugin.getInstance().getMessageManager().getDispatcher(), player, false, chatMessage).call();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				});
 				
 				return true;
 			}

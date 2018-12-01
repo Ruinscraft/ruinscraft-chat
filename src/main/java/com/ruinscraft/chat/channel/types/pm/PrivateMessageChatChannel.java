@@ -95,70 +95,78 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 
 			@Override
 			public boolean execute(CommandSender sender, String commandLabel, String[] args) {
-				if (!(sender instanceof Player)) {
-					return true;
-				}
-
-				Player player = (Player) sender;
-
-				if (!testPermission(player)) {
-					return true;
-				}
-
-				String message = null;
-				String recipient = null;
-				boolean reply = false;
-
-				switch (commandLabel.toLowerCase()) {
-				case "r":
-				case "reply":
-					reply = true;
-				default:
-					break;
-				}
-
-				if (reply) {
-					if (args.length < 1) {
-						player.sendMessage("/reply <msg>");
-						return true;
+				ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
+					if (!(sender instanceof Player)) {
+						return;
 					}
 
-					Callable<String> callable = replyStorage.getReply(player.getName());
+					Player player = (Player) sender;
+
+					if (!testPermission(player)) {
+						return;
+					}
+
+					String message = null;
+					String recipient = null;
+					boolean reply = false;
+
+					switch (commandLabel.toLowerCase()) {
+					case "r":
+					case "reply":
+						reply = true;
+					default:
+						break;
+					}
+
+					if (reply) {
+						if (args.length < 1) {
+							player.sendMessage("/reply <msg>");
+							return;
+						}
+
+						try {
+							recipient = replyStorage.getReply(player.getName()).call();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+
+						if (recipient == null) {
+							player.sendMessage(Constants.COLOR_BASE + "No one to reply to");
+							return;
+						}
+
+						message = String.join(" ", args);
+					} else {
+						if (args.length < 2) {
+							player.sendMessage(getUsage());
+							return;
+						}
+
+						recipient = args[0];
+						message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+					}
 
 					try {
-						recipient = callable.call();
+						replyStorage.setReply(player.getName(), recipient).call();
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 
-					if (recipient == null) {
-						player.sendMessage(Constants.COLOR_BASE + "No one to reply to");
-						return true;
+					String senderPrefix = ChatPlugin.getVaultChat().getPlayerPrefix(player);
+					String nickname = null;
+					String name = sender.getName();
+					String server = ChatPlugin.getInstance().getServerName();
+					String channel = getName();
+					boolean colorize = sender.hasPermission(Constants.PERMISSION_COLORIZE_MESSAGES);
+
+					PrivateChatMessage pm = new PrivateChatMessage(senderPrefix, nickname, name, recipient, server, channel, colorize, message);
+
+					try {
+						dispatch(ChatPlugin.getInstance().getMessageManager().getDispatcher(), player, true, pm).call();
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
-
-					message = String.join(" ", args);
-				} else {
-					if (args.length < 2) {
-						player.sendMessage(getUsage());
-						return true;
-					}
-
-					recipient = args[0];
-					message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
-				}
-
-				replyStorage.setReply(player.getName(), recipient);
-
-				String senderPrefix = ChatPlugin.getVaultChat().getPlayerPrefix(player);
-				String nickname = null;
-				String name = sender.getName();
-				String server = ChatPlugin.getInstance().getServerName();
-				String channel = getName();
-				boolean colorize = sender.hasPermission(Constants.PERMISSION_COLORIZE_MESSAGES);
-
-				PrivateChatMessage pm = new PrivateChatMessage(senderPrefix, nickname, name, recipient, server, channel, colorize, message);
-
-				dispatch(ChatPlugin.getInstance().getMessageManager().getDispatcher(), player, true, pm);
+				});
 
 				return true;
 			}
@@ -196,48 +204,52 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 	}
 
 	@Override
-	public void dispatch(MessageDispatcher dispatcher, Player player, boolean filter, PrivateChatMessage chatMessage) {
-		AsyncPlayerChatEvent event = new DummyAsyncPlayerChatEvent(false, player, chatMessage.getPayload());
-		
-		Bukkit.getServer().getPluginManager().callEvent(event);
-		
-		if (event.isCancelled()) {
-			return;
-		}
-		
-		Callable<PlayerStatus> callable = PlayerStatusPlugin.getAPI().getPlayerStatus(chatMessage.getRecipient());
+	public Callable<Void> dispatch(MessageDispatcher dispatcher, Player player, boolean filter, PrivateChatMessage chatMessage) {
+		return new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				AsyncPlayerChatEvent event = new DummyAsyncPlayerChatEvent(false, player, chatMessage.getPayload());
 
-		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
-			try {
-				PlayerStatus recipientStatus = callable.call();
+				Bukkit.getServer().getPluginManager().callEvent(event);
 
-				if (!player.isOnline()) {
-					return;
+				if (event.isCancelled()) {
+					return null;
 				}
 
-				if (!recipientStatus.isOnline()) {
-					player.sendMessage(Constants.COLOR_ACCENT + chatMessage.getRecipient() + Constants.COLOR_BASE + " is not online.");
-					return;
-				}
+				Callable<PlayerStatus> callable = PlayerStatusPlugin.getAPI().getPlayerStatus(chatMessage.getRecipient());
 
-				if (filter) {
-					try {
-						filter(ChatPlugin.getInstance().getChatChannelManager(), ChatPlugin.getInstance().getChatFilterManager(), player, chatMessage).call();
-					} catch (NotSendableException e) {
-						if (player != null) {
-							player.sendMessage(Constants.COLOR_BASE + e.getMessage());
-							return;
+				try {
+					PlayerStatus recipientStatus = callable.call();
+
+					if (!player.isOnline()) {
+						return null;
+					}
+
+					if (!recipientStatus.isOnline()) {
+						player.sendMessage(Constants.COLOR_ACCENT + chatMessage.getRecipient() + Constants.COLOR_BASE + " is not online.");
+						return null;
+					}
+
+					if (filter) {
+						try {
+							filter(ChatPlugin.getInstance().getChatChannelManager(), ChatPlugin.getInstance().getChatFilterManager(), player, chatMessage).call();
+						} catch (NotSendableException e) {
+							if (player != null) {
+								player.sendMessage(Constants.COLOR_BASE + e.getMessage());
+								return null;
+							}
 						}
 					}
+
+					Message dispatchable = new Message(chatMessage);
+
+					dispatcher.dispatch(dispatchable);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-
-				Message dispatchable = new Message(chatMessage);
-
-				dispatcher.dispatch(dispatchable);
-			} catch (Exception e) {
-				e.printStackTrace();
+				return null;
 			}
-		});
+		};
 	}
 
 	@Override
@@ -247,24 +259,24 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 		boolean log = false;
 
 		ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(recipient.getUniqueId());
-		
+
 		boolean ignoring = false;
-		
+
 		if (chatPlayer.isIgnoring(chatMessage.getSender())) {
 			ignoring = true;
 		}
-		
+
 		OfflinePlayer potentialOfflinePlayer = Bukkit.getOfflinePlayer(chatMessage.getSender());
-		
+
 		if (potentialOfflinePlayer != null && chatPlayer.isIgnoring(potentialOfflinePlayer.getUniqueId())) {
 			ignoring = true;
 		}
-		
+
 		if (ignoring) {
 			sender.sendMessage(Constants.COLOR_BASE + "You have been ignored by this player");
 			return;
 		}
-		
+
 		if (sender != null) {
 			if (sender == recipient) {
 				// sending to themself
@@ -297,7 +309,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 		}
 
 		if (log) {
-			log(chatMessage);
+			logAsync(chatMessage);
 		}
 	}
 

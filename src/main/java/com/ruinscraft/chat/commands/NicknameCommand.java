@@ -19,58 +19,60 @@ import net.md_5.bungee.api.ChatColor;
 public class NicknameCommand implements CommandExecutor {
 
 	public static final int MAX_LENGTH = 24;
-	
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (!(sender instanceof Player)) {
-			return true;
-		}
-		
-		Player player = (Player) sender;
-		ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(player.getUniqueId());
-		
-		if (args.length < 1) {
-			if (chatPlayer.hasNickname()) {
-				player.sendMessage(Constants.COLOR_BASE + "Your current nickname is " + Constants.COLOR_ACCENT + chatPlayer.getNickname());
-				player.sendMessage(Constants.COLOR_BASE + "You can reset it with /nicknamereset");
-				return true;
-			} else {
-				player.sendMessage(Constants.COLOR_BASE + "You currently do not have a nickname");
-				player.sendMessage(Constants.COLOR_BASE + "You can set one with " + Constants.COLOR_ACCENT + "/" + label + " <name>");
-				return true;
+		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
+			if (!(sender instanceof Player)) {
+				return;
 			}
-		}
-		
-		String desiredNickname = args[0];
-		
-		if (desiredNickname == null) {
-			player.sendMessage(ChatColor.RED + "Nickname not valid.");
-			return true;
-		}
-		
-		if (desiredNickname.isEmpty()) {
-			player.sendMessage(ChatColor.RED + "Nickname not valid.");
-			return true;
-		}
-		
-		if (desiredNickname.length() > MAX_LENGTH) {
-			player.sendMessage(ChatColor.RED + "Nickname too long (max of 24 characters).");
-			return true;
-		}
 
-		for (ChatFilter chatFilter : ChatPlugin.getInstance().getChatFilterManager().getChatFilters()) {
-			try {
-				desiredNickname = chatFilter.filter(desiredNickname);
-			} catch (NotSendableException e) {
-				player.sendMessage(ChatColor.RED + e.getMessage());
-				return true;
+			Player player = (Player) sender;
+			ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(player.getUniqueId());
+
+			if (args.length < 1) {
+				if (chatPlayer.hasNickname()) {
+					player.sendMessage(Constants.COLOR_BASE + "Your current nickname is " + Constants.COLOR_ACCENT + chatPlayer.getNickname());
+					player.sendMessage(Constants.COLOR_BASE + "You can reset it with /nicknamereset");
+					return;
+				} else {
+					player.sendMessage(Constants.COLOR_BASE + "You currently do not have a nickname");
+					player.sendMessage(Constants.COLOR_BASE + "You can set one with " + Constants.COLOR_ACCENT + "/" + label + " <name>");
+					return;
+				}
 			}
-		}
-		
-		chatPlayer.setNickname(desiredNickname);
-		player.sendMessage(Constants.COLOR_BASE + "Nickname set to " + Constants.COLOR_ACCENT + desiredNickname);
-		
+
+			String desiredNickname = args[0];
+
+			if (desiredNickname == null) {
+				player.sendMessage(ChatColor.RED + "Nickname not valid.");
+				return;
+			}
+
+			if (desiredNickname.isEmpty()) {
+				player.sendMessage(ChatColor.RED + "Nickname not valid.");
+				return;
+			}
+
+			if (desiredNickname.length() > MAX_LENGTH) {
+				player.sendMessage(ChatColor.RED + "Nickname too long (max of 24 characters).");
+				return;
+			}
+
+			for (ChatFilter chatFilter : ChatPlugin.getInstance().getChatFilterManager().getChatFilters()) {
+				try {
+					desiredNickname = chatFilter.filter(desiredNickname);
+				} catch (NotSendableException e) {
+					player.sendMessage(ChatColor.RED + e.getMessage());
+					return;
+				}
+			}
+
+			chatPlayer.setNickname(desiredNickname);
+			player.sendMessage(Constants.COLOR_BASE + "Nickname set to " + Constants.COLOR_ACCENT + desiredNickname);
+		});
+
 		return true;
 	}
-	
+
 }
