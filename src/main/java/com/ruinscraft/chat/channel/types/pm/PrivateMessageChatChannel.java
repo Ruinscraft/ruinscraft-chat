@@ -26,6 +26,7 @@ import com.ruinscraft.chat.players.ChatPlayer;
 import com.ruinscraft.playerstatus.PlayerStatus;
 import com.ruinscraft.playerstatus.PlayerStatusPlugin;
 
+import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.HoverEvent.Action;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -49,6 +50,11 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 	@Override
 	public String getName() {
 		return "pm";
+	}
+	
+	@Override
+	public String getPrettyName() {
+		return "Private Messages";
 	}
 
 	@Override
@@ -202,6 +208,11 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 	public boolean isLoggedGlobally() {
 		return true;
 	}
+	
+	@Override
+	public boolean muteable() {
+		return true;
+	}
 
 	@Override
 	public Callable<Void> dispatch(MessageDispatcher dispatcher, Player player, boolean filter, PrivateChatMessage chatMessage) {
@@ -302,6 +313,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 				TextComponent toSend = new TextComponent(ChatUtil.convertFromLegacy(format));
 				toSend.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, ChatUtil.convertFromLegacy("sent from " + chatMessage.getServerSentFrom())));
 				recipient.spigot().sendMessage(toSend);
+				recipient.spigot().sendMessage(ChatMessageType.ACTION_BAR, ChatUtil.convertFromLegacy(Constants.COLOR_ACCENT + "new message from " + chatMessage.getSender()));
 				log = true;
 			}
 		}

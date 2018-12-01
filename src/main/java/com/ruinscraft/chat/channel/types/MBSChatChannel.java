@@ -15,6 +15,11 @@ public class MBSChatChannel implements ChatChannel<GenericChatMessage> {
 	public String getName() {
 		return "mbs";
 	}
+	
+	@Override
+	public String getPrettyName() {
+		return "MBS";
+	}
 
 	@Override
 	public String getFormat(String viewer, GenericChatMessage context) {
@@ -88,6 +93,11 @@ public class MBSChatChannel implements ChatChannel<GenericChatMessage> {
 	
 	@Override
 	public boolean isLoggedGlobally() {
+		return false;
+	}
+	
+	@Override
+	public boolean muteable() {
 		return false;
 	}
 

@@ -18,6 +18,11 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 	public String getName() {
 		return "local";
 	}
+	
+	@Override
+	public String getPrettyName() {
+		return "Local Chat (the server you are on)";
+	}
 
 	@Override
 	public String getFormat(String viewer, GenericChatMessage context) {
@@ -81,6 +86,11 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 	@Override
 	public boolean isLoggedGlobally() {
 		return false;
+	}
+	
+	@Override
+	public boolean muteable() {
+		return true;
 	}
 
 	@Override

@@ -16,6 +16,11 @@ public class GlobalChatChannel implements ChatChannel<GenericChatMessage> {
 	public String getName() {
 		return "global";
 	}
+	
+	@Override
+	public String getPrettyName() {
+		return "Global Chat";
+	}
 
 	@Override
 	public String getFormat(String viewer, GenericChatMessage context) {
@@ -79,6 +84,11 @@ public class GlobalChatChannel implements ChatChannel<GenericChatMessage> {
 	
 	@Override
 	public boolean isLoggedGlobally() {
+		return true;
+	}
+	
+	@Override
+	public boolean muteable() {
 		return true;
 	}
 

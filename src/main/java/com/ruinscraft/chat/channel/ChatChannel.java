@@ -30,6 +30,8 @@ import com.ruinscraft.chat.players.ChatPlayer;
 public interface ChatChannel<T extends ChatMessage> {
 
 	String getName();
+	
+	String getPrettyName();
 
 	String getFormat(String viewer, T context);
 
@@ -42,6 +44,8 @@ public interface ChatChannel<T extends ChatMessage> {
 	boolean isLogged();
 
 	boolean isLoggedGlobally();
+	
+	boolean muteable();
 
 	default Callable<Void> filter(ChatChannelManager chatChannelManager, ChatFilterManager chatFilterManager, CommandSender sender, ChatMessage chatMessage) throws NotSendableException {
 		return new Callable<Void>() {

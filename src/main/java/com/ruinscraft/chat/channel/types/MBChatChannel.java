@@ -17,6 +17,11 @@ public class MBChatChannel implements ChatChannel<GenericChatMessage> {
 	}
 
 	@Override
+	public String getPrettyName() {
+		return "MB";
+	}
+	
+	@Override
 	public String getFormat(String viewer, GenericChatMessage context) {
 		String noColor = "&c[MB] &a[%server%] &c[%prefix%&c] %sender% &8&l>" + getMessageColor() + " %message%";
 		return ChatColor.translateAlternateColorCodes('&', noColor);
@@ -88,6 +93,11 @@ public class MBChatChannel implements ChatChannel<GenericChatMessage> {
 	
 	@Override
 	public boolean isLoggedGlobally() {
+		return false;
+	}
+	
+	@Override
+	public boolean muteable() {
 		return false;
 	}
 

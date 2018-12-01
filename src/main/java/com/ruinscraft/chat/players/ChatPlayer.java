@@ -89,27 +89,7 @@ public class ChatPlayer {
 		
 		return success;
 	}
-
-	public boolean mute(ChatChannel<? extends ChatMessage> chatChannel) {
-		boolean success = muted.add(chatChannel);
-
-		if (success) {
-			save();
-		}
-		
-		return success;
-	}
-
-	public boolean unmute(ChatChannel<? extends ChatMessage> chatChannel) {
-		boolean success = muted.remove(chatChannel);
-		
-		if (success) {
-			save();
-		}
-		
-		return success;
-	}
-
+	
 	public boolean isIgnoring(String username) {
 		for (MinecraftIdentity minecraftIdentity : ignoring) {
 			if (minecraftIdentity.getIdentity().equalsIgnoreCase(username)) {
@@ -132,6 +112,42 @@ public class ChatPlayer {
 		}
 		
 		return false;
+	}
+
+	public boolean mute(ChatChannel<? extends ChatMessage> chatChannel) {
+		boolean success = muted.add(chatChannel);
+
+		if (success) {
+			save();
+		}
+		
+		return success;
+	}
+	
+	public boolean mute(String chatChannelName) {
+		return mute(ChatPlugin.getInstance().getChatChannelManager().getByName(chatChannelName));
+	}
+
+	public boolean unmute(ChatChannel<? extends ChatMessage> chatChannel) {
+		boolean success = muted.remove(chatChannel);
+		
+		if (success) {
+			save();
+		}
+		
+		return success;
+	}
+
+	public boolean unmute(String chatChannelName) {
+		return unmute(ChatPlugin.getInstance().getChatChannelManager().getByName(chatChannelName));
+	}
+	
+	public boolean isMuted(ChatChannel<? extends ChatMessage> chatChannel) {
+		return muted.contains(chatChannel);
+	}
+	
+	public boolean isMuted(String chatChannelName) {
+		return isMuted(ChatPlugin.getInstance().getChatChannelManager().getByName(chatChannelName));
 	}
 	
 	public void save() {

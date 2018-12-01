@@ -12,6 +12,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.ruinscraft.chat.channel.ChatChannelManager;
+import com.ruinscraft.chat.commands.ChatCommand;
 import com.ruinscraft.chat.commands.ClearChatCommand;
 import com.ruinscraft.chat.commands.IgnoreCommand;
 import com.ruinscraft.chat.commands.NicknameCommand;
@@ -103,10 +104,6 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 		/* Setup ChatLoggingManager */
 		chatLoggingManager = new ChatLoggingManager(getConfig().getConfigurationSection("logging"));
 
-		/* Register Bukkit Listeners */
-		pm.registerEvents(new ChatListener(), this);
-		pm.registerEvents(new QuitJoinListener(), this);
-
 		/* Register PluginMessenger */
 		getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 		getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", this);
@@ -126,11 +123,20 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 			}
 		}
 		
-		/* Register Commands */
+		ChatCommand chatCommand = new ChatCommand(); // listener and command
+		
+		/* Register Bukkit Listeners */
+		pm.registerEvents(new ChatListener(), this);
+		pm.registerEvents(new QuitJoinListener(), this);
+		pm.registerEvents(chatCommand, this);
+		
+		
+		/* Register Bukkit Commands */
 		getCommand("ignore").setExecutor(new IgnoreCommand());
 		getCommand("clearchat").setExecutor(new ClearChatCommand());
 		getCommand("nickname").setExecutor(new NicknameCommand());
 		getCommand("nicknamereset").setExecutor(new NicknameResetCommand());
+		getCommand("chat").setExecutor(chatCommand);
 	}
 
 	@Override

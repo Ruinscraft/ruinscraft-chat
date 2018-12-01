@@ -11,8 +11,6 @@ import com.ruinscraft.chat.filters.ChatFilter;
 import com.ruinscraft.chat.filters.NotSendableException;
 import com.ruinscraft.chat.players.ChatPlayer;
 
-import net.md_5.bungee.api.ChatColor;
-
 /**
  *	A command for Players set a nickname (for use in instanceof DefaultLocalChatChannel).
  */
