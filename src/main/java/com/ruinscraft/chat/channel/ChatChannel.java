@@ -1,6 +1,7 @@
 package com.ruinscraft.chat.channel;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -39,7 +40,7 @@ public interface ChatChannel<T extends ChatMessage> {
 	Command getCommand();
 
 	boolean isLogged();
-	
+
 	boolean isLoggedGlobally();
 
 	default Callable<Void> filter(ChatChannelManager chatChannelManager, ChatFilterManager chatFilterManager, CommandSender sender, ChatMessage chatMessage) throws NotSendableException {
@@ -79,19 +80,19 @@ public interface ChatChannel<T extends ChatMessage> {
 
 	default void sendToChat(T chatMessage) {
 		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-			
+
 			ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(onlinePlayer.getUniqueId());
-			
+
 			if (chatPlayer.isIgnoring(chatMessage.getSender())) {
 				continue;
 			}
-			
+
 			OfflinePlayer potentialOfflinePlayer = Bukkit.getOfflinePlayer(chatMessage.getSender());
-			
+
 			if (potentialOfflinePlayer != null && chatPlayer.isIgnoring(potentialOfflinePlayer.getUniqueId())) {
 				continue;
 			}
-			
+
 			// if no permission defined or they have it
 			if (getPermission() == null || onlinePlayer.hasPermission(getPermission())) {
 				String format = getFormat(onlinePlayer.getName(), chatMessage);
@@ -137,12 +138,39 @@ public interface ChatChannel<T extends ChatMessage> {
 
 		try {
 			Field bukkitCommandMap = plugin.getServer().getClass().getDeclaredField("commandMap");
-
 			bukkitCommandMap.setAccessible(true);
 
 			CommandMap commandMap = (CommandMap) bukkitCommandMap.get(plugin.getServer());
 
 			commandMap.register(Constants.STRING_RUINSCRAFT_CHAT_PLUGIN_NAME, command);
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+	}
+
+	default void unregisterCommands() {
+		Command command = getCommand();
+
+		if (command == null) {
+			return;
+		}
+
+		Plugin plugin = ChatPlugin.getInstance();
+
+		try {
+			Field bukkitCommandMap = plugin.getServer().getClass().getDeclaredField("commandMap");
+			bukkitCommandMap.setAccessible(true);
+
+			CommandMap commandMap = (CommandMap) bukkitCommandMap.get(plugin.getServer());
+
+			command.unregister(commandMap);
+			
+			Field commandMapKnownCommands = commandMap.getClass().getDeclaredField("knownCommands");
+			commandMapKnownCommands.setAccessible(true);
+			
+			HashMap<String, Command> knownCommands = (HashMap<String, Command>) commandMapKnownCommands.get(commandMap);
+			
+			knownCommands.remove(command.getName());
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}

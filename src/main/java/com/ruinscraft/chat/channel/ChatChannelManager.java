@@ -49,5 +49,10 @@ public class ChatChannelManager {
 	public ChatChannel<GenericChatMessage> getDefaultChatChannel() {
 		return getByName("global");
 	}
+	
+	public void unregisterAll() {
+		channels.forEach(c -> c.unregisterCommands());
+		channels.clear();
+	}
 
 }

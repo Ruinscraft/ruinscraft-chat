@@ -1,5 +1,6 @@
 package com.ruinscraft.chat;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -40,12 +41,12 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 	public static void warning(String message) {
 		instance.getLogger().warning(message);
 	}
-	
+
 	public static Chat getVaultChat() {
 		return vaultChat;
 	}
 	/* ============== End of statics ============== */
-	
+
 	/*
 	 * When a message is received by the MessageConsumer,
 	 * if it is a ChatMessage, it will have an associated
@@ -59,7 +60,7 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 	private ChatChannelManager chatChannelManager;
 	private ChatFilterManager chatFilterManager;
 	private ChatLoggingManager chatLoggingManager;
-	
+
 	@Override
 	public void onEnable() {
 		instance = this;
@@ -74,7 +75,7 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 			pm.disablePlugin(this);
 			return;
 		}
-		
+
 		/* Check for ruinscraft-player-status */
 		if (pm.getPlugin("ruinscraft-player-status") == null) {
 			warning("ruinscraft-player-status required");
@@ -96,10 +97,10 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 
 		/* Setup ChatFilterManager */
 		chatFilterManager = new ChatFilterManager(getConfig().getConfigurationSection("chat-filters"));
-		
+
 		/* Setup ChatLoggingManager */
 		chatLoggingManager = new ChatLoggingManager(getConfig().getConfigurationSection("logging"));
-		
+
 		/* Register Bukkit Listeners */
 		pm.registerEvents(new ChatListener(), this);
 		pm.registerEvents(new QuitJoinListener(), this);
@@ -107,20 +108,31 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 		/* Register PluginMessenger */
 		getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 		getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", this);
-		
+
 		/* Setup Vault Chat */
 		RegisteredServiceProvider<Chat> chatProvider = getServer().getServicesManager().getRegistration(Chat.class);
 		if (chatProvider != null) {
 			vaultChat = chatProvider.getProvider();
 		}
-		
+
 		/* Register Commands */
 		getCommand("ignore").setExecutor(new IgnoreCommand());
 		getCommand("clearchat").setExecutor(new ClearChatCommand());
+
+		/* In the case of a reload */
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			getChatPlayerManager().loadChatPlayer(player.getUniqueId());
+
+			if (serverName ==  null) {
+				checkServerName();
+			}
+		}
 	}
 
 	@Override
 	public void onDisable() {
+		chatChannelManager.unregisterAll();
+		
 		try {
 			messageManager.close();
 			chatPlayerManager.close();
@@ -166,11 +178,11 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 	public ChatFilterManager getChatFilterManager() {
 		return chatFilterManager;
 	}
-	
+
 	public ChatLoggingManager getChatLoggingManager() {
 		return chatLoggingManager;
 	}
-	
+
 	@Override
 	public void onPluginMessageReceived(String channel, Player player, byte[] message) {
 		if (!channel.equals("BungeeCord")) {
