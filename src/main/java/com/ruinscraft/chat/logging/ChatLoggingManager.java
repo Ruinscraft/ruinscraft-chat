@@ -1,5 +1,6 @@
 package com.ruinscraft.chat.logging;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.bukkit.configuration.ConfigurationSection;
@@ -9,6 +10,8 @@ public class ChatLoggingManager implements AutoCloseable {
 	private Set<ChatLogger> loggers;
 	
 	public ChatLoggingManager(ConfigurationSection loggingSection) {
+		loggers = new HashSet<>();
+		
 		if (loggingSection.getBoolean("console.use")) {
 			loggers.add(new ConsoleChatLogger());
 		}
