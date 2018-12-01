@@ -121,7 +121,7 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 			}
 		}
 
-		log(ChatPlugin.getInstance().getChatChannelManager(), chatMessage);
+		log(chatMessage);
 	}
 
 }

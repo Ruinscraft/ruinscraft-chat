@@ -16,6 +16,7 @@ import com.ruinscraft.chat.commands.IgnoreCommand;
 import com.ruinscraft.chat.filters.ChatFilterManager;
 import com.ruinscraft.chat.listeners.ChatListener;
 import com.ruinscraft.chat.listeners.QuitJoinListener;
+import com.ruinscraft.chat.logging.ChatLoggingManager;
 import com.ruinscraft.chat.messenger.MessageManager;
 import com.ruinscraft.chat.messenger.redis.RedisMessageManager;
 import com.ruinscraft.chat.players.ChatPlayerManager;
@@ -58,6 +59,7 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 	private ChatPlayerManager chatPlayerManager;
 	private ChatChannelManager chatChannelManager;
 	private ChatFilterManager chatFilterManager;
+	private ChatLoggingManager chatLoggingManager;
 	
 	@Override
 	public void onEnable() {
@@ -96,6 +98,9 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 		/* Setup ChatFilterManager */
 		chatFilterManager = new ChatFilterManager(getConfig().getConfigurationSection("chat-filters"));
 		
+		/* Setup ChatLoggingManager */
+		chatLoggingManager = new ChatLoggingManager(getConfig().getConfigurationSection("logging"));
+		
 		/* Register Bukkit Listeners */
 		pm.registerEvents(new ChatListener(), this);
 		pm.registerEvents(new QuitJoinListener(), this);
@@ -120,6 +125,7 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 		try {
 			messageManager.close();
 			chatPlayerManager.close();
+			chatLoggingManager.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -160,6 +166,10 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 
 	public ChatFilterManager getChatFilterManager() {
 		return chatFilterManager;
+	}
+	
+	public ChatLoggingManager getChatLoggingManager() {
+		return chatLoggingManager;
 	}
 	
 	@Override

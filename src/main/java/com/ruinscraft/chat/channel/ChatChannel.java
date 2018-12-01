@@ -110,12 +110,14 @@ public interface ChatChannel<T extends ChatMessage> {
 			}
 		}
 
-		log(ChatPlugin.getInstance().getChatChannelManager(), chatMessage);
+		log(chatMessage);
 	}
 
-	default void log(ChatChannelManager chatChannelManager, T chatMessage) {
+	default void log(final T chatMessage) {
 		if (isLogged()) {
-			chatChannelManager.getChatLoggers().forEach(l -> l.log(chatMessage));
+			ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
+				ChatPlugin.getInstance().getChatLoggingManager().getChatLoggers().forEach(l -> l.log(chatMessage));
+			});
 		}
 	}
 

@@ -297,7 +297,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 		}
 
 		if (log) {
-			log(ChatPlugin.getInstance().getChatChannelManager(), chatMessage);
+			log(chatMessage);
 		}
 	}
 

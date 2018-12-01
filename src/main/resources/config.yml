@@ -24,3 +24,15 @@ channels:
 chat-filters:
   profanity:
     webpurify-key: abc123
+
+logging:
+  console:
+    use: true
+  mysql:
+    use: true
+    address: localhost
+    port: 3306
+    database: minecraft
+    username: root
+    password: password
+    
