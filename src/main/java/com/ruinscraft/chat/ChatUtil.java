@@ -39,5 +39,9 @@ public class ChatUtil {
     public static BaseComponent[] convertFromLegacy(final String legacyText) {
         return TextComponent.fromLegacyText(legacyText);
     }
+    
+    public static int getInventorySlotCount(int itemsDesired) {
+    	return (itemsDesired + 8) / 9 * 9;
+    }
 	
 }

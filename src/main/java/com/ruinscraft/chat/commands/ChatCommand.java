@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.ChatUtil;
 import com.ruinscraft.chat.Constants;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.players.ChatPlayer;
@@ -38,7 +39,7 @@ public class ChatCommand implements CommandExecutor, Listener {
 		ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(player.getUniqueId());
 		Set<ChatChannel<?>> muteableChannels = ChatPlugin.getInstance().getChatChannelManager().getMuteableChannels();
 
-		int slots = (muteableChannels.size() + 8) / 9 * 9;
+		int slots = ChatUtil.getInventorySlotCount(muteableChannels.size());
 		Inventory chatMenu = Bukkit.createInventory(null, slots, INVENTORY_NAME);;
 
 		for (ChatChannel<?> channel : muteableChannels) {
