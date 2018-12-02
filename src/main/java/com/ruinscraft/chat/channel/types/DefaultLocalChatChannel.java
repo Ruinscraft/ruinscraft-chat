@@ -64,9 +64,9 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 
 				ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(player.getUniqueId());
 
-				if (commandLabel.equalsIgnoreCase("localcolor")) {
+				if (commandLabel.toLowerCase().contains("localcolor")) {
 					if (!player.hasPermission("ruinscraft.command.localcolor")) {
-						player.sendMessage(getPermissionMessage());
+						player.sendMessage(Constants.COLOR_ERROR + "You do not have permission to use this.");
 						return true;
 					}
 
@@ -101,7 +101,7 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 				}
 
 				/* Requires no permission */
-				else if (commandLabel.equalsIgnoreCase("localcolorreset")) {
+				else if (commandLabel.toLowerCase().contains("localcolorreset")) {
 					player.sendMessage(Constants.COLOR_BASE + "Local chat color reset");
 					chatPlayer.setMeta("localcolor", null);
 					return true;

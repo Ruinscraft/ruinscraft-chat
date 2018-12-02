@@ -134,6 +134,8 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 					boolean reply = false;
 
 					switch (commandLabel.toLowerCase()) {
+					case Constants.STRING_RUINSCRAFT_CHAT_PLUGIN_NAME + ":r":
+					case Constants.STRING_RUINSCRAFT_CHAT_PLUGIN_NAME + ":reply":
 					case "r":
 					case "reply":
 						reply = true;
