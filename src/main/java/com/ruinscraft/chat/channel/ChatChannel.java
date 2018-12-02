@@ -46,6 +46,8 @@ public interface ChatChannel<T extends ChatMessage> {
 	boolean isLoggedGlobally();
 	
 	boolean muteable();
+	
+	boolean spyable();
 
 	default Callable<Void> filter(ChatChannelManager chatChannelManager, ChatFilterManager chatFilterManager, CommandSender sender, ChatMessage chatMessage) throws NotSendableException {
 		return new Callable<Void>() {

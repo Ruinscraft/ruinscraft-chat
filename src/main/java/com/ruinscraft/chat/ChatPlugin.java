@@ -13,6 +13,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.ruinscraft.chat.channel.ChatChannelManager;
 import com.ruinscraft.chat.commands.ChatCommand;
+import com.ruinscraft.chat.commands.ChatSpyCommand;
 import com.ruinscraft.chat.commands.ClearChatCommand;
 import com.ruinscraft.chat.commands.IgnoreCommand;
 import com.ruinscraft.chat.commands.NicknameCommand;
@@ -121,11 +122,13 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 		}
 
 		ChatCommand chatCommand = new ChatCommand(); // listener and command
+		ChatSpyCommand chatSpyCommand = new ChatSpyCommand(); // listener and command
 
 		/* Register Bukkit Listeners */
 		pm.registerEvents(new ChatListener(), this);
 		pm.registerEvents(new QuitJoinListener(), this);
 		pm.registerEvents(chatCommand, this);
+		pm.registerEvents(chatSpyCommand, this);
 
 		/* Register Bukkit Commands */
 		getCommand("ignore").setExecutor(new IgnoreCommand());
@@ -133,6 +136,7 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 		getCommand("nickname").setExecutor(new NicknameCommand());
 		getCommand("nicknamereset").setExecutor(new NicknameResetCommand());
 		getCommand("chat").setExecutor(chatCommand);
+		getCommand("chatspy").setExecutor(chatSpyCommand);
 	}
 
 	@Override

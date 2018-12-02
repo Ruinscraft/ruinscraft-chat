@@ -101,4 +101,9 @@ public class MBHChatChannel implements ChatChannel<GenericChatMessage> {
 		return false;
 	}
 	
+	@Override
+	public boolean spyable() {
+		return false;
+	}
+	
 }

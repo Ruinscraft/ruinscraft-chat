@@ -100,5 +100,10 @@ public class MBChatChannel implements ChatChannel<GenericChatMessage> {
 	public boolean muteable() {
 		return false;
 	}
+	
+	@Override
+	public boolean spyable() {
+		return false;
+	}
 
 }

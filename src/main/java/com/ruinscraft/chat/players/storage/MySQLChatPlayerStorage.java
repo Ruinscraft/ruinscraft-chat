@@ -12,7 +12,6 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Sets;
-import com.google.common.collect.Sets.SetView;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.ChatMessage;
@@ -39,6 +38,12 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 	private static final String SQL_INSERT_MUTED = String.format("INSERT INTO %s (chat_player_id, channel_name) VALUES (?, ?);", Table.MUTED);
 	private static final String SQL_DELETE_MUTED = String.format("DELETE FROM %s WHERE chat_player_id = ? AND channel_name = ?;", Table.MUTED);
 
+	/* SPYING TABLE */
+	private static final String SQL_CREATE_SPYING = String.format("CREATE TABLE IF NOT EXISTS %s (chat_player_id INT, channel_name VARCHAR(16), UNIQUE KEY (chat_player_id, channel_name), FOREIGN KEY (chat_player_id) REFERENCES %s (chat_player_id));", Table.SPYING, Table.PLAYERS);
+	private static final String SQL_SELECT_SPYING = String.format("SELECT * FROM %s WHERE chat_player_id = ?;", Table.SPYING);
+	private static final String SQL_INSERT_SPYING = String.format("INSERT INTO %s (chat_player_id, channel_name) VALUES (?, ?);", Table.SPYING);
+	private static final String SQL_DELETE_SPYING = String.format("DELETE FROM %s WHERE chat_player_id = ? AND channel_name = ?;", Table.SPYING);
+	
 	private Connection connection;
 	private final String address;
 	private final int port;
@@ -85,8 +90,15 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 			e.printStackTrace();
 		}
 
-		/* CREATE MUTES TABLE */
+		/* CREATE MUTED TABLE */
 		try (PreparedStatement create = getConnection().prepareStatement(SQL_CREATE_MUTED)) {
+			create.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		/* CREATE SPYING TABLE */
+		try (PreparedStatement create = getConnection().prepareStatement(SQL_CREATE_SPYING)) {
 			create.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -206,10 +218,7 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 						}
 					}
 
-					SetView<String> toInsert = Sets.difference(currentIgnoring, previousIgnoring);
-					SetView<String> toDelete = Sets.difference(previousIgnoring, currentIgnoring);
-
-					for (String inserting : toInsert) {
+					for (String inserting : Sets.difference(currentIgnoring, previousIgnoring)) {
 						try (PreparedStatement insert = getConnection().prepareStatement(SQL_INSERT_IGNORING)) {
 							insert.setInt(1, chatPlayer.getChatPlayerId());
 							insert.setString(2, inserting);
@@ -217,15 +226,75 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 						}
 					}
 
-					for (String deleting : toDelete) {
+					for (String deleting : Sets.difference(previousIgnoring, currentIgnoring)) {
 						try (PreparedStatement delete = getConnection().prepareStatement(SQL_DELETE_IGNORING)) {
 							delete.setInt(1, chatPlayer.getChatPlayerId());
 							delete.setString(2, deleting);
 							delete.execute();
 						}
+					}
+					
+					/* UPDATE MUTED TABLE */
+					Set<ChatChannel<?>> currentMuted = chatPlayer.muted;
+					Set<ChatChannel<?>> previousMuted = new HashSet<>();
 
+					try (PreparedStatement select = getConnection().prepareStatement(SQL_SELECT_MUTED)) {
+						select.setInt(1, chatPlayer.getChatPlayerId());
+
+						try (ResultSet rs = select.executeQuery()) {
+							while (rs.next()) {
+								String raw = rs.getString("channel_name");
+								previousMuted.add(ChatPlugin.getInstance().getChatChannelManager().getByName(raw));
+							}
+						}
 					}
 
+					for (ChatChannel<?> inserting : Sets.difference(currentMuted, previousMuted)) {
+						try (PreparedStatement insert = getConnection().prepareStatement(SQL_INSERT_MUTED)) {
+							insert.setInt(1, chatPlayer.getChatPlayerId());
+							insert.setString(2, inserting.getName());
+							insert.execute();
+						}
+					}
+
+					for (ChatChannel<?> deleting : Sets.difference(previousMuted, currentMuted)) {
+						try (PreparedStatement delete = getConnection().prepareStatement(SQL_DELETE_MUTED)) {
+							delete.setInt(1, chatPlayer.getChatPlayerId());
+							delete.setString(2, deleting.getName());
+							delete.execute();
+						}
+					}
+					
+					/* UPDATE SPYING TABLE */
+					Set<ChatChannel<?>> currentSpying = chatPlayer.spying;
+					Set<ChatChannel<?>> previousSpying = new HashSet<>();
+
+					try (PreparedStatement select = getConnection().prepareStatement(SQL_SELECT_SPYING)) {
+						select.setInt(1, chatPlayer.getChatPlayerId());
+
+						try (ResultSet rs = select.executeQuery()) {
+							while (rs.next()) {
+								String raw = rs.getString("channel_name");
+								previousSpying.add(ChatPlugin.getInstance().getChatChannelManager().getByName(raw));
+							}
+						}
+					}
+
+					for (ChatChannel<?> inserting : Sets.difference(currentSpying, previousSpying)) {
+						try (PreparedStatement insert = getConnection().prepareStatement(SQL_INSERT_SPYING)) {
+							insert.setInt(1, chatPlayer.getChatPlayerId());
+							insert.setString(2, inserting.getName());
+							insert.execute();
+						}
+					}
+
+					for (ChatChannel<?> deleting : Sets.difference(previousSpying, currentSpying)) {
+						try (PreparedStatement delete = getConnection().prepareStatement(SQL_DELETE_SPYING)) {
+							delete.setInt(1, chatPlayer.getChatPlayerId());
+							delete.setString(2, deleting.getName());
+							delete.execute();
+						}
+					}
 				}
 
 				return null;

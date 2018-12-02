@@ -230,6 +230,11 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 	public boolean muteable() {
 		return true;
 	}
+	
+	@Override
+	public boolean spyable() {
+		return true;
+	}
 
 	@Override
 	public Callable<Void> dispatch(MessageDispatcher dispatcher, Player player, boolean filter, PrivateChatMessage chatMessage) {

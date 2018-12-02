@@ -95,6 +95,11 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 	}
 
 	@Override
+	public boolean spyable() {
+		return true;
+	}
+	
+	@Override
 	public void sendToChat(GenericChatMessage chatMessage) {
 		if (ChatPlugin.getInstance().getServerName() == null) {
 			return;

@@ -92,5 +92,10 @@ public class GlobalChatChannel implements ChatChannel<GenericChatMessage> {
 	public boolean muteable() {
 		return true;
 	}
+	
+	@Override
+	public boolean spyable() {
+		return false;
+	}
 
 }

@@ -68,6 +68,16 @@ public class ChatChannelManager {
 		return muteable;
 	}
 	
+	public Set<ChatChannel<?>> getSpyableChannels() {
+		Set<ChatChannel<?>> spyable = new HashSet<>();
+		for (ChatChannel<?> channel : channels) {
+			if (channel.spyable()) {
+				spyable.add(channel);
+			}
+		}
+		return spyable;
+	}
+	
 	public void unregisterAll() {
 		channels.forEach(c -> c.unregisterCommands());
 		channels.clear();
