@@ -267,17 +267,17 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 		Player recipient = Bukkit.getPlayerExact(chatMessage.getRecipient());
 		boolean log = false;
 
-		ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(recipient.getUniqueId());
+		ChatPlayer recipientChatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(recipient.getUniqueId());
 
 		boolean ignoring = false;
 
-		if (chatPlayer.isIgnoring(chatMessage.getSender())) {
+		if (recipientChatPlayer.isIgnoring(chatMessage.getSender())) {
 			ignoring = true;
 		}
 
 		OfflinePlayer potentialOfflinePlayer = Bukkit.getOfflinePlayer(chatMessage.getSender());
 
-		if (potentialOfflinePlayer != null && chatPlayer.isIgnoring(potentialOfflinePlayer.getUniqueId())) {
+		if (potentialOfflinePlayer != null && recipientChatPlayer.isIgnoring(potentialOfflinePlayer.getUniqueId())) {
 			ignoring = true;
 		}
 
