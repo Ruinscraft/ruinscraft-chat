@@ -160,6 +160,20 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 						}
 					}
 				}
+				
+				/* SELECT FROM SPYING TABLE */
+				try (PreparedStatement select = getConnection().prepareStatement(SQL_SELECT_SPYING)) {
+					select.setInt(1, chatPlayer.getChatPlayerId());
+
+					try (ResultSet rs = select.executeQuery()) {
+						while (rs.next()) {
+							String channelName = rs.getString("channel_name");
+							ChatChannel<? extends ChatMessage> chatChannel = ChatPlugin.getInstance().getChatChannelManager().getByName(channelName);
+
+							chatPlayer.spying.add(chatChannel);
+						}
+					}
+				}
 
 				return null;
 			}};

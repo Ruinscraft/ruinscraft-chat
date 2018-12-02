@@ -37,14 +37,14 @@ public class ChatSpyLogger implements ChatLogger {
 						continue;
 					}
 					
-					if (message instanceof GenericChatMessage) {
-						String send = String.format(GEN_FORMAT, message.getServerSentFrom(), message.getIntendedChannelName(), message.getSender(), message.getPayload());
-						onlinePlayer.sendMessage(send);
-					}
-					
 					if (message instanceof PrivateChatMessage) {
 						PrivateChatMessage pm = (PrivateChatMessage) message;
 						String send = String.format(PM_FORMAT, pm.getSender(), pm.getRecipient(), pm.getPayload());
+						onlinePlayer.sendMessage(send);
+					}
+					
+					else if (message instanceof GenericChatMessage) {
+						String send = String.format(GEN_FORMAT, message.getServerSentFrom(), message.getIntendedChannelName(), message.getSender(), message.getPayload());
 						onlinePlayer.sendMessage(send);
 					}
 				}
