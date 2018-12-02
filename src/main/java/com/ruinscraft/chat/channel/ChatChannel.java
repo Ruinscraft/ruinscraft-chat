@@ -65,6 +65,13 @@ public interface ChatChannel<T extends ChatMessage> {
 		return new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
+				ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(sender.getUniqueId());
+				
+				if (chatPlayer.isMuted(ChatChannel.this)) {
+					sender.sendMessage(Constants.COLOR_ERROR + "You have this channel muted. Unmute it with /chat");
+					return null;
+				}
+				
 				if (filter) {
 					try {
 						filter(ChatPlugin.getInstance().getChatChannelManager(), ChatPlugin.getInstance().getChatFilterManager(), sender, chatMessage).call();
@@ -89,9 +96,12 @@ public interface ChatChannel<T extends ChatMessage> {
 
 	default void sendToChat(T chatMessage) {
 		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-
 			ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(onlinePlayer.getUniqueId());
 
+			if (chatPlayer.isMuted(this)) {
+				continue;
+			}
+			
 			if (chatPlayer.isIgnoring(chatMessage.getSender())) {
 				continue;
 			}
@@ -126,6 +136,13 @@ public interface ChatChannel<T extends ChatMessage> {
 
 	default void logAsync(final T chatMessage) {
 		if (isLogged()) {
+			/* Prevent multiple servers from logging the same message, only log from the server the sender is on */
+			Player sender = Bukkit.getPlayer(chatMessage.getSender());
+			
+			if (sender == null || !sender.isOnline()) {
+				return;
+			}
+			
 			ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
 				ChatPlugin.getInstance().getChatLoggingManager().getChatLoggers().forEach(l -> {
 					try {

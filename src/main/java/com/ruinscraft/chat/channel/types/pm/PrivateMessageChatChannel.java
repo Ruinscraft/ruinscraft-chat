@@ -249,6 +249,13 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 					return null;
 				}
 
+				ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(player.getUniqueId());
+				
+				if (chatPlayer.isMuted(PrivateMessageChatChannel.this)) {
+					player.sendMessage(Constants.COLOR_ERROR + "You have this channel muted. Unmute it with /chat");
+					return null;
+				}
+				
 				try {
 					PlayerStatus recipientStatus = PlayerStatusPlugin.getAPI().getPlayerStatus(chatMessage.getRecipient()).call();
 
@@ -314,6 +321,10 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 				// viewer is the recipient
 				ChatPlayer recipientChatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(recipient.getUniqueId());
 				
+				if (recipientChatPlayer.isMuted(this)) {
+					return;
+				}
+				
 				boolean ignoring = false;
 
 				if (recipientChatPlayer.isIgnoring(chatMessage.getSender())) {
@@ -327,7 +338,6 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 				}
 
 				if (ignoring) {
-					sender.sendMessage(Constants.COLOR_BASE + "You have been ignored by this player");
 					return;
 				}
 				

@@ -11,6 +11,7 @@ import com.ruinscraft.chat.channel.types.MBAChatChannel;
 import com.ruinscraft.chat.channel.types.MBChatChannel;
 import com.ruinscraft.chat.channel.types.MBHChatChannel;
 import com.ruinscraft.chat.channel.types.MBSChatChannel;
+import com.ruinscraft.chat.channel.types.PlotLocalChatChannel;
 import com.ruinscraft.chat.channel.types.pm.PrivateMessageChatChannel;
 import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.message.GenericChatMessage;
@@ -26,6 +27,9 @@ public class ChatChannelManager {
 		switch (channelSection.getString("local.type")) {
 		case "default":
 			channels.add(new DefaultLocalChatChannel());
+			break;
+		case "plot": // requires PlotSquared
+			channels.add(new PlotLocalChatChannel());
 			break;
 		}
 		channels.add(new PrivateMessageChatChannel(channelSection.getConfigurationSection("private-message")));

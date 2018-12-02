@@ -114,6 +114,10 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
 			ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(onlinePlayer.getUniqueId());
 			
+			if (chatPlayer.isMuted(this)) {
+				continue;
+			}
+			
 			if (chatPlayer.isIgnoring(chatMessage.getSender())) {
 				continue;
 			}
