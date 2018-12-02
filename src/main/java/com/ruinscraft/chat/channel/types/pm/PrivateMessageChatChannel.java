@@ -267,25 +267,6 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 		Player recipient = Bukkit.getPlayerExact(chatMessage.getRecipient());
 		boolean log = false;
 
-		ChatPlayer recipientChatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(recipient.getUniqueId());
-
-		boolean ignoring = false;
-
-		if (recipientChatPlayer.isIgnoring(chatMessage.getSender())) {
-			ignoring = true;
-		}
-
-		OfflinePlayer potentialOfflinePlayer = Bukkit.getOfflinePlayer(chatMessage.getSender());
-
-		if (potentialOfflinePlayer != null && recipientChatPlayer.isIgnoring(potentialOfflinePlayer.getUniqueId())) {
-			ignoring = true;
-		}
-
-		if (ignoring) {
-			sender.sendMessage(Constants.COLOR_BASE + "You have been ignored by this player");
-			return;
-		}
-
 		if (sender != null) {
 			if (sender == recipient) {
 				// sending to themself
@@ -309,6 +290,25 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 		if (recipient != null) {
 			if (recipient.isOnline()) {
 				// viewer is the recipient
+				ChatPlayer recipientChatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(recipient.getUniqueId());
+				
+				boolean ignoring = false;
+
+				if (recipientChatPlayer.isIgnoring(chatMessage.getSender())) {
+					ignoring = true;
+				}
+				
+				OfflinePlayer potentialOfflinePlayer = Bukkit.getOfflinePlayer(chatMessage.getSender());
+
+				if (potentialOfflinePlayer != null && recipientChatPlayer.isIgnoring(potentialOfflinePlayer.getUniqueId())) {
+					ignoring = true;
+				}
+
+				if (ignoring) {
+					sender.sendMessage(Constants.COLOR_BASE + "You have been ignored by this player");
+					return;
+				}
+				
 				String format = replace(getFormat(chatMessage.getRecipient(), chatMessage), chatMessage.getSender(), chatMessage.getRecipient(), chatMessage.getPayload());
 				TextComponent toSend = new TextComponent(ChatUtil.convertFromLegacy(format));
 				toSend.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, ChatUtil.convertFromLegacy("sent from " + chatMessage.getServerSentFrom())));

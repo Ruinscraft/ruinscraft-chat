@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.Constants;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.GenericChatMessage;
 import com.ruinscraft.chat.players.ChatPlayer;
@@ -64,7 +65,7 @@ public class GlobalChatChannel implements ChatChannel<GenericChatMessage> {
 				
 				chatPlayer.setFocused(GlobalChatChannel.this);
 
-				player.sendMessage("Focused channel set to global");
+				player.sendMessage(String.format(Constants.MESSAGE_FOCUSED_CHANNEL_SET_TO, "global"));
 				
 				return true;
 			}

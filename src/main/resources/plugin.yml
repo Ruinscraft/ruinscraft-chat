@@ -6,7 +6,15 @@ depend: [ruinscraft-player-status, Vault]
 
 commands:
   ignore:
+    description: Ignore or unignore a player
   clearchat:
+    description: Clear the chat
+    permission: ruinscraft.command.clearchat
   nickname:
+    description: Set your nickname (seen in local chat)
+    aliases: [rpname, nick]
   nicknamereset:
+    description: Reset your nickname
+    aliases: [rpnamereset, nickreset]
   chat:
+    description: Manage chat settings
