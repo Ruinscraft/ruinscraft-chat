@@ -1,5 +1,7 @@
 package com.ruinscraft.chat.channel.types;
 
+import java.util.UUID;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -59,13 +61,14 @@ public class MBAChatChannel implements ChatChannel<GenericChatMessage> {
 				
 				String prefix = ChatPlugin.getVaultChat().getPlayerPrefix(player);
 				String nickname = null;
+				UUID uuid = player.getUniqueId();
 				String name = player.getName();
 				String server = ChatPlugin.getInstance().getServerName();
 				String channel = getName();
 				boolean colorize = true;
 				String message = String.join(" ", args);
 				
-				GenericChatMessage chatMessage = new GenericChatMessage(prefix, nickname, name, server, channel, colorize, message);
+				GenericChatMessage chatMessage = new GenericChatMessage(prefix, nickname, uuid, name, server, channel, colorize, message);
 				
 				ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
 					try {

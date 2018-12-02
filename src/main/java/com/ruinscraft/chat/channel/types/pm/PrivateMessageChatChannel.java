@@ -3,11 +3,11 @@ package com.ruinscraft.chat.channel.types.pm;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -52,7 +52,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 	public String getName() {
 		return "pm";
 	}
-	
+
 	@Override
 	public String getPrettyName() {
 		return "Private Messages";
@@ -98,21 +98,21 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 			@Override
 			public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
 				List<String> players = new ArrayList<>();
-				
+
 				if (args.length < 1) {
 					return players;
 				}
 
 				String partialName = args[0];
 				List<String> allOnlinePlayers = PlayerStatusPlugin.getAPI().getOnlyPlayers();
-				
-				
+
+
 				for (String player : allOnlinePlayers) {
 					if (player.toLowerCase().startsWith(partialName.toLowerCase())) {
 						players.add(player);
 					}
 				}
-				
+
 				return players;
 			}
 
@@ -177,12 +177,13 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 
 					String senderPrefix = ChatPlugin.getVaultChat().getPlayerPrefix(player);
 					String nickname = null;
-					String name = sender.getName();
+					UUID uuid = player.getUniqueId();
+					String name = player.getName();
 					String server = ChatPlugin.getInstance().getServerName();
 					String channel = getName();
-					boolean colorize = sender.hasPermission(Constants.PERMISSION_COLORIZE_MESSAGES);
+					boolean colorize = player.hasPermission(Constants.PERMISSION_COLORIZE_MESSAGES);
 
-					PrivateChatMessage pm = new PrivateChatMessage(senderPrefix, nickname, name, recipient, server, channel, colorize, message);
+					PrivateChatMessage pm = new PrivateChatMessage(senderPrefix, nickname, uuid, name, recipient, server, channel, colorize, message);
 
 					try {
 						dispatch(ChatPlugin.getInstance().getMessageManager().getDispatcher(), player, true, pm).call();
@@ -225,12 +226,12 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 	public boolean isLoggedGlobally() {
 		return true;
 	}
-	
+
 	@Override
 	public boolean muteable() {
 		return true;
 	}
-	
+
 	@Override
 	public boolean spyable() {
 		return true;
@@ -250,12 +251,12 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 				}
 
 				ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(player.getUniqueId());
-				
+
 				if (chatPlayer.isMuted(PrivateMessageChatChannel.this)) {
 					player.sendMessage(Constants.COLOR_ERROR + "You have this channel muted. Unmute it with /chat");
 					return null;
 				}
-				
+
 				try {
 					PlayerStatus recipientStatus = PlayerStatusPlugin.getAPI().getPlayerStatus(chatMessage.getRecipient()).call();
 
@@ -294,7 +295,6 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 	public void sendToChat(PrivateChatMessage chatMessage) {
 		Player sender = Bukkit.getPlayerExact(chatMessage.getSender());
 		Player recipient = Bukkit.getPlayerExact(chatMessage.getRecipient());
-		boolean log = false;
 
 		if (sender != null) {
 			if (sender == recipient) {
@@ -303,16 +303,14 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 				TextComponent toSend = new TextComponent(ChatUtil.convertFromLegacy(format));
 				toSend.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, ChatUtil.convertFromLegacy("(crazy person)")));
 				recipient.spigot().sendMessage(toSend);
-				log = true;
 				return;
 			}
 
-			if (sender.isOnline()) {
+			else if (sender.isOnline()) {
 				// viewer is the sender
 				String format = replace(getFormat(chatMessage.getSender(), chatMessage), chatMessage.getSender(), chatMessage.getRecipient(), chatMessage.getPayload());
 				TextComponent toSend = new TextComponent(ChatUtil.convertFromLegacy(format));
 				sender.spigot().sendMessage(toSend);
-				log = true;
 			}
 		}
 
@@ -320,39 +318,37 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 			if (recipient.isOnline()) {
 				// viewer is the recipient
 				ChatPlayer recipientChatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(recipient.getUniqueId());
-				
+
+				/* Channel is muted */
 				if (recipientChatPlayer.isMuted(this)) {
 					return;
 				}
-				
+
 				boolean ignoring = false;
 
+				/* Ignoring the sender username */
 				if (recipientChatPlayer.isIgnoring(chatMessage.getSender())) {
 					ignoring = true;
 				}
-				
-				OfflinePlayer potentialOfflinePlayer = Bukkit.getOfflinePlayer(chatMessage.getSender());
 
-				if (potentialOfflinePlayer != null && recipientChatPlayer.isIgnoring(potentialOfflinePlayer.getUniqueId())) {
+				/* Ignoring the sender UUID */
+				if (recipientChatPlayer.isIgnoring(chatMessage.getSenderUUID())) {
 					ignoring = true;
 				}
 
 				if (ignoring) {
 					return;
 				}
-				
+
 				String format = replace(getFormat(chatMessage.getRecipient(), chatMessage), chatMessage.getSender(), chatMessage.getRecipient(), chatMessage.getPayload());
 				TextComponent toSend = new TextComponent(ChatUtil.convertFromLegacy(format));
 				toSend.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, ChatUtil.convertFromLegacy("sent from " + chatMessage.getServerSentFrom())));
 				recipient.spigot().sendMessage(toSend);
 				recipient.spigot().sendMessage(ChatMessageType.ACTION_BAR, ChatUtil.convertFromLegacy(Constants.COLOR_ACCENT + "new message from " + chatMessage.getSender()));
-				log = true;
 			}
 		}
 
-		if (log) {
-			logAsync(chatMessage);
-		}
+		logAsync(chatMessage);
 	}
 
 	private static String replace(String format, String sender, String recipient, String message) {

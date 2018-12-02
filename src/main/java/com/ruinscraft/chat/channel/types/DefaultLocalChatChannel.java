@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -21,7 +20,7 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 	public String getName() {
 		return "local";
 	}
-	
+
 	@Override
 	public String getPrettyName() {
 		return "Local Chat (the server you are on)";
@@ -56,7 +55,7 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 				if (!testPermission(sender)) {
 					return true;
 				}
-				
+
 				if (!(sender instanceof Player)) {
 					return true;
 				}
@@ -87,9 +86,9 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 					}
 
 					char newCode = args[0].charAt(0);
-					
+
 					ChatColor newChatColor = ChatColor.getByChar(newCode);
-					
+
 					if (newChatColor == null || !newChatColor.isColor()) {
 						player.sendMessage(Constants.COLOR_ERROR + "Invalid color code");
 						return true;
@@ -97,17 +96,17 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 
 					chatPlayer.setMeta("localcolor", Character.toString(newCode));
 					player.sendMessage(Constants.COLOR_BASE + "Local color set to " + newChatColor + newChatColor.name());
-					
+
 					return true;
 				}
-				
+
 				/* Requires no permission */
 				else if (commandLabel.equalsIgnoreCase("localcolorreset")) {
 					player.sendMessage(Constants.COLOR_BASE + "Local chat color reset");
 					chatPlayer.setMeta("localcolor", null);
 					return true;
 				}
-				
+
 				chatPlayer.setFocused(DefaultLocalChatChannel.this);
 
 				player.sendMessage(String.format(Constants.MESSAGE_FOCUSED_CHANNEL_SET_TO, "local"));
@@ -129,12 +128,12 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 	public boolean isLogged() {
 		return true;
 	}
-	
+
 	@Override
 	public boolean isLoggedGlobally() {
 		return false;
 	}
-	
+
 	@Override
 	public boolean muteable() {
 		return true;
@@ -144,57 +143,55 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 	public boolean spyable() {
 		return true;
 	}
-	
+
 	@Override
 	public void sendToChat(GenericChatMessage chatMessage) {
 		if (ChatPlugin.getInstance().getServerName() == null) {
 			return;
 		}
-		
+
 		if (!ChatPlugin.getInstance().getServerName().equals(chatMessage.getServerSentFrom())) {
 			return;
 		}
-		
+
 		String message = chatMessage.getPayload();
 
 		Player sender = Bukkit.getPlayer(chatMessage.getSender());
-		
+
 		if (sender == null || !sender.isOnline()) {
 			return;
 		}
-		
+
 		ChatPlayer senderChatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(sender.getUniqueId());
 
 		ChatColor localColor = ChatColor.GRAY;
-		
+
 		if (senderChatPlayer.hasMeta("localcolor")) {
 			localColor = ChatColor.getByChar(senderChatPlayer.getMeta("localcolor").charAt(0));
 		}
-		
+
 		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
 			ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(onlinePlayer.getUniqueId());
-			
+
 			if (chatPlayer.isMuted(this)) {
 				continue;
 			}
-			
+
 			if (chatPlayer.isIgnoring(chatMessage.getSender())) {
 				continue;
 			}
-			
-			OfflinePlayer potentialOfflinePlayer = Bukkit.getOfflinePlayer(chatMessage.getSender());
-			
-			if (potentialOfflinePlayer != null && chatPlayer.isIgnoring(potentialOfflinePlayer.getUniqueId())) {
+
+			if (chatPlayer.isIgnoring(chatMessage.getSenderUUID())) {
 				continue;
 			}
-			
+
 			// if no permission defined or they have it
 			if (getPermission() == null || onlinePlayer.hasPermission(getPermission())) {
 				String format = getFormat(onlinePlayer.getName(), chatMessage);
 
 				format = format.replace("%prefix%", ChatColor.translateAlternateColorCodes('&', chatMessage.getSenderPrefix()));
 				format = format.replace("%sender%", localColor + chatMessage.getSender());
-				
+
 				if (chatMessage.getSenderNickname() != null) {
 					format = format.replace("%nickname%", chatMessage.getSenderNickname());
 				}

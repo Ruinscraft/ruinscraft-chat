@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
@@ -30,7 +29,7 @@ import com.ruinscraft.chat.players.ChatPlayer;
 public interface ChatChannel<T extends ChatMessage> {
 
 	String getName();
-	
+
 	String getPrettyName();
 
 	String getFormat(String viewer, T context);
@@ -44,9 +43,9 @@ public interface ChatChannel<T extends ChatMessage> {
 	boolean isLogged();
 
 	boolean isLoggedGlobally();
-	
+
 	boolean muteable();
-	
+
 	boolean spyable();
 
 	default Callable<Void> filter(ChatChannelManager chatChannelManager, ChatFilterManager chatFilterManager, CommandSender sender, ChatMessage chatMessage) throws NotSendableException {
@@ -66,12 +65,12 @@ public interface ChatChannel<T extends ChatMessage> {
 			@Override
 			public Void call() throws Exception {
 				ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(sender.getUniqueId());
-				
+
 				if (chatPlayer.isMuted(ChatChannel.this)) {
 					sender.sendMessage(Constants.COLOR_ERROR + "You have this channel muted. Unmute it with /chat");
 					return null;
 				}
-				
+
 				if (filter) {
 					try {
 						filter(ChatPlugin.getInstance().getChatChannelManager(), ChatPlugin.getInstance().getChatFilterManager(), sender, chatMessage).call();
@@ -101,14 +100,12 @@ public interface ChatChannel<T extends ChatMessage> {
 			if (chatPlayer.isMuted(this)) {
 				continue;
 			}
-			
+
 			if (chatPlayer.isIgnoring(chatMessage.getSender())) {
 				continue;
 			}
 
-			OfflinePlayer potentialOfflinePlayer = Bukkit.getOfflinePlayer(chatMessage.getSender());
-
-			if (potentialOfflinePlayer != null && chatPlayer.isIgnoring(potentialOfflinePlayer.getUniqueId())) {
+			if (chatPlayer.isIgnoring(chatMessage.getSenderUUID())) {
 				continue;
 			}
 
@@ -138,11 +135,11 @@ public interface ChatChannel<T extends ChatMessage> {
 		if (isLogged()) {
 			/* Prevent multiple servers from logging the same message, only log from the server the sender is on */
 			Player sender = Bukkit.getPlayer(chatMessage.getSender());
-			
+
 			if (sender == null || !sender.isOnline()) {
 				return;
 			}
-			
+
 			ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
 				ChatPlugin.getInstance().getChatLoggingManager().getChatLoggers().forEach(l -> {
 					try {

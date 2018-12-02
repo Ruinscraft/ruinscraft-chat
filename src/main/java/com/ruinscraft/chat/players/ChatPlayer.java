@@ -110,7 +110,7 @@ public class ChatPlayer {
 				continue;
 			}
 
-			if (UUID.fromString(minecraftIdentity.getIdentity()).equals(uuid)) {
+			if (minecraftIdentity.getIdentity().equalsIgnoreCase(uuid.toString())) {
 				return true;
 			}
 		}
@@ -189,34 +189,34 @@ public class ChatPlayer {
 	public boolean isSpying(String chatChannelName) {
 		return isSpying(ChatPlugin.getInstance().getChatChannelManager().getByName(chatChannelName));
 	}
-	
+
 	public void setMeta(String key, String value) {
 		boolean changed = true;
 		String previous = meta.get(key);
-		
+
 		if (previous != null && previous.equals(value)) {
 			changed = false;
 		}
-		
+
 		meta.put(key, value);
-		
+
 		if (changed) {
 			save();
 		}
 	}
-	
+
 	public String getMeta(String key) {
 		return meta.get(key);
 	}
-	
+
 	public boolean hasMeta(String key) {
 		return meta.get(key) != null;
 	}
-	
+
 	public void setMetaTransient(String key, String value) {
 		metaTransient.put(key, value);
 	}
-	
+
 	public String getMetaTransient(String key) {
 		return metaTransient.get(key);
 	}
@@ -224,7 +224,7 @@ public class ChatPlayer {
 	public boolean hasMetaTransient(String key) {
 		return metaTransient.get(key) != null;
 	}
-	
+
 	public void save() {
 		ChatPlugin.getInstance().getChatPlayerManager().save(this);
 	}

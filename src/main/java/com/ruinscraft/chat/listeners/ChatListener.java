@@ -40,7 +40,7 @@ public class ChatListener implements Listener {
 		String senderPrefix = ChatPlugin.getVaultChat().getPlayerPrefix(player);
 		String nickname = chatPlayer.getNickname();
 		boolean allowColor = player.hasPermission(Constants.PERMISSION_COLORIZE_MESSAGES);
-		GenericChatMessage chatMessage = new GenericChatMessage(senderPrefix, nickname, player.getName(), chatPlugin.getServerName(), chatChannel.getName(), allowColor, payload);
+		GenericChatMessage chatMessage = new GenericChatMessage(senderPrefix, nickname, player.getUniqueId(), player.getName(), chatPlugin.getServerName(), chatChannel.getName(), allowColor, payload);
 
 		try {
 			/* Safe because this is already async */
