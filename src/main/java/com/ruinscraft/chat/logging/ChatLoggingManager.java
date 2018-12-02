@@ -25,6 +25,8 @@ public class ChatLoggingManager implements AutoCloseable {
 			
 			loggers.add(new MySQLChatLogger(address, port, database, username, password));
 		}
+		
+		loggers.add(new ChatSpyLogger());
 	}
 	
 	public Set<ChatLogger> getChatLoggers() {
