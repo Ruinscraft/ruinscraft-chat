@@ -42,6 +42,12 @@ public class PlotLocalChatChannel extends DefaultLocalChatChannel {
 		}
 
 		String message = chatMessage.getPayload();
+		ChatPlayer senderChatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(sender.getUniqueId());
+		ChatColor localColor = ChatColor.GRAY;
+
+		if (senderChatPlayer.hasMeta("localcolor")) {
+			localColor = ChatColor.getByChar(senderChatPlayer.getMeta("localcolor").charAt(0));
+		}
 
 		boolean someoneHeard = false;
 
@@ -72,9 +78,8 @@ public class PlotLocalChatChannel extends DefaultLocalChatChannel {
 			if (getPermission() == null || onlinePlayer.hasPermission(getPermission())) {
 				String format = getFormat(onlinePlayer.getName(), chatMessage);
 
-				format = format
-						.replace("%prefix%", chatMessage.getSenderPrefix())
-						.replace("%sender%", chatMessage.getSender());
+				format = format.replace("%prefix%", chatMessage.getSenderPrefix());
+				format = format.replace("%sender%", localColor + chatMessage.getSender());
 
 				if (chatMessage.getSenderNickname() != null) {
 					format = format.replace("%nickname%", chatMessage.getSenderNickname());

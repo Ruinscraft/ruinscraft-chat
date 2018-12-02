@@ -157,6 +157,20 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 		
 		String message = chatMessage.getPayload();
 
+		Player sender = Bukkit.getPlayer(chatMessage.getSender());
+		
+		if (sender == null || !sender.isOnline()) {
+			return;
+		}
+		
+		ChatPlayer senderChatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(sender.getUniqueId());
+
+		ChatColor localColor = ChatColor.GRAY;
+		
+		if (senderChatPlayer.hasMeta("localcolor")) {
+			localColor = ChatColor.getByChar(senderChatPlayer.getMeta("localcolor").charAt(0));
+		}
+		
 		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
 			ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(onlinePlayer.getUniqueId());
 			
@@ -178,9 +192,8 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 			if (getPermission() == null || onlinePlayer.hasPermission(getPermission())) {
 				String format = getFormat(onlinePlayer.getName(), chatMessage);
 
-				format = format
-						.replace("%prefix%", chatMessage.getSenderPrefix())
-						.replace("%sender%", chatMessage.getSender());
+				format = format.replace("%prefix%", chatMessage.getSenderPrefix());
+				format = format.replace("%sender%", localColor + chatMessage.getSender());
 				
 				if (chatMessage.getSenderNickname() != null) {
 					format = format.replace("%nickname%", chatMessage.getSenderNickname());
