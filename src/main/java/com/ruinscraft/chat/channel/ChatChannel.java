@@ -118,7 +118,7 @@ public interface ChatChannel<T extends ChatMessage> {
 
 				format = format
 						.replace("%server%", chatMessage.getServerSentFrom())
-						.replace("%prefix%", chatMessage.getSenderPrefix())
+						.replace("%prefix%", ChatColor.translateAlternateColorCodes('&', chatMessage.getSenderPrefix()))
 						.replace("%sender%", chatMessage.getSender());
 
 				if (chatMessage.colorizePayload()) {
