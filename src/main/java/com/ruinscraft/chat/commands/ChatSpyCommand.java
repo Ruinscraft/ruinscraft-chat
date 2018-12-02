@@ -93,7 +93,7 @@ public class ChatSpyCommand implements CommandExecutor, Listener {
 
 			if (clicked.hasItemMeta() && clicked.getItemMeta().hasDisplayName()) {
 				String name = clicked.getItemMeta().getDisplayName();
-				boolean unspy = name.toLowerCase().contains("Stop spying on");
+				boolean unspy = name.contains("Stop spying on");
 				if (unspy) {
 					String channelName = name.replace("Stop spying on", "").trim();
 					chatPlayer.unspy(channelName);
