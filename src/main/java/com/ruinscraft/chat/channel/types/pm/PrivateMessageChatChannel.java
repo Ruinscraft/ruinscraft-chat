@@ -1,5 +1,6 @@
 package com.ruinscraft.chat.channel.types.pm;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -96,7 +97,23 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 
 			@Override
 			public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
-				return PlayerStatusPlugin.getAPI().getOnlyPlayers();
+				List<String> players = new ArrayList<>();
+				
+				if (args.length < 1) {
+					return players;
+				}
+
+				String partialName = args[0];
+				List<String> allOnlinePlayers = PlayerStatusPlugin.getAPI().getOnlyPlayers();
+				
+				
+				for (String player : allOnlinePlayers) {
+					if (player.toLowerCase().startsWith(partialName.toLowerCase())) {
+						players.add(player);
+					}
+				}
+				
+				return players;
 			}
 
 			@Override
