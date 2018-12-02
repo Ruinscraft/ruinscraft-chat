@@ -88,7 +88,7 @@ public class MBChatChannel implements ChatChannel<GenericChatMessage> {
 
 	@Override
 	public boolean isLogged() {
-		return false;
+		return true;
 	}
 	
 	@Override

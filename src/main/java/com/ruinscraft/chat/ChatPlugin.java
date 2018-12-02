@@ -117,20 +117,16 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 		/* In the case of a reload */
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			getChatPlayerManager().loadChatPlayer(player.getUniqueId());
-
-			if (serverName ==  null) {
-				checkServerName();
-			}
+			checkServerName();
 		}
-		
+
 		ChatCommand chatCommand = new ChatCommand(); // listener and command
-		
+
 		/* Register Bukkit Listeners */
 		pm.registerEvents(new ChatListener(), this);
 		pm.registerEvents(new QuitJoinListener(), this);
 		pm.registerEvents(chatCommand, this);
-		
-		
+
 		/* Register Bukkit Commands */
 		getCommand("ignore").setExecutor(new IgnoreCommand());
 		getCommand("clearchat").setExecutor(new ClearChatCommand());
@@ -142,7 +138,7 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 	@Override
 	public void onDisable() {
 		chatChannelManager.unregisterAll();
-		
+
 		try {
 			messageManager.close();
 			chatPlayerManager.close();
