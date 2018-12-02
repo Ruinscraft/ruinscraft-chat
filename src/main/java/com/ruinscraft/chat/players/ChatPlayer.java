@@ -1,6 +1,8 @@
 package com.ruinscraft.chat.players;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -20,12 +22,16 @@ public class ChatPlayer {
 	public Set<MinecraftIdentity> ignoring;
 	public Set<ChatChannel<? extends ChatMessage>> muted;
 	public Set<ChatChannel<? extends ChatMessage>> spying;
+	public Map<String, String> meta;
+	public transient Map<String, String> metaTransient;
 
 	protected ChatPlayer(UUID mojangUUID) {
 		this.mojangUUID = mojangUUID;
 		this.ignoring = new HashSet<>();
 		this.muted = new HashSet<>();
 		this.spying = new HashSet<>();
+		this.meta = new HashMap<>();
+		this.metaTransient = new HashMap<>();
 	}
 
 	public UUID getMojangUUID() {
@@ -183,7 +189,42 @@ public class ChatPlayer {
 	public boolean isSpying(String chatChannelName) {
 		return isSpying(ChatPlugin.getInstance().getChatChannelManager().getByName(chatChannelName));
 	}
+	
+	public void setMeta(String key, String value) {
+		boolean changed = true;
+		String previous = meta.get(key);
+		
+		if (previous != null && previous.equals(value)) {
+			changed = false;
+		}
+		
+		meta.put(key, value);
+		
+		if (changed) {
+			save();
+		}
+	}
+	
+	public String getMeta(String key) {
+		return meta.get(key);
+	}
+	
+	public boolean hasMeta(String key) {
+		return meta.get(key) != null;
+	}
+	
+	public void setMetaTransient(String key, String value) {
+		metaTransient.put(key, value);
+	}
+	
+	public String getMetaTransient(String key) {
+		return metaTransient.get(key);
+	}
 
+	public boolean hasMetaTransient(String key) {
+		return metaTransient.get(key) != null;
+	}
+	
 	public void save() {
 		ChatPlugin.getInstance().getChatPlayerManager().save(this);
 	}

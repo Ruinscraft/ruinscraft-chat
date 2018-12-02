@@ -1,5 +1,7 @@
 package com.ruinscraft.chat.channel.types;
 
+import java.util.Arrays;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -63,6 +65,49 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 
 				ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(player.getUniqueId());
 
+				if (commandLabel.equalsIgnoreCase("localcolor")) {
+					if (!player.hasPermission("ruinscraft.command.localcolor")) {
+						player.sendMessage(getPermissionMessage());
+						return true;
+					}
+
+					if (args.length < 1) {
+						if (!chatPlayer.hasMeta("localcolor")) {
+							player.sendMessage(Constants.COLOR_BASE + "You currently do not have a local color set");
+							player.sendMessage(Constants.COLOR_BASE + "Set one with /" + commandLabel + " <colorcode>");
+							player.sendMessage(Constants.COLOR_BASE + "Color codes:");
+							player.sendMessage(ChatColor.DARK_RED + "4 " + ChatColor.RED + "c " + ChatColor.GOLD + "6 " + ChatColor.YELLOW + "e " + ChatColor.DARK_GREEN + "2 " + ChatColor.GREEN + "a " + ChatColor.AQUA + "b " + ChatColor.DARK_AQUA + "3 " + ChatColor.DARK_BLUE + "1 " + ChatColor.BLUE + "9 " + ChatColor.LIGHT_PURPLE + "d " + ChatColor.DARK_PURPLE + "5 " + ChatColor.WHITE + "f " + ChatColor.GRAY + "7 " + ChatColor.DARK_GRAY + "8 " + ChatColor.BLACK + "0");
+							return true;
+						} else {
+							char colorCode = chatPlayer.getMeta("localcolor").charAt(0);
+							player.sendMessage(Constants.COLOR_BASE + "Your current local color is " + ChatColor.getByChar(colorCode) + ChatColor.getByChar(colorCode).name());
+							player.sendMessage(Constants.COLOR_BASE + "You can reset it with /localcolorreset");
+							return true;
+						}
+					}
+
+					char newCode = args[0].charAt(0);
+					
+					ChatColor newChatColor = ChatColor.getByChar(newCode);
+					
+					if (newChatColor == null || !newChatColor.isColor()) {
+						player.sendMessage(Constants.COLOR_ERROR + "Invalid color code");
+						return true;
+					}
+
+					chatPlayer.setMeta("localcolor", Character.toString(newCode));
+					player.sendMessage(Constants.COLOR_BASE + "Local color set to " + newChatColor + newChatColor.name());
+					
+					return true;
+				}
+				
+				/* Requires no permission */
+				else if (commandLabel.equalsIgnoreCase("localcolorreset")) {
+					player.sendMessage(Constants.COLOR_BASE + "Local chat color reset");
+					chatPlayer.setMeta("localcolor", null);
+					return true;
+				}
+				
 				chatPlayer.setFocused(DefaultLocalChatChannel.this);
 
 				player.sendMessage(String.format(Constants.MESSAGE_FOCUSED_CHANNEL_SET_TO, "local"));
@@ -71,6 +116,7 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 			}
 		};
 
+		command.setAliases(Arrays.asList("localcolor", "localcolorreset"));
 		command.setLabel(getName());
 		command.setUsage("/local");
 		command.setDescription("Set your focused chat channel to local");

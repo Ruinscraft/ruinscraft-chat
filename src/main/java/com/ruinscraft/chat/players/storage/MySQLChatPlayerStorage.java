@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
@@ -43,7 +44,12 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 	private static final String SQL_SELECT_SPYING = String.format("SELECT * FROM %s WHERE chat_player_id = ?;", Table.SPYING);
 	private static final String SQL_INSERT_SPYING = String.format("INSERT INTO %s (chat_player_id, channel_name) VALUES (?, ?);", Table.SPYING);
 	private static final String SQL_DELETE_SPYING = String.format("DELETE FROM %s WHERE chat_player_id = ? AND channel_name = ?;", Table.SPYING);
-	
+
+	/* META TABLE */
+	private static final String SQL_CREATE_META = String.format("CREATE TABLE IF NOT EXISTS %s (chat_player_id INT, meta_key VARCHAR(32), meta_value VARCHAR(256), UNIQUE KEY (chat_player_id, meta_key), FOREIGN KEY (chat_player_id) REFERENCES %s (chat_player_id));", Table.META, Table.PLAYERS);
+	private static final String SQL_SELECT_META = String.format("SELECT * FROM %s WHERE chat_player_id = ?;", Table.META);
+	private static final String SQL_INSERT_META = String.format("INSERT INTO %s (chat_player_id, meta_key, meta_value) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE meta_value = ?;", Table.META);
+
 	private Connection connection;
 	private final String address;
 	private final int port;
@@ -96,9 +102,16 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		/* CREATE SPYING TABLE */
 		try (PreparedStatement create = getConnection().prepareStatement(SQL_CREATE_SPYING)) {
+			create.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		/* CREATE META TABLE */
+		try (PreparedStatement create = getConnection().prepareStatement(SQL_CREATE_META)) {
 			create.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -125,8 +138,6 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 							chatPlayer.setFocused(focused);
 						}
 					}
-				} catch (SQLException e) {
-					e.printStackTrace();
 				}
 
 				if (chatPlayer.getChatPlayerId() == 0) {
@@ -160,7 +171,7 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 						}
 					}
 				}
-				
+
 				/* SELECT FROM SPYING TABLE */
 				try (PreparedStatement select = getConnection().prepareStatement(SQL_SELECT_SPYING)) {
 					select.setInt(1, chatPlayer.getChatPlayerId());
@@ -174,7 +185,21 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 						}
 					}
 				}
-
+				
+				/* SELECT FROM META TABLE */
+				try (PreparedStatement select = getConnection().prepareStatement(SQL_SELECT_META)) {
+					select.setInt(1, chatPlayer.getChatPlayerId());
+					
+					try (ResultSet rs = select.executeQuery()) {
+						while (rs.next()) {
+							String key = rs.getString("meta_key");
+							String value = rs.getString("meta_value");
+							
+							chatPlayer.meta.put(key, value);
+						}
+					}
+				}
+				
 				return null;
 			}};
 	}
@@ -198,8 +223,6 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 								chatPlayer.setChatPlayerId(chatPlayerId);
 							}
 						}
-					} catch (SQLException e) {
-						e.printStackTrace();
 					}
 				}
 
@@ -213,8 +236,6 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 						update.setInt(4, chatPlayer.getChatPlayerId());
 
 						update.execute();
-					} catch (SQLException e) {
-						e.printStackTrace();
 					}
 
 					/* UPDATE IGNORING TABLE */
@@ -247,7 +268,7 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 							delete.execute();
 						}
 					}
-					
+
 					/* UPDATE MUTED TABLE */
 					Set<ChatChannel<?>> currentMuted = chatPlayer.muted;
 					Set<ChatChannel<?>> previousMuted = new HashSet<>();
@@ -278,7 +299,7 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 							delete.execute();
 						}
 					}
-					
+
 					/* UPDATE SPYING TABLE */
 					Set<ChatChannel<?>> currentSpying = chatPlayer.spying;
 					Set<ChatChannel<?>> previousSpying = new HashSet<>();
@@ -307,6 +328,20 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 							delete.setInt(1, chatPlayer.getChatPlayerId());
 							delete.setString(2, deleting.getName());
 							delete.execute();
+						}
+					}
+
+					/* UPDATE META TABLE */
+					for (Map.Entry<String, String> metaEntry : chatPlayer.meta.entrySet()) {
+						String key = metaEntry.getKey();
+						String value = metaEntry.getValue();
+
+						try (PreparedStatement insert = getConnection().prepareStatement(SQL_INSERT_META)) {
+							insert.setInt(1, chatPlayer.getChatPlayerId());
+							insert.setString(2, key);
+							insert.setString(3, value);
+							insert.setString(4, value);
+							insert.execute();
 						}
 					}
 				}
