@@ -78,7 +78,7 @@ public class PlotLocalChatChannel extends DefaultLocalChatChannel {
 			if (getPermission() == null || onlinePlayer.hasPermission(getPermission())) {
 				String format = getFormat(onlinePlayer.getName(), chatMessage);
 
-				format = format.replace("%prefix%", chatMessage.getSenderPrefix());
+				format = format.replace("%prefix%", ChatColor.translateAlternateColorCodes('&', chatMessage.getSenderPrefix()));
 				format = format.replace("%sender%", localColor + chatMessage.getSender());
 
 				if (chatMessage.getSenderNickname() != null) {

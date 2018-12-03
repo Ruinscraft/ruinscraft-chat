@@ -157,6 +157,8 @@ public interface ChatChannel<T extends ChatMessage> {
 	}
 
 	default void registerCommands() {
+		unregisterCommands();
+		
 		Command command = getCommand();
 
 		if (command == null) {

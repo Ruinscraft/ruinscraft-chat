@@ -122,12 +122,8 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 					if (!(sender instanceof Player)) {
 						return;
 					}
-
+					
 					Player player = (Player) sender;
-
-					if (!testPermission(player)) {
-						return;
-					}
 
 					String message = null;
 					String recipient = null;
@@ -184,7 +180,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 					String server = ChatPlugin.getInstance().getServerName();
 					String channel = getName();
 					boolean colorize = player.hasPermission(Constants.PERMISSION_COLORIZE_MESSAGES);
-
+					
 					PrivateChatMessage pm = new PrivateChatMessage(senderPrefix, nickname, uuid, name, recipient, server, channel, colorize, message);
 
 					try {

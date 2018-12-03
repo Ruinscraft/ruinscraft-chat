@@ -8,7 +8,7 @@ import com.google.common.collect.Sets;
 public class DummyAsyncPlayerChatEvent extends AsyncPlayerChatEvent {
 
 	public DummyAsyncPlayerChatEvent(boolean async, Player who, String message) {
-		super(async, who, message, Sets.newHashSet());
+		super(async, who, message, Sets.newHashSet(who));
 	}
 	
 }

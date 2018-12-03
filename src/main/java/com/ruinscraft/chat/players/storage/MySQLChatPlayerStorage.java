@@ -1,7 +1,6 @@
 package com.ruinscraft.chat.players.storage;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,6 +17,7 @@ import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.players.ChatPlayer;
 import com.ruinscraft.chat.players.MinecraftIdentity;
+import com.zaxxer.hikari.HikariDataSource;
 
 public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 
@@ -50,69 +50,59 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 	private static final String SQL_SELECT_META = String.format("SELECT * FROM %s WHERE chat_player_id = ?;", Table.META);
 	private static final String SQL_INSERT_META = String.format("INSERT INTO %s (chat_player_id, meta_key, meta_value) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE meta_value = ?;", Table.META);
 
-	private Connection connection;
-	private final String address;
-	private final int port;
-	private final String database;
-	private final String username;
-	private final char[] password;
+	private HikariDataSource dataSource;
 
 	public MySQLChatPlayerStorage(String address, int port, String database, String username, char[] password) {
-		this.address = address;
-		this.port = port;
-		this.database = database;
-		this.username = username;
-		this.password = password;
+		dataSource = new HikariDataSource();
+		dataSource.setJdbcUrl(String.format("jdbc:mysql://%s:%d/%s?useSSL=false", address, port, database));
+		dataSource.setUsername(username);
+		dataSource.setPassword(new String(password));
+		dataSource.setPoolName("ruinscraft-chat-player-storage-pool");
+		dataSource.setMaximumPoolSize(5);
+		dataSource.setConnectionTimeout(3000);
+		dataSource.setLeakDetectionThreshold(3000);
 
-		Connection connection = getConnection();
-
-		boolean error = false;
-
-		try {
+		try (Connection connection = getConnection()){
 			if (connection.isClosed()) {
 				ChatPlugin.warning("Player storage MySQL connection lost");
-				error = true;
 			} else {
 				ChatPlugin.info("Player storage MySQL connection established");
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-			error = true;
-		}
+			
+			/* CREATE PLAYERS TABLE */
+			try (PreparedStatement create = connection.prepareStatement(SQL_CREATE_PLAYERS)) {
+				create.execute();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 
-		if (error) return;
+			/* CREATE IGNORING TABLE */
+			try (PreparedStatement create = connection.prepareStatement(SQL_CREATE_IGNORING)) {
+				create.execute();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 
-		/* CREATE PLAYERS TABLE */
-		try (PreparedStatement create = getConnection().prepareStatement(SQL_CREATE_PLAYERS)) {
-			create.execute();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+			/* CREATE MUTED TABLE */
+			try (PreparedStatement create = connection.prepareStatement(SQL_CREATE_MUTED)) {
+				create.execute();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 
-		/* CREATE IGNORING TABLE */
-		try (PreparedStatement create = getConnection().prepareStatement(SQL_CREATE_IGNORING)) {
-			create.execute();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+			/* CREATE SPYING TABLE */
+			try (PreparedStatement create = connection.prepareStatement(SQL_CREATE_SPYING)) {
+				create.execute();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 
-		/* CREATE MUTED TABLE */
-		try (PreparedStatement create = getConnection().prepareStatement(SQL_CREATE_MUTED)) {
-			create.execute();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		/* CREATE SPYING TABLE */
-		try (PreparedStatement create = getConnection().prepareStatement(SQL_CREATE_SPYING)) {
-			create.execute();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		/* CREATE META TABLE */
-		try (PreparedStatement create = getConnection().prepareStatement(SQL_CREATE_META)) {
-			create.execute();
+			/* CREATE META TABLE */
+			try (PreparedStatement create = connection.prepareStatement(SQL_CREATE_META)) {
+				create.execute();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -123,83 +113,85 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 		return new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				/* SELECT FROM PLAYERS TABLE */
-				try (PreparedStatement select = getConnection().prepareStatement(SQL_SELECT_PLAYER_BY_UUID)) {
-					select.setString(1, chatPlayer.getMojangUUID().toString());
+				try (Connection connection = getConnection()) {
+					/* SELECT FROM PLAYERS TABLE */
+					try (PreparedStatement select = connection.prepareStatement(SQL_SELECT_PLAYER_BY_UUID)) {
+						select.setString(1, chatPlayer.getMojangUUID().toString());
 
-					try (ResultSet rs = select.executeQuery()) {
-						while (rs.next()) {
-							int chatPlayerId = rs.getInt("chat_player_id");
-							String nickname = rs.getString("nickname");
-							String focused = rs.getString("focused");
+						try (ResultSet rs = select.executeQuery()) {
+							while (rs.next()) {
+								int chatPlayerId = rs.getInt("chat_player_id");
+								String nickname = rs.getString("nickname");
+								String focused = rs.getString("focused");
 
-							chatPlayer.setChatPlayerId(chatPlayerId);
-							chatPlayer.setNickname(nickname);
-							chatPlayer.setFocused(focused);
+								chatPlayer.setChatPlayerId(chatPlayerId);
+								chatPlayer.setNickname(nickname);
+								chatPlayer.setFocused(focused);
+							}
+						}
+					}
+
+					if (chatPlayer.getChatPlayerId() == 0) {
+						return null;
+					}
+
+					/* SELECT FROM IGNORING TABLE */
+					try (PreparedStatement select = connection.prepareStatement(SQL_SELECT_IGNORING)) {
+						select.setInt(1, chatPlayer.getChatPlayerId());
+
+						try (ResultSet rs = select.executeQuery()) {
+							while (rs.next()) {
+								String identityString = rs.getString("minecraft_identity");
+								MinecraftIdentity minecraftIdentity = new MinecraftIdentity(identityString);
+
+								chatPlayer.ignoring.add(minecraftIdentity);
+							}
+						}
+					}
+
+					/* SELECT FROM MUTED TABLE */
+					try (PreparedStatement select = connection.prepareStatement(SQL_SELECT_MUTED)) {
+						select.setInt(1, chatPlayer.getChatPlayerId());
+
+						try (ResultSet rs = select.executeQuery()) {
+							while (rs.next()) {
+								String channelName = rs.getString("channel_name");
+								ChatChannel<? extends ChatMessage> chatChannel = ChatPlugin.getInstance().getChatChannelManager().getByName(channelName);
+
+								chatPlayer.muted.add(chatChannel);
+							}
+						}
+					}
+
+					/* SELECT FROM SPYING TABLE */
+					try (PreparedStatement select = connection.prepareStatement(SQL_SELECT_SPYING)) {
+						select.setInt(1, chatPlayer.getChatPlayerId());
+
+						try (ResultSet rs = select.executeQuery()) {
+							while (rs.next()) {
+								String channelName = rs.getString("channel_name");
+								ChatChannel<? extends ChatMessage> chatChannel = ChatPlugin.getInstance().getChatChannelManager().getByName(channelName);
+
+								chatPlayer.spying.add(chatChannel);
+							}
+						}
+					}
+
+					/* SELECT FROM META TABLE */
+					try (PreparedStatement select = connection.prepareStatement(SQL_SELECT_META)) {
+						select.setInt(1, chatPlayer.getChatPlayerId());
+
+						try (ResultSet rs = select.executeQuery()) {
+							while (rs.next()) {
+								String key = rs.getString("meta_key");
+								String value = rs.getString("meta_value");
+
+								chatPlayer.meta.put(key, value);
+							}
 						}
 					}
 				}
 
-				if (chatPlayer.getChatPlayerId() == 0) {
-					return null;
-				}
-
-				/* SELECT FROM IGNORING TABLE */
-				try (PreparedStatement select = getConnection().prepareStatement(SQL_SELECT_IGNORING)) {
-					select.setInt(1, chatPlayer.getChatPlayerId());
-
-					try (ResultSet rs = select.executeQuery()) {
-						while (rs.next()) {
-							String identityString = rs.getString("minecraft_identity");
-							MinecraftIdentity minecraftIdentity = new MinecraftIdentity(identityString);
-
-							chatPlayer.ignoring.add(minecraftIdentity);
-						}
-					}
-				}
-
-				/* SELECT FROM MUTED TABLE */
-				try (PreparedStatement select = getConnection().prepareStatement(SQL_SELECT_MUTED)) {
-					select.setInt(1, chatPlayer.getChatPlayerId());
-
-					try (ResultSet rs = select.executeQuery()) {
-						while (rs.next()) {
-							String channelName = rs.getString("channel_name");
-							ChatChannel<? extends ChatMessage> chatChannel = ChatPlugin.getInstance().getChatChannelManager().getByName(channelName);
-
-							chatPlayer.muted.add(chatChannel);
-						}
-					}
-				}
-
-				/* SELECT FROM SPYING TABLE */
-				try (PreparedStatement select = getConnection().prepareStatement(SQL_SELECT_SPYING)) {
-					select.setInt(1, chatPlayer.getChatPlayerId());
-
-					try (ResultSet rs = select.executeQuery()) {
-						while (rs.next()) {
-							String channelName = rs.getString("channel_name");
-							ChatChannel<? extends ChatMessage> chatChannel = ChatPlugin.getInstance().getChatChannelManager().getByName(channelName);
-
-							chatPlayer.spying.add(chatChannel);
-						}
-					}
-				}
-				
-				/* SELECT FROM META TABLE */
-				try (PreparedStatement select = getConnection().prepareStatement(SQL_SELECT_META)) {
-					select.setInt(1, chatPlayer.getChatPlayerId());
-					
-					try (ResultSet rs = select.executeQuery()) {
-						while (rs.next()) {
-							String key = rs.getString("meta_key");
-							String value = rs.getString("meta_value");
-							
-							chatPlayer.meta.put(key, value);
-						}
-					}
-				}
-				
 				return null;
 			}};
 	}
@@ -209,139 +201,141 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 		return new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				/* Player not in database, insert */
-				if (chatPlayer.getChatPlayerId() == 0) {
-					try (PreparedStatement insert = getConnection().prepareStatement(SQL_INSERT_PLAYERS, Statement.RETURN_GENERATED_KEYS)) {
-						insert.setString(1, chatPlayer.getMojangUUID().toString());
-						insert.setString(2, chatPlayer.getNickname());
-						insert.setString(3, chatPlayer.getFocused().getName());
-						insert.execute();
+				try (Connection connection = getConnection()) {
+					/* Player not in database, insert */
+					if (chatPlayer.getChatPlayerId() == 0) {
+						try (PreparedStatement insert = connection.prepareStatement(SQL_INSERT_PLAYERS, Statement.RETURN_GENERATED_KEYS)) {
+							insert.setString(1, chatPlayer.getMojangUUID().toString());
+							insert.setString(2, chatPlayer.getNickname());
+							insert.setString(3, chatPlayer.getFocused().getName());
+							insert.execute();
 
-						try (ResultSet rs = insert.getGeneratedKeys()) {
-							while (rs.next()) {
-								int chatPlayerId = rs.getInt(1);
-								chatPlayer.setChatPlayerId(chatPlayerId);
-							}
-						}
-					}
-				}
-
-				/* Player already in database, update */
-				else {
-					/* UPDATE PLAYERS TABLE */
-					try (PreparedStatement update = getConnection().prepareStatement(SQL_UPDATE_PLAYERS)) {
-						update.setString(1, chatPlayer.getMojangUUID().toString());
-						update.setString(2, chatPlayer.getNickname());
-						update.setString(3, chatPlayer.getFocused().getName());
-						update.setInt(4, chatPlayer.getChatPlayerId());
-
-						update.execute();
-					}
-
-					/* UPDATE IGNORING TABLE */
-					Set<String> currentIgnoring = chatPlayer.ignoring.stream().map(MinecraftIdentity::getIdentity).collect(Collectors.toSet());
-					Set<String> previousIgnoring = new HashSet<>();
-
-					try (PreparedStatement select = getConnection().prepareStatement(SQL_SELECT_IGNORING)) {
-						select.setInt(1, chatPlayer.getChatPlayerId());
-
-						try (ResultSet rs = select.executeQuery()) {
-							while (rs.next()) {
-								String raw = rs.getString("minecraft_identity");
-								previousIgnoring.add(raw);
+							try (ResultSet rs = insert.getGeneratedKeys()) {
+								while (rs.next()) {
+									int chatPlayerId = rs.getInt(1);
+									chatPlayer.setChatPlayerId(chatPlayerId);
+								}
 							}
 						}
 					}
 
-					for (String inserting : Sets.difference(currentIgnoring, previousIgnoring)) {
-						try (PreparedStatement insert = getConnection().prepareStatement(SQL_INSERT_IGNORING)) {
-							insert.setInt(1, chatPlayer.getChatPlayerId());
-							insert.setString(2, inserting);
-							insert.execute();
+					/* Player already in database, update */
+					else {
+						/* UPDATE PLAYERS TABLE */
+						try (PreparedStatement update = connection.prepareStatement(SQL_UPDATE_PLAYERS)) {
+							update.setString(1, chatPlayer.getMojangUUID().toString());
+							update.setString(2, chatPlayer.getNickname());
+							update.setString(3, chatPlayer.getFocused().getName());
+							update.setInt(4, chatPlayer.getChatPlayerId());
+
+							update.execute();
 						}
-					}
 
-					for (String deleting : Sets.difference(previousIgnoring, currentIgnoring)) {
-						try (PreparedStatement delete = getConnection().prepareStatement(SQL_DELETE_IGNORING)) {
-							delete.setInt(1, chatPlayer.getChatPlayerId());
-							delete.setString(2, deleting);
-							delete.execute();
-						}
-					}
+						/* UPDATE IGNORING TABLE */
+						Set<String> currentIgnoring = chatPlayer.ignoring.stream().map(MinecraftIdentity::getIdentity).collect(Collectors.toSet());
+						Set<String> previousIgnoring = new HashSet<>();
 
-					/* UPDATE MUTED TABLE */
-					Set<ChatChannel<?>> currentMuted = chatPlayer.muted;
-					Set<ChatChannel<?>> previousMuted = new HashSet<>();
+						try (PreparedStatement select = connection.prepareStatement(SQL_SELECT_IGNORING)) {
+							select.setInt(1, chatPlayer.getChatPlayerId());
 
-					try (PreparedStatement select = getConnection().prepareStatement(SQL_SELECT_MUTED)) {
-						select.setInt(1, chatPlayer.getChatPlayerId());
-
-						try (ResultSet rs = select.executeQuery()) {
-							while (rs.next()) {
-								String raw = rs.getString("channel_name");
-								previousMuted.add(ChatPlugin.getInstance().getChatChannelManager().getByName(raw));
+							try (ResultSet rs = select.executeQuery()) {
+								while (rs.next()) {
+									String raw = rs.getString("minecraft_identity");
+									previousIgnoring.add(raw);
+								}
 							}
 						}
-					}
 
-					for (ChatChannel<?> inserting : Sets.difference(currentMuted, previousMuted)) {
-						try (PreparedStatement insert = getConnection().prepareStatement(SQL_INSERT_MUTED)) {
-							insert.setInt(1, chatPlayer.getChatPlayerId());
-							insert.setString(2, inserting.getName());
-							insert.execute();
-						}
-					}
-
-					for (ChatChannel<?> deleting : Sets.difference(previousMuted, currentMuted)) {
-						try (PreparedStatement delete = getConnection().prepareStatement(SQL_DELETE_MUTED)) {
-							delete.setInt(1, chatPlayer.getChatPlayerId());
-							delete.setString(2, deleting.getName());
-							delete.execute();
-						}
-					}
-
-					/* UPDATE SPYING TABLE */
-					Set<ChatChannel<?>> currentSpying = chatPlayer.spying;
-					Set<ChatChannel<?>> previousSpying = new HashSet<>();
-
-					try (PreparedStatement select = getConnection().prepareStatement(SQL_SELECT_SPYING)) {
-						select.setInt(1, chatPlayer.getChatPlayerId());
-
-						try (ResultSet rs = select.executeQuery()) {
-							while (rs.next()) {
-								String raw = rs.getString("channel_name");
-								previousSpying.add(ChatPlugin.getInstance().getChatChannelManager().getByName(raw));
+						for (String inserting : Sets.difference(currentIgnoring, previousIgnoring)) {
+							try (PreparedStatement insert = connection.prepareStatement(SQL_INSERT_IGNORING)) {
+								insert.setInt(1, chatPlayer.getChatPlayerId());
+								insert.setString(2, inserting);
+								insert.execute();
 							}
 						}
-					}
 
-					for (ChatChannel<?> inserting : Sets.difference(currentSpying, previousSpying)) {
-						try (PreparedStatement insert = getConnection().prepareStatement(SQL_INSERT_SPYING)) {
-							insert.setInt(1, chatPlayer.getChatPlayerId());
-							insert.setString(2, inserting.getName());
-							insert.execute();
+						for (String deleting : Sets.difference(previousIgnoring, currentIgnoring)) {
+							try (PreparedStatement delete = connection.prepareStatement(SQL_DELETE_IGNORING)) {
+								delete.setInt(1, chatPlayer.getChatPlayerId());
+								delete.setString(2, deleting);
+								delete.execute();
+							}
 						}
-					}
 
-					for (ChatChannel<?> deleting : Sets.difference(previousSpying, currentSpying)) {
-						try (PreparedStatement delete = getConnection().prepareStatement(SQL_DELETE_SPYING)) {
-							delete.setInt(1, chatPlayer.getChatPlayerId());
-							delete.setString(2, deleting.getName());
-							delete.execute();
+						/* UPDATE MUTED TABLE */
+						Set<ChatChannel<?>> currentMuted = chatPlayer.muted;
+						Set<ChatChannel<?>> previousMuted = new HashSet<>();
+
+						try (PreparedStatement select = connection.prepareStatement(SQL_SELECT_MUTED)) {
+							select.setInt(1, chatPlayer.getChatPlayerId());
+
+							try (ResultSet rs = select.executeQuery()) {
+								while (rs.next()) {
+									String raw = rs.getString("channel_name");
+									previousMuted.add(ChatPlugin.getInstance().getChatChannelManager().getByName(raw));
+								}
+							}
 						}
-					}
 
-					/* UPDATE META TABLE */
-					for (Map.Entry<String, String> metaEntry : chatPlayer.meta.entrySet()) {
-						String key = metaEntry.getKey();
-						String value = metaEntry.getValue();
+						for (ChatChannel<?> inserting : Sets.difference(currentMuted, previousMuted)) {
+							try (PreparedStatement insert = connection.prepareStatement(SQL_INSERT_MUTED)) {
+								insert.setInt(1, chatPlayer.getChatPlayerId());
+								insert.setString(2, inserting.getName());
+								insert.execute();
+							}
+						}
 
-						try (PreparedStatement insert = getConnection().prepareStatement(SQL_INSERT_META)) {
-							insert.setInt(1, chatPlayer.getChatPlayerId());
-							insert.setString(2, key);
-							insert.setString(3, value);
-							insert.setString(4, value);
-							insert.execute();
+						for (ChatChannel<?> deleting : Sets.difference(previousMuted, currentMuted)) {
+							try (PreparedStatement delete = connection.prepareStatement(SQL_DELETE_MUTED)) {
+								delete.setInt(1, chatPlayer.getChatPlayerId());
+								delete.setString(2, deleting.getName());
+								delete.execute();
+							}
+						}
+
+						/* UPDATE SPYING TABLE */
+						Set<ChatChannel<?>> currentSpying = chatPlayer.spying;
+						Set<ChatChannel<?>> previousSpying = new HashSet<>();
+
+						try (PreparedStatement select = connection.prepareStatement(SQL_SELECT_SPYING)) {
+							select.setInt(1, chatPlayer.getChatPlayerId());
+
+							try (ResultSet rs = select.executeQuery()) {
+								while (rs.next()) {
+									String raw = rs.getString("channel_name");
+									previousSpying.add(ChatPlugin.getInstance().getChatChannelManager().getByName(raw));
+								}
+							}
+						}
+
+						for (ChatChannel<?> inserting : Sets.difference(currentSpying, previousSpying)) {
+							try (PreparedStatement insert = connection.prepareStatement(SQL_INSERT_SPYING)) {
+								insert.setInt(1, chatPlayer.getChatPlayerId());
+								insert.setString(2, inserting.getName());
+								insert.execute();
+							}
+						}
+
+						for (ChatChannel<?> deleting : Sets.difference(previousSpying, currentSpying)) {
+							try (PreparedStatement delete = connection.prepareStatement(SQL_DELETE_SPYING)) {
+								delete.setInt(1, chatPlayer.getChatPlayerId());
+								delete.setString(2, deleting.getName());
+								delete.execute();
+							}
+						}
+
+						/* UPDATE META TABLE */
+						for (Map.Entry<String, String> metaEntry : chatPlayer.meta.entrySet()) {
+							String key = metaEntry.getKey();
+							String value = metaEntry.getValue();
+
+							try (PreparedStatement insert = connection.prepareStatement(SQL_INSERT_META)) {
+								insert.setInt(1, chatPlayer.getChatPlayerId());
+								insert.setString(2, key);
+								insert.setString(3, value);
+								insert.setString(4, value);
+								insert.execute();
+							}
 						}
 					}
 				}
@@ -353,33 +347,18 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 
 	@Override
 	public void close() {
-		try {
-			if (connection != null && !connection.isClosed()) {
-				connection.close();
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		dataSource.close();
 	}
 
 	@Override
 	public Connection getConnection() {
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-
-			if (connection == null || connection.isClosed()) {
-				connection = DriverManager.getConnection(
-						String.format("jdbc:mysql://%s:%d/%s?useSSL=false", address, port, database),
-						username,
-						new String(password));
-			}
+			return dataSource.getConnection();
 		} catch (SQLException e) {
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
 		}
-
-		return connection;
+		
+		return null;
 	}
 
 }
