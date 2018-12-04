@@ -104,7 +104,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 				}
 
 				String partialName = args[0];
-				List<String> allOnlinePlayers = PlayerStatusPlugin.getAPI().getOnlyPlayers();
+				List<String> allOnlinePlayers = PlayerStatusPlugin.getInstance().getAPI().getOnlyPlayers();
 
 
 				for (String player : allOnlinePlayers) {
@@ -256,7 +256,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 				}
 
 				try {
-					PlayerStatus recipientStatus = PlayerStatusPlugin.getAPI().getPlayerStatus(chatMessage.getRecipient()).call();
+					PlayerStatus recipientStatus = PlayerStatusPlugin.getInstance().getAPI().getPlayerStatus(chatMessage.getRecipient()).call();
 
 					if (!player.isOnline()) {
 						return null;
