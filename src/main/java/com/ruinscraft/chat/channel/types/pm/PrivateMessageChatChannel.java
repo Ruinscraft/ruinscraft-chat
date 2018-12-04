@@ -240,7 +240,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 		return new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				AsyncPlayerChatEvent event = new DummyAsyncPlayerChatEvent(false, player, chatMessage.getPayload());
+				AsyncPlayerChatEvent event = new DummyAsyncPlayerChatEvent(true, player, chatMessage.getPayload());
 
 				Bukkit.getServer().getPluginManager().callEvent(event);
 
