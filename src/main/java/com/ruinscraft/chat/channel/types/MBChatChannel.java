@@ -8,8 +8,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.Constants;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.GenericChatMessage;
+import com.ruinscraft.chat.players.ChatPlayer;
 
 public class MBChatChannel implements ChatChannel<GenericChatMessage> {
 
@@ -55,7 +57,9 @@ public class MBChatChannel implements ChatChannel<GenericChatMessage> {
 				Player player = (Player) sender;
 				
 				if (args.length < 1) {
-					player.sendMessage(getUsage());
+					ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(player.getUniqueId());
+					chatPlayer.setFocused(MBChatChannel.this);
+					player.sendMessage(String.format(Constants.MESSAGE_FOCUSED_CHANNEL_SET_TO, "mb"));
 					return true;
 				}
 				
