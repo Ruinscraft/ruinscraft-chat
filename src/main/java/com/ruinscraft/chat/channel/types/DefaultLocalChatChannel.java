@@ -64,7 +64,8 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 
 				ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(player.getUniqueId());
 
-				if (commandLabel.toLowerCase().contains("localcolor")) {
+				/* Requires permission */
+				if (commandLabel.toLowerCase().equals("localcolor")) {
 					if (!player.hasPermission("ruinscraft.command.localcolor")) {
 						player.sendMessage(Constants.COLOR_ERROR + "You do not have permission to use this.");
 						return true;
@@ -74,15 +75,15 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 						if (!chatPlayer.hasMeta("localcolor")) {
 							player.sendMessage(Constants.COLOR_BASE + "You currently do not have a local color set");
 							player.sendMessage(Constants.COLOR_BASE + "Set one with /" + commandLabel + " <colorcode>");
-							player.sendMessage(Constants.COLOR_BASE + "Color codes:");
-							player.sendMessage(ChatColor.DARK_RED + "4 " + ChatColor.RED + "c " + ChatColor.GOLD + "6 " + ChatColor.YELLOW + "e " + ChatColor.DARK_GREEN + "2 " + ChatColor.GREEN + "a " + ChatColor.AQUA + "b " + ChatColor.DARK_AQUA + "3 " + ChatColor.DARK_BLUE + "1 " + ChatColor.BLUE + "9 " + ChatColor.LIGHT_PURPLE + "d " + ChatColor.DARK_PURPLE + "5 " + ChatColor.WHITE + "f " + ChatColor.GRAY + "7 " + ChatColor.DARK_GRAY + "8 " + ChatColor.BLACK + "0");
-							return true;
 						} else {
 							char colorCode = chatPlayer.getMeta("localcolor").charAt(0);
 							player.sendMessage(Constants.COLOR_BASE + "Your current local color is " + ChatColor.getByChar(colorCode) + ChatColor.getByChar(colorCode).name());
 							player.sendMessage(Constants.COLOR_BASE + "You can reset it with /localcolorreset");
-							return true;
 						}
+						
+						player.sendMessage(Constants.COLOR_BASE + "Color codes:");
+						player.sendMessage(ChatColor.DARK_RED + "4 " + ChatColor.RED + "c " + ChatColor.GOLD + "6 " + ChatColor.YELLOW + "e " + ChatColor.DARK_GREEN + "2 " + ChatColor.GREEN + "a " + ChatColor.AQUA + "b " + ChatColor.DARK_AQUA + "3 " + ChatColor.DARK_BLUE + "1 " + ChatColor.BLUE + "9 " + ChatColor.LIGHT_PURPLE + "d " + ChatColor.DARK_PURPLE + "5 " + ChatColor.WHITE + "f " + ChatColor.GRAY + "7 " + ChatColor.DARK_GRAY + "8 " + ChatColor.BLACK + "0");
+						return true;
 					}
 
 					char newCode = args[0].charAt(0);
@@ -101,7 +102,7 @@ public class DefaultLocalChatChannel implements ChatChannel<GenericChatMessage> 
 				}
 
 				/* Requires no permission */
-				else if (commandLabel.toLowerCase().contains("localcolorreset")) {
+				else if (commandLabel.toLowerCase().equals("localcolorreset")) {
 					player.sendMessage(Constants.COLOR_BASE + "Local chat color reset");
 					chatPlayer.setMeta("localcolor", null);
 					return true;
