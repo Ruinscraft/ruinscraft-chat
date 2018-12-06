@@ -16,6 +16,7 @@ public class RedisMessageManager implements MessageManager {
 
 	protected static final String REDIS_CHAT_CHANNEL = "rcchat";
 	protected static JedisPool pool;
+	private static Jedis subscriber;
 
 	private RedisMessageConsumer consumer;
 	private RedisMessageDispatcher dispatcher;
@@ -23,7 +24,7 @@ public class RedisMessageManager implements MessageManager {
 	public RedisMessageManager(ConfigurationSection redisConfig) {
 		consumer = new RedisMessageConsumer();
 		dispatcher = new RedisMessageDispatcher();
-		
+
 		String address = redisConfig.getString("address");
 		int port = redisConfig.getInt("port");
 		String password = redisConfig.getString("password");
@@ -34,11 +35,19 @@ public class RedisMessageManager implements MessageManager {
 				port == 0 ? Protocol.DEFAULT_PORT : port,
 						Protocol.DEFAULT_TIMEOUT,
 						password);
-		
+
+		subscriber = new Jedis(
+				address,
+				port == 0 ? Protocol.DEFAULT_PORT : port);
+
+		if (password != null) {
+			subscriber.auth(password);
+		}
+
+		subscriber.connect();
+
 		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
-			try (Jedis jedis = pool.getResource()) {
-				jedis.subscribe(consumer, REDIS_CHAT_CHANNEL);
-			}
+			subscriber.subscribe(consumer, REDIS_CHAT_CHANNEL);
 		});
 	}
 
@@ -56,6 +65,7 @@ public class RedisMessageManager implements MessageManager {
 	public void close() {
 		consumer.unsubscribe();
 		pool.close();
+		subscriber.close();
 	}
 
 }
