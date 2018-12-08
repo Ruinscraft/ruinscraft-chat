@@ -19,6 +19,7 @@ public class PlotLocalChatChannel extends DefaultLocalChatChannel {
 		return "Local Chat (the plot you are on)";
 	}
 
+	@Override
 	public Collection<? extends Player> getIntendedRecipients(GenericChatMessage context) {
 		Player player = Bukkit.getPlayer(context.getSender());
 

@@ -158,7 +158,7 @@ public class PrivateMessageChatChannel extends ChatChannel<PrivateChatMessage> {
 					String name = player.getName();
 					String server = ChatPlugin.getInstance().getServerName();
 					String channel = getName();
-					boolean colorize = player.hasPermission(Constants.PERMISSION_COLORIZE_MESSAGES);
+					boolean colorize = player.hasPermission(Constants.PERMISSION_COLORIZE_PRIVATE_MESSAGES);
 
 					PrivateChatMessage pm = new PrivateChatMessage(senderPrefix, nickname, uuid, name, recipient, server, channel, colorize, message);
 
@@ -209,9 +209,8 @@ public class PrivateMessageChatChannel extends ChatChannel<PrivateChatMessage> {
 
 				try {
 					PlayerStatus recipientStatus = PlayerStatusPlugin.getInstance().getAPI().getPlayerStatus(chatMessage.getRecipient()).call();
-
+					
 					if (!player.isOnline()) {
-						System.out.println("player not online?");
 						return null;
 					}
 
@@ -234,6 +233,10 @@ public class PrivateMessageChatChannel extends ChatChannel<PrivateChatMessage> {
 		Player sender = Bukkit.getPlayerExact(chatMessage.getSender());
 		Player recipient = Bukkit.getPlayerExact(chatMessage.getRecipient());
 
+		if (chatMessage.colorizePayload()) {
+			chatMessage.setPayload(ChatColor.translateAlternateColorCodes('&', chatMessage.getPayload()));
+		}
+		
 		if (sender != null) {
 			if (sender == recipient) {
 				// sending to themself
