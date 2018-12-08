@@ -9,36 +9,29 @@ import org.bukkit.entity.Player;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.Constants;
-import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.GenericChatMessage;
 import com.ruinscraft.chat.players.ChatPlayer;
 
-public class MBChatChannel implements ChatChannel<GenericChatMessage> {
-
-	@Override
-	public String getName() {
-		return "mb";
+public class MBChatChannel extends LabeledChatChannel<GenericChatMessage> {
+	
+	public MBChatChannel(String name, String prettyName, String permission, ChatColor messageColor, boolean logged,
+			boolean mutable, boolean spyable) {
+		super(name, prettyName, permission, messageColor, logged, mutable, spyable);
+	}
+	
+	public MBChatChannel() {
+		super("mb", "MB", "ruinscraft.chat.channel.mb", ChatColor.GREEN, true, false, false);
 	}
 
 	@Override
-	public String getPrettyName() {
-		return "MB";
+	public String getLabel(GenericChatMessage context) {
+		return getMessageColor() + "[" + getPrettyName() + "] ";
 	}
 	
 	@Override
 	public String getFormat(String viewer, GenericChatMessage context) {
-		String noColor = "&c[MB] &a[%server%] &c[%prefix%&c] %sender% &8&l>" + getMessageColor() + " %message%";
+		String noColor = getLabel(context) + "&a[%server%] " + getMessageColor() + "[%prefix%" + getMessageColor() + "] %sender% &8&l>" + getMessageColor() + " %message%";
 		return ChatColor.translateAlternateColorCodes('&', noColor);
-	}
-
-	@Override
-	public ChatColor getMessageColor() {
-		return ChatColor.GREEN;
-	}
-
-	@Override
-	public String getPermission() {
-		return "ruinscraft.chat.channel.mb";
 	}
 
 	@Override
@@ -59,7 +52,7 @@ public class MBChatChannel implements ChatChannel<GenericChatMessage> {
 				if (args.length < 1) {
 					ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(player.getUniqueId());
 					chatPlayer.setFocused(MBChatChannel.this);
-					player.sendMessage(String.format(Constants.MESSAGE_FOCUSED_CHANNEL_SET_TO, "mb"));
+					player.sendMessage(String.format(Constants.MESSAGE_FOCUSED_CHANNEL_SET_TO, MBChatChannel.this.getName()));
 					return true;
 				}
 				
@@ -76,7 +69,7 @@ public class MBChatChannel implements ChatChannel<GenericChatMessage> {
 				
 				ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
 					try {
-						dispatch(ChatPlugin.getInstance().getMessageManager().getDispatcher(), player, false, chatMessage).call();
+						dispatch(player, chatMessage, false).call();
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -91,26 +84,6 @@ public class MBChatChannel implements ChatChannel<GenericChatMessage> {
 		command.setPermissionMessage(null);
 		
 		return command;
-	}
-
-	@Override
-	public boolean isLogged() {
-		return true;
-	}
-	
-	@Override
-	public boolean isLoggedGlobally() {
-		return false;
-	}
-	
-	@Override
-	public boolean muteable() {
-		return false;
-	}
-	
-	@Override
-	public boolean spyable() {
-		return false;
 	}
 
 }

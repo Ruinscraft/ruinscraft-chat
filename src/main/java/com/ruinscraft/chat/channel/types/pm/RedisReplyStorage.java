@@ -21,14 +21,9 @@ public class RedisReplyStorage implements ReplyStorage {
 	public RedisReplyStorage(ConfigurationSection redisConfig) {
 		String address = redisConfig.getString("address");
 		int port = redisConfig.getInt("port");
-		String password = redisConfig.getString("password");
+		JedisPoolConfig config = new JedisPoolConfig();
+		pool = new JedisPool(config, address, port == 0 ? Protocol.DEFAULT_PORT : port);
 
-		pool = new JedisPool(
-				new JedisPoolConfig(),
-				address,
-				port == 0 ? Protocol.DEFAULT_PORT : port,
-						Protocol.DEFAULT_TIMEOUT,
-						password);
 	}
 
 	@Override
@@ -64,7 +59,9 @@ public class RedisReplyStorage implements ReplyStorage {
 
 	@Override
 	public void close() {
-		pool.close();
+		if (!pool.isClosed()) {
+			pool.close();
+		}
 	}
 
 }

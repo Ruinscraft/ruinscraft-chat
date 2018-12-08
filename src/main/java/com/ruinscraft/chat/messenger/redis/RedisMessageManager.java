@@ -15,38 +15,26 @@ import redis.clients.jedis.Protocol;
 public class RedisMessageManager implements MessageManager {
 
 	protected static final String REDIS_CHAT_CHANNEL = "rcchat";
-	protected static JedisPool pool;
-	private static Jedis subscriber;
+	private JedisPool pool;
+	private Jedis subscriber;
 
 	private RedisMessageConsumer consumer;
 	private RedisMessageDispatcher dispatcher;
 
 	public RedisMessageManager(ConfigurationSection redisConfig) {
 		consumer = new RedisMessageConsumer();
-		dispatcher = new RedisMessageDispatcher();
+		dispatcher = new RedisMessageDispatcher(this);
 
 		String address = redisConfig.getString("address");
 		int port = redisConfig.getInt("port");
-		String password = redisConfig.getString("password");
 
-		pool = new JedisPool(
-				new JedisPoolConfig(),
-				address,
-				port == 0 ? Protocol.DEFAULT_PORT : port,
-						Protocol.DEFAULT_TIMEOUT,
-						password);
-
-		subscriber = new Jedis(
-				address,
-				port == 0 ? Protocol.DEFAULT_PORT : port);
-
-		if (password != null) {
-			subscriber.auth(password);
-		}
-
-		subscriber.connect();
+		JedisPoolConfig config = new JedisPoolConfig();
+		
+		pool = new JedisPool(config, address, port == 0 ? Protocol.DEFAULT_PORT : port);
+		subscriber = pool.getResource();
 
 		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
+			subscriber.connect();
 			subscriber.subscribe(consumer, REDIS_CHAT_CHANNEL);
 		});
 	}
@@ -61,11 +49,23 @@ public class RedisMessageManager implements MessageManager {
 		return dispatcher;
 	}
 
+	protected JedisPool getJedisPool() {
+		return pool;
+	}
+	
 	@Override
 	public void close() {
-		consumer.unsubscribe();
-		pool.close();
-		subscriber.close();
+		if (consumer.isSubscribed()) {
+			consumer.unsubscribe();
+		}
+		
+		if (!pool.isClosed()) {
+			pool.close();
+		}
+		
+		if (subscriber.isConnected()) {
+			subscriber.close();
+		}
 	}
 
 }

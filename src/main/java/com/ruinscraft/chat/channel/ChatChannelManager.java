@@ -65,7 +65,7 @@ public class ChatChannelManager {
 	public Set<ChatChannel<?>> getMuteableChannels() {
 		Set<ChatChannel<?>> muteable = new HashSet<>();
 		for (ChatChannel<?> channel : channels) {
-			if (channel.muteable()) {
+			if (channel.isMutable()) {
 				muteable.add(channel);
 			}
 		}
@@ -75,7 +75,7 @@ public class ChatChannelManager {
 	public Set<ChatChannel<?>> getSpyableChannels() {
 		Set<ChatChannel<?>> spyable = new HashSet<>();
 		for (ChatChannel<?> channel : channels) {
-			if (channel.spyable()) {
+			if (channel.isSpyable()) {
 				spyable.add(channel);
 			}
 		}

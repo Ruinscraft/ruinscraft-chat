@@ -19,10 +19,7 @@ import com.ruinscraft.chat.ChatUtil;
 import com.ruinscraft.chat.Constants;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.events.DummyAsyncPlayerChatEvent;
-import com.ruinscraft.chat.filters.NotSendableException;
 import com.ruinscraft.chat.message.PrivateChatMessage;
-import com.ruinscraft.chat.messenger.Message;
-import com.ruinscraft.chat.messenger.MessageDispatcher;
 import com.ruinscraft.chat.players.ChatPlayer;
 import com.ruinscraft.playerstatus.PlayerStatus;
 import com.ruinscraft.playerstatus.PlayerStatusPlugin;
@@ -32,11 +29,13 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.HoverEvent.Action;
 import net.md_5.bungee.api.chat.TextComponent;
 
-public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage> {
+public class PrivateMessageChatChannel extends ChatChannel<PrivateChatMessage> {
 
 	private ReplyStorage replyStorage;
 
 	public PrivateMessageChatChannel(ConfigurationSection replySection) {
+		super("pm", "Private Messages", null, ChatColor.AQUA, true, true, true);
+
 		ConfigurationSection storageSection = replySection.getConfigurationSection("storage");
 
 		if (storageSection.getBoolean("redis.use")) {
@@ -46,16 +45,6 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 
 	public ReplyStorage getReplyCache() {
 		return replyStorage;
-	}
-
-	@Override
-	public String getName() {
-		return "pm";
-	}
-
-	@Override
-	public String getPrettyName() {
-		return "Private Messages";
 	}
 
 	@Override
@@ -79,16 +68,6 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 		else {
 			return "[%sender% -> %recipient%] %message%";
 		}
-	}
-
-	@Override
-	public ChatColor getMessageColor() {
-		return ChatColor.AQUA;
-	}
-
-	@Override
-	public String getPermission() {
-		return null;
 	}
 
 	@Override
@@ -122,7 +101,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 					if (!(sender instanceof Player)) {
 						return;
 					}
-					
+
 					Player player = (Player) sender;
 
 					String message = null;
@@ -180,11 +159,11 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 					String server = ChatPlugin.getInstance().getServerName();
 					String channel = getName();
 					boolean colorize = player.hasPermission(Constants.PERMISSION_COLORIZE_MESSAGES);
-					
+
 					PrivateChatMessage pm = new PrivateChatMessage(senderPrefix, nickname, uuid, name, recipient, server, channel, colorize, message);
 
 					try {
-						dispatch(ChatPlugin.getInstance().getMessageManager().getDispatcher(), player, true, pm).call();
+						dispatch(player, pm, true).call();
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -216,27 +195,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 	}
 
 	@Override
-	public boolean isLogged() {
-		return true;
-	}
-
-	@Override
-	public boolean isLoggedGlobally() {
-		return true;
-	}
-
-	@Override
-	public boolean muteable() {
-		return true;
-	}
-
-	@Override
-	public boolean spyable() {
-		return true;
-	}
-
-	@Override
-	public Callable<Void> dispatch(MessageDispatcher dispatcher, Player player, boolean filter, PrivateChatMessage chatMessage) {
+	public Callable<Void> dispatch(Player player, PrivateChatMessage chatMessage, boolean filter) {
 		return new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
@@ -248,17 +207,11 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 					return null;
 				}
 
-				ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(player.getUniqueId());
-
-				if (chatPlayer.isMuted(PrivateMessageChatChannel.this)) {
-					player.sendMessage(Constants.COLOR_ERROR + "You have this channel muted. Unmute it with /chat");
-					return null;
-				}
-
 				try {
 					PlayerStatus recipientStatus = PlayerStatusPlugin.getInstance().getAPI().getPlayerStatus(chatMessage.getRecipient()).call();
 
 					if (!player.isOnline()) {
+						System.out.println("player not online?");
 						return null;
 					}
 
@@ -267,20 +220,7 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 						return null;
 					}
 
-					if (filter) {
-						try {
-							filter(ChatPlugin.getInstance().getChatChannelManager(), ChatPlugin.getInstance().getChatFilterManager(), player, chatMessage).call();
-						} catch (NotSendableException e) {
-							if (player != null) {
-								player.sendMessage(Constants.COLOR_ERROR + e.getMessage());
-								return null;
-							}
-						}
-					}
-
-					Message dispatchable = new Message(chatMessage);
-
-					dispatcher.dispatch(dispatchable);
+					PrivateMessageChatChannel.super.dispatch(player, chatMessage, filter).call();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -312,41 +252,20 @@ public class PrivateMessageChatChannel implements ChatChannel<PrivateChatMessage
 			}
 		}
 
-		if (recipient != null) {
-			if (recipient.isOnline()) {
-				// viewer is the recipient
-				ChatPlayer recipientChatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(recipient.getUniqueId());
+		if (recipient != null && recipient.isOnline()) {
+			// viewer is the recipient
+			ChatPlayer recipientChatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(recipient.getUniqueId());
 
-				/* Channel is muted */
-				if (recipientChatPlayer.isMuted(this)) {
-					return;
-				}
-
-				boolean ignoring = false;
-
-				/* Ignoring the sender username */
-				if (recipientChatPlayer.isIgnoring(chatMessage.getSender())) {
-					ignoring = true;
-				}
-
-				/* Ignoring the sender UUID */
-				if (recipientChatPlayer.isIgnoring(chatMessage.getSenderUUID())) {
-					ignoring = true;
-				}
-
-				if (ignoring) {
-					return;
-				}
-
-				String format = replace(getFormat(chatMessage.getRecipient(), chatMessage), chatMessage.getSender(), chatMessage.getRecipient(), chatMessage.getPayload());
-				TextComponent toSend = new TextComponent(ChatUtil.convertFromLegacy(format));
-				toSend.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, ChatUtil.convertFromLegacy("sent from " + chatMessage.getServerSentFrom())));
-				recipient.spigot().sendMessage(toSend);
-				recipient.spigot().sendMessage(ChatMessageType.ACTION_BAR, ChatUtil.convertFromLegacy(Constants.COLOR_ACCENT + "new message from " + chatMessage.getSender()));
+			if (!canSee(recipientChatPlayer, chatMessage)) {
+				return;
 			}
-		}
 
-		logAsync(chatMessage);
+			String format = replace(getFormat(chatMessage.getRecipient(), chatMessage), chatMessage.getSender(), chatMessage.getRecipient(), chatMessage.getPayload());
+			TextComponent toSend = new TextComponent(ChatUtil.convertFromLegacy(format));
+			toSend.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, ChatUtil.convertFromLegacy("sent from " + chatMessage.getServerSentFrom())));
+			recipient.spigot().sendMessage(toSend);
+			recipient.spigot().sendMessage(ChatMessageType.ACTION_BAR, ChatUtil.convertFromLegacy(Constants.COLOR_ACCENT + "new message from " + chatMessage.getSender()));
+		}
 	}
 
 	private static String replace(String format, String sender, String recipient, String message) {

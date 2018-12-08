@@ -49,7 +49,7 @@ public class ChatListener implements Listener {
 
 		try {
 			/* Safe because this is already async */
-			chatChannel.dispatch(chatPlugin.getMessageManager().getDispatcher(), player, true, chatMessage).call();
+			chatChannel.dispatch(player, chatMessage, true).call();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
