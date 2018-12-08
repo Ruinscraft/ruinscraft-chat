@@ -21,7 +21,7 @@ import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.events.DummyAsyncPlayerChatEvent;
 import com.ruinscraft.chat.message.PrivateChatMessage;
 import com.ruinscraft.chat.players.ChatPlayer;
-import com.ruinscraft.playerstatus.PlayerStatus;
+import com.ruinscraft.playerstatus.PlayerStatusAPI;
 import com.ruinscraft.playerstatus.PlayerStatusPlugin;
 
 import net.md_5.bungee.api.ChatMessageType;
@@ -208,13 +208,13 @@ public class PrivateMessageChatChannel extends ChatChannel<PrivateChatMessage> {
 				}
 
 				try {
-					PlayerStatus recipientStatus = PlayerStatusPlugin.getInstance().getAPI().getPlayerStatus(chatMessage.getRecipient()).call();
+					long status = PlayerStatusPlugin.getInstance().getAPI().getPlayerStatus(chatMessage.getRecipient()).call();
 					
 					if (!player.isOnline()) {
 						return null;
 					}
-
-					if (!recipientStatus.isOnline()) {
+					
+					if (status != PlayerStatusAPI.ONLINE) {
 						player.sendMessage(Constants.COLOR_ACCENT + chatMessage.getRecipient() + Constants.COLOR_BASE + " is not online.");
 						return null;
 					}
