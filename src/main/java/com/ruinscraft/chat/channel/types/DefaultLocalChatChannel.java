@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.Constants;
+import com.ruinscraft.chat.message.ActionChatMessage;
 import com.ruinscraft.chat.message.GenericChatMessage;
 import com.ruinscraft.chat.players.ChatPlayer;
 
@@ -29,9 +30,17 @@ public class DefaultLocalChatChannel extends LabeledChatChannel<GenericChatMessa
 	public String getFormat(String viewer, GenericChatMessage context) {
 		String noColor = "";
 		if (context.getSenderNickname() != null) {
-			noColor = getLabel(context) + "&7[%prefix%&7] %sender% &8&l>&r &6(%nickname%)&r" + getMessageColor() + " %message%";
+			if (context instanceof ActionChatMessage) {
+				noColor = getLabel(context) + "&d*%sender% (%nickname%) %message%*";
+			} else {
+				noColor = getLabel(context) + "&7[%prefix%&7] %sender% &8&l>&r &6(%nickname%)&r" + getMessageColor() + " %message%";
+			}
 		} else {
-			noColor = getLabel(context) + "&7[%prefix%&7] %sender% &8&l>&r" + getMessageColor() + " %message%";
+			if (context instanceof ActionChatMessage) {
+				noColor = getLabel(context) + "&d*%sender% %message%*";
+			} else {
+				noColor = getLabel(context) + "&7[%prefix%&7] %sender% &8&l>&r" + getMessageColor() + " %message%";
+			}
 		}
 		return ChatColor.translateAlternateColorCodes('&', noColor);
 	}
@@ -142,7 +151,13 @@ public class DefaultLocalChatChannel extends LabeledChatChannel<GenericChatMessa
 			String format = getFormat(player.getName(), chatMessage);
 
 			format = format.replace("%prefix%", ChatColor.translateAlternateColorCodes('&', chatMessage.getSenderPrefix()));
-			format = format.replace("%sender%", localColor + chatMessage.getSender());
+
+			/* Don't show localcolor if ActionChatMessage */
+			if (chatMessage instanceof ActionChatMessage) {
+				format = format.replace("%sender%", chatMessage.getSender());
+			} else {
+				format = format.replace("%sender%", localColor + chatMessage.getSender());
+			}
 
 			if (chatMessage.getSenderNickname() != null) {
 				format = format.replace("%nickname%", chatMessage.getSenderNickname());

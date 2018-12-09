@@ -21,3 +21,5 @@ commands:
   chatspy:
     description: Manage chat spy settings
     permission: ruinscraft.command.chatspy
+  me:
+    description: Do something as yourself

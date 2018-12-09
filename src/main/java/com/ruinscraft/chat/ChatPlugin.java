@@ -16,6 +16,7 @@ import com.ruinscraft.chat.commands.ChatCommand;
 import com.ruinscraft.chat.commands.ChatSpyCommand;
 import com.ruinscraft.chat.commands.ClearChatCommand;
 import com.ruinscraft.chat.commands.IgnoreCommand;
+import com.ruinscraft.chat.commands.MeCommand;
 import com.ruinscraft.chat.commands.NicknameCommand;
 import com.ruinscraft.chat.commands.NicknameResetCommand;
 import com.ruinscraft.chat.filters.ChatFilterManager;
@@ -137,6 +138,7 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 		getCommand("nicknamereset").setExecutor(new NicknameResetCommand());
 		getCommand("chat").setExecutor(chatCommand);
 		getCommand("chatspy").setExecutor(chatSpyCommand);
+		getCommand("me").setExecutor(new MeCommand());
 	}
 
 	@Override
