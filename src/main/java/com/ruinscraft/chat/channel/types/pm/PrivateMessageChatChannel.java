@@ -21,6 +21,7 @@ import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.events.DummyAsyncPlayerChatEvent;
 import com.ruinscraft.chat.message.PrivateChatMessage;
 import com.ruinscraft.chat.players.ChatPlayer;
+import com.ruinscraft.playerstatus.PlayerStatus;
 import com.ruinscraft.playerstatus.PlayerStatusAPI;
 import com.ruinscraft.playerstatus.PlayerStatusPlugin;
 
@@ -214,7 +215,7 @@ public class PrivateMessageChatChannel extends ChatChannel<PrivateChatMessage> {
 						return null;
 					}
 					
-					if (status != PlayerStatusAPI.ONLINE) {
+					if (status != PlayerStatus.ONLINE) {
 						player.sendMessage(Constants.COLOR_ACCENT + chatMessage.getRecipient() + Constants.COLOR_BASE + " is not online.");
 						return null;
 					}
