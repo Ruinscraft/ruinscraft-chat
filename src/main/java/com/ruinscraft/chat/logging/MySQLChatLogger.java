@@ -31,14 +31,13 @@ public class MySQLChatLogger implements ChatLogger {
 		try (Connection connection = getConnection()) {
 			if (connection.isClosed()) {
 				ChatPlugin.warning("Chat logging storage MySQL connection lost");
+				return;
 			} else {
 				ChatPlugin.info("Chat logging storage MySQL connection established");
 			}
 			
 			try (PreparedStatement create = connection.prepareStatement(SQL_CREATE_CHAT_LOG_TABLE)) {
 				create.execute();
-			} catch (SQLException e) {
-				e.printStackTrace();
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -78,7 +77,7 @@ public class MySQLChatLogger implements ChatLogger {
 		dataSource.close();
 	}
 
-	public Connection getConnection() {
+	private Connection getConnection() {
 		try {
 			return dataSource.getConnection();
 		} catch (SQLException e) {

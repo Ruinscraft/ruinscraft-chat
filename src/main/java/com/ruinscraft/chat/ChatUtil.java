@@ -14,12 +14,10 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class ChatUtil {
 
-	private static ChatPlugin chatPlugin = ChatPlugin.getInstance();
-	
 	public static Collection<Player> getOnlinePlayersNotIgnored(Player player) {
 		Set<Player> players = new HashSet<>();
 		
-		ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().getChatPlayer(player.getUniqueId());
+		ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(player.getUniqueId());
 
 		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
 			if (chatPlayer.isIgnoring(onlinePlayer.getName())) {

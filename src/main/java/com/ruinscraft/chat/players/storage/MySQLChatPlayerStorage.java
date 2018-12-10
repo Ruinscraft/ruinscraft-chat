@@ -62,46 +62,25 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 		dataSource.setConnectionTimeout(3000);
 		dataSource.setLeakDetectionThreshold(3000);
 
-		try (Connection connection = getConnection()){
+		try (Connection connection = getConnection()) {
 			if (connection.isClosed()) {
 				ChatPlugin.warning("Player storage MySQL connection lost");
+				return;
 			} else {
 				ChatPlugin.info("Player storage MySQL connection established");
 			}
 			
-			/* CREATE PLAYERS TABLE */
-			try (PreparedStatement create = connection.prepareStatement(SQL_CREATE_PLAYERS)) {
-				create.execute();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-
-			/* CREATE IGNORING TABLE */
-			try (PreparedStatement create = connection.prepareStatement(SQL_CREATE_IGNORING)) {
-				create.execute();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-
-			/* CREATE MUTED TABLE */
-			try (PreparedStatement create = connection.prepareStatement(SQL_CREATE_MUTED)) {
-				create.execute();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-
-			/* CREATE SPYING TABLE */
-			try (PreparedStatement create = connection.prepareStatement(SQL_CREATE_SPYING)) {
-				create.execute();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-
-			/* CREATE META TABLE */
-			try (PreparedStatement create = connection.prepareStatement(SQL_CREATE_META)) {
-				create.execute();
-			} catch (SQLException e) {
-				e.printStackTrace();
+			/* CREATE TABLES */
+			try (PreparedStatement create_players = connection.prepareStatement(SQL_CREATE_PLAYERS);
+					PreparedStatement create_ignoring = connection.prepareStatement(SQL_CREATE_IGNORING);
+					PreparedStatement create_muted = connection.prepareStatement(SQL_CREATE_MUTED);
+					PreparedStatement create_spying = connection.prepareStatement(SQL_CREATE_SPYING);
+					PreparedStatement create_meta = connection.prepareStatement(SQL_CREATE_META)) {
+				create_players.execute();
+				create_ignoring.execute();
+				create_muted.execute();
+				create_spying.execute();
+				create_meta.execute();
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

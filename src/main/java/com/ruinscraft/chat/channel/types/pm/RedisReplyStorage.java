@@ -13,7 +13,7 @@ import redis.clients.jedis.Protocol;
 
 public class RedisReplyStorage implements ReplyStorage {
 
-	private static final String REPLY = "reply";
+	private static final String REPLY = "%s.reply";
 	private static final int EXPIRE_AFTER_SEC = 1200;
 
 	private JedisPool pool;
@@ -23,7 +23,6 @@ public class RedisReplyStorage implements ReplyStorage {
 		int port = redisConfig.getInt("port");
 		JedisPoolConfig config = new JedisPoolConfig();
 		pool = new JedisPool(config, address, port == 0 ? Protocol.DEFAULT_PORT : port);
-
 	}
 
 	@Override
@@ -32,7 +31,7 @@ public class RedisReplyStorage implements ReplyStorage {
 			@Override
 			public String call() throws Exception {
 				try (Jedis jedis = pool.getResource()) {
-					return jedis.get(REPLY + "." + username);
+					return jedis.get(String.format(REPLY, username));
 				}
 			}
 		};
@@ -45,8 +44,8 @@ public class RedisReplyStorage implements ReplyStorage {
 			public Void call() throws Exception {
 				try (Jedis jedis = pool.getResource()) {
 					try (Pipeline pipeline = jedis.pipelined()) {
-						pipeline.setex(REPLY + "." + username, EXPIRE_AFTER_SEC, _username);
-						pipeline.setex(REPLY + "." + _username, EXPIRE_AFTER_SEC, username);
+						pipeline.setex(String.format(REPLY, username), EXPIRE_AFTER_SEC, _username);
+						pipeline.setex(String.format(REPLY, _username), EXPIRE_AFTER_SEC, username);
 						pipeline.sync();
 					} catch (IOException e) {
 						e.printStackTrace();

@@ -23,8 +23,8 @@ public class ChatPlayerManager implements AutoCloseable {
 
 	public ChatPlayerManager(ConfigurationSection playerStorageSection) {
 		/* Setup cache*/
-		toLoad = new ArrayBlockingQueue<>(256);
-		toSave = new ArrayBlockingQueue<>(256);
+		toLoad = new ArrayBlockingQueue<>(32);
+		toSave = new ArrayBlockingQueue<>(32);
 		cache = CacheBuilder.newBuilder()
 				.build(new ChatPlayerCacheLoader());
 
@@ -40,7 +40,7 @@ public class ChatPlayerManager implements AutoCloseable {
 
 			ChatPlugin.info("Using MySQL for player storage");
 		}
-		
+
 		/* Setup cache loader */
 		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
 			while (toLoad != null) {
@@ -53,20 +53,19 @@ public class ChatPlayerManager implements AutoCloseable {
 				}
 			}
 		});
-		
+
 		/* Setup saving task */
 		ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
 			while (toSave != null) {
 				try {
 					ChatPlayer saving = cache.getIfPresent(toSave.take());
-					
+
 					if (saving instanceof ChatPlayer) {
 						storage.saveChatPlayer(saving).call();
 					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -79,11 +78,7 @@ public class ChatPlayerManager implements AutoCloseable {
 	 * @param 	uuid	UUID of the player
 	 */
 	public void loadChatPlayer(UUID uuid) {
-		try {
-			toLoad.put(uuid);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		toLoad.offer(uuid);
 	}
 
 	/**
@@ -104,13 +99,9 @@ public class ChatPlayerManager implements AutoCloseable {
 	public ChatPlayer getChatPlayer(UUID uuid) {
 		return cache.getIfPresent(uuid);
 	}
-	
+
 	public void save(ChatPlayer chatPlayer) {
-		try {
-			toSave.put(chatPlayer.getMojangUUID());
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		toSave.offer(chatPlayer.getMojangUUID());
 	}
 
 	@Override
@@ -119,7 +110,7 @@ public class ChatPlayerManager implements AutoCloseable {
 		storage.close();
 		toLoad.clear();
 		toSave.clear();
-		
+
 		cache = null;
 		storage = null;
 		toLoad = null;
@@ -132,12 +123,12 @@ public class ChatPlayerManager implements AutoCloseable {
 			ChatPlayer chatPlayer = new ChatPlayer(uuid);
 
 			storage.loadChatPlayer(chatPlayer).call();
-			
+
 			/* New player */
 			if (chatPlayer.getChatPlayerId() == 0) {
 				storage.saveChatPlayer(chatPlayer).call();
 			}
-			
+
 			return chatPlayer;
 		}
 	}
