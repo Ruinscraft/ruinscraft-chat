@@ -31,16 +31,14 @@ public class ChatCommand implements CommandExecutor, Listener {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (!(sender instanceof Player)) {
-			return false;
-		}
+		if (!(sender instanceof Player)) return false;
 
 		Player player = (Player) sender;
 		ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(player.getUniqueId());
 		Set<ChatChannel<?>> muteableChannels = ChatPlugin.getInstance().getChatChannelManager().getMuteableChannels();
 
 		int slots = ChatUtil.getInventorySlotCount(muteableChannels.size());
-		Inventory chatMenu = Bukkit.createInventory(null, slots, INVENTORY_NAME);;
+		Inventory chatMenu = Bukkit.createInventory(null, slots, INVENTORY_NAME);
 
 		for (ChatChannel<?> channel : muteableChannels) {
 			ItemStack channelItem = new ItemStack(Material.GRASS);
@@ -51,9 +49,7 @@ public class ChatCommand implements CommandExecutor, Listener {
 		}
 
 		for (ItemStack itemStack : chatMenu.getContents()) {
-			if (itemStack == null || itemStack.getType() == Material.AIR) {
-				continue;
-			}
+			if (itemStack == null || itemStack.getType() == Material.AIR) continue;
 
 			ItemMeta itemMeta = itemStack.getItemMeta();
 
@@ -73,9 +69,7 @@ public class ChatCommand implements CommandExecutor, Listener {
 
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent event) {
-		if (!(event.getWhoClicked() instanceof Player)) {
-			return;
-		}
+		if (!(event.getWhoClicked() instanceof Player)) return;
 
 		Player player = (Player) event.getWhoClicked();
 		ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(player.getUniqueId());
@@ -86,9 +80,10 @@ public class ChatCommand implements CommandExecutor, Listener {
 
 			ItemStack clicked = event.getCurrentItem();
 
-			if (clicked == null || clicked.getType() == Material.AIR) {
-				return;
-			}
+			if (clicked == null || clicked.getType() == Material.AIR) return;
+
+			int muteableChannelsSize = ChatPlugin.getInstance().getChatChannelManager().getMuteableChannels().size();
+			if (event.getSlot() > muteableChannelsSize) return;
 
 			if (clicked.hasItemMeta() && clicked.getItemMeta().hasDisplayName()) {
 				String name = clicked.getItemMeta().getDisplayName();
