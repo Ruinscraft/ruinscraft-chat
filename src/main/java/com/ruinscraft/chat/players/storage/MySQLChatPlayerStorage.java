@@ -69,7 +69,7 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 			} else {
 				ChatPlugin.info("Player storage MySQL connection established");
 			}
-			
+
 			/* CREATE TABLES */
 			try (PreparedStatement create_players = connection.prepareStatement(SQL_CREATE_PLAYERS);
 					PreparedStatement create_ignoring = connection.prepareStatement(SQL_CREATE_IGNORING);
@@ -336,7 +336,7 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		return null;
 	}
 

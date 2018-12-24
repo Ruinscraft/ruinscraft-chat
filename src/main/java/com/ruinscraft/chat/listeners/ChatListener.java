@@ -37,11 +37,11 @@ public class ChatListener implements Listener {
 
 		ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().getChatPlayer(player.getUniqueId());
 		ChatChannel<GenericChatMessage> chatChannel = chatPlayer.getFocused();
-		
+
 		if (chatChannel.getPermission() != null && !player.hasPermission(chatChannel.getPermission())) {
 			chatPlayer.setFocused(chatPlugin.getChatChannelManager().getDefaultChatChannel());
 		}
-		
+
 		String senderPrefix = ChatPlugin.getVaultChat().getPlayerPrefix(player);
 		String nickname = chatPlayer.getNickname();
 		boolean allowColor = player.hasPermission(Constants.PERMISSION_COLORIZE_MESSAGES);

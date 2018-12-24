@@ -12,7 +12,7 @@ public class GenericChatMessage implements ChatMessage {
 	private final String intendedChannelName;
 	private final boolean colorizePayload;
 	private String payload;
-	
+
 	public GenericChatMessage(String senderPrefix, String senderNickname, UUID uuid, String sender, String serverSentFrom, String intendedChannelName, boolean colorizePayload, String payload) {
 		this.senderPrefix = senderPrefix;
 		this.senderNickname = senderNickname;
@@ -23,22 +23,22 @@ public class GenericChatMessage implements ChatMessage {
 		this.colorizePayload = colorizePayload;
 		this.payload = payload;
 	}
-	
+
 	@Override
 	public String getSenderPrefix() {
 		return senderPrefix;
 	}
-	
+
 	@Override
 	public String getSenderNickname() {
 		return senderNickname;
 	}
-	
+
 	@Override
 	public UUID getSenderUUID() {
 		return uuid;
 	}
-	
+
 	@Override
 	public String getSender() {
 		return sender;
@@ -48,17 +48,17 @@ public class GenericChatMessage implements ChatMessage {
 	public String getServerSentFrom() {
 		return serverSentFrom;
 	}
-	
+
 	@Override
 	public boolean colorizePayload() {
 		return colorizePayload;
 	}
-	
+
 	@Override
 	public String getPayload() {
 		return payload;
 	}
-	
+
 	@Override
 	public void setPayload(String payload) {
 		this.payload = payload;

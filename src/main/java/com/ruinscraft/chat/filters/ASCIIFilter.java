@@ -9,8 +9,8 @@ public class ASCIIFilter implements ChatFilter {
 		if (!CharMatcher.ascii().matchesAllOf(message)) {
 			throw new NotSendableException("Message must be ASCII only");
 		}
-		
+
 		return message;
 	}
-	
+
 }

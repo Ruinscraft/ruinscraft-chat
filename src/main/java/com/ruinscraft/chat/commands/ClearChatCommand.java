@@ -17,5 +17,5 @@ public class ClearChatCommand implements CommandExecutor {
 		Bukkit.broadcastMessage(Constants.COLOR_BASE + "Chat has been cleared");
 		return true;
 	}
-	
+
 }

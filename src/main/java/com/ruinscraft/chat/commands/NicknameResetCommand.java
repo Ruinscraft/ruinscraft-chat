@@ -16,14 +16,14 @@ public class NicknameResetCommand implements CommandExecutor {
 		if (!(sender instanceof Player)) {
 			return true;
 		}
-		
+
 		Player player = (Player) sender;
 		ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(player.getUniqueId());
-		
+
 		chatPlayer.setNickname(null);
 		player.sendMessage(Constants.COLOR_BASE + "Your nickname has been reset");
-		
+
 		return true;
 	}
-	
+
 }

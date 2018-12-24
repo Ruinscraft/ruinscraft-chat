@@ -12,7 +12,7 @@ public abstract class LabeledChatChannel<T extends ChatMessage> extends ChatChan
 			boolean mutable, boolean spyable) {
 		super(name, prettyName, permission, messageColor, logged, mutable, spyable);
 	}
- 
+
 	public abstract String getLabel(GenericChatMessage context);
-	
+
 }

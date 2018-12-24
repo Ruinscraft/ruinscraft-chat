@@ -8,5 +8,5 @@ public class ActionChatMessage extends GenericChatMessage {
 			String serverSentFrom, String intendedChannelName, boolean colorizePayload, String payload) {
 		super(senderPrefix, senderNickname, uuid, sender, serverSentFrom, intendedChannelName, colorizePayload, payload);
 	}
-	
+
 }

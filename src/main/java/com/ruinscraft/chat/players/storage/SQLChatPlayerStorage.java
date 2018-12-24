@@ -3,9 +3,9 @@ package com.ruinscraft.chat.players.storage;
 import java.sql.Connection;
 
 public interface SQLChatPlayerStorage extends ChatPlayerStorage {
-	
+
 	Connection getConnection();
-	
+
 	public final class Table {
 		protected static final String PLAYERS = "ruinscraft_chat_players";
 		protected static final String IGNORING = "ruinscraft_chat_ignoring";
@@ -13,5 +13,5 @@ public interface SQLChatPlayerStorage extends ChatPlayerStorage {
 		protected static final String SPYING = "ruinscraft_chat_spying";
 		protected static final String META = "ruinscraft_chat_meta";
 	}
-	
+
 }

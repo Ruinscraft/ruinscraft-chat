@@ -45,7 +45,7 @@ public class ChatChannelManager {
 			if (chatChannel.getName().equalsIgnoreCase(name)) {
 				return (ChatChannel<T>) chatChannel;
 			}
-			
+
 			if (chatChannel.getPrettyName().equalsIgnoreCase(name)) {
 				return (ChatChannel<T>) chatChannel;
 			}
@@ -57,11 +57,11 @@ public class ChatChannelManager {
 	public ChatChannel<GenericChatMessage> getDefaultChatChannel() {
 		return getByName("global");
 	}
-	
+
 	public Set<ChatChannel<?>> getChatChannels() {
 		return channels;
 	}
-	
+
 	public Set<ChatChannel<?>> getMuteableChannels() {
 		Set<ChatChannel<?>> muteable = new HashSet<>();
 		for (ChatChannel<?> channel : channels) {
@@ -71,7 +71,7 @@ public class ChatChannelManager {
 		}
 		return muteable;
 	}
-	
+
 	public Set<ChatChannel<?>> getSpyableChannels() {
 		Set<ChatChannel<?>> spyable = new HashSet<>();
 		for (ChatChannel<?> channel : channels) {
@@ -81,7 +81,7 @@ public class ChatChannelManager {
 		}
 		return spyable;
 	}
-	
+
 	public void unregisterAll() {
 		channels.forEach(c -> c.unregisterCommands());
 		channels.clear();

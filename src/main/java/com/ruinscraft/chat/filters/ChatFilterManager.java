@@ -8,7 +8,7 @@ import org.bukkit.configuration.ConfigurationSection;
 public class ChatFilterManager {
 
 	private Set<ChatFilter> filters;
-	
+
 	public ChatFilterManager(ConfigurationSection filtersSection) {
 		/* Setup filters */
 		filters = new HashSet<>();
@@ -17,11 +17,11 @@ public class ChatFilterManager {
 		filters.add(new ASCIIFilter());
 		filters.add(new ProfanityFilter(filtersSection.getConfigurationSection("profanity")));
 	}
-	
+
 	public Set<ChatFilter> getChatFilters() {
 		return filters;
 	}
-	
+
 	public <T extends ChatFilter> ChatFilter getByType(Class<T> clazz) {
 		for (ChatFilter chatFilter : filters) {
 			if (chatFilter.getClass().getName().equals(clazz.getName())) {
@@ -30,5 +30,5 @@ public class ChatFilterManager {
 		}
 		return null;
 	}
-	
+
 }

@@ -17,7 +17,7 @@ public class MySQLChatLogger implements ChatLogger {
 	private static final String SQL_INSERT_LOG = String.format("INSERT INTO %s (sender, recipient, time, channel, payload) VALUES (?, ?, ?, ?, ?);", SQL_LOGGER_TABLE_NAME);
 
 	private HikariDataSource dataSource;
-	
+
 	public MySQLChatLogger(String address, int port, String database, String username, String password) {
 		dataSource = new HikariDataSource();
 		dataSource.setJdbcUrl(String.format("jdbc:mysql://%s:%d/%s?useSSL=false", address, port, database));
@@ -27,7 +27,7 @@ public class MySQLChatLogger implements ChatLogger {
 		dataSource.setMaximumPoolSize(5);
 		dataSource.setConnectionTimeout(3000);
 		dataSource.setLeakDetectionThreshold(3000);
-		
+
 		try (Connection connection = getConnection()) {
 			if (connection.isClosed()) {
 				ChatPlugin.warning("Chat logging storage MySQL connection lost");
@@ -35,7 +35,7 @@ public class MySQLChatLogger implements ChatLogger {
 			} else {
 				ChatPlugin.info("Chat logging storage MySQL connection established");
 			}
-			
+
 			try (PreparedStatement create = connection.prepareStatement(SQL_CREATE_CHAT_LOG_TABLE)) {
 				create.execute();
 			}
@@ -52,12 +52,14 @@ public class MySQLChatLogger implements ChatLogger {
 				try (Connection connection = getConnection()) {
 					try (PreparedStatement insert = connection.prepareStatement(SQL_INSERT_LOG)) {
 						insert.setString(1, message.getSender());
+
 						if (message instanceof PrivateChatMessage) {
 							PrivateChatMessage pm = (PrivateChatMessage) message;
 							insert.setString(2, pm.getRecipient());
 						} else {
 							insert.setString(2, null);
 						}
+
 						insert.setLong(3, System.currentTimeMillis());
 						insert.setString(4, message.getIntendedChannelName());
 						insert.setString(5, message.getPayload());
@@ -66,7 +68,7 @@ public class MySQLChatLogger implements ChatLogger {
 						e.printStackTrace();
 					}
 				}
-				
+
 				return null;
 			}
 		};
@@ -83,7 +85,7 @@ public class MySQLChatLogger implements ChatLogger {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		return null;
 	}
 

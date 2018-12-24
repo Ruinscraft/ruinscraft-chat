@@ -12,7 +12,7 @@ public class RedisMessageDispatcher implements MessageDispatcher {
 	public RedisMessageDispatcher(RedisMessageManager manager) {
 		this.manager = manager;
 	}
-	
+
 	@Override
 	public void dispatch(Message message) {
 		try (Jedis jedis = manager.getJedisPool().getResource()) {

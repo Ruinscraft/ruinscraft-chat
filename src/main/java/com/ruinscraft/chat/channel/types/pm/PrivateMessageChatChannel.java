@@ -210,11 +210,11 @@ public class PrivateMessageChatChannel extends ChatChannel<PrivateChatMessage> {
 
 				try {
 					long status = PlayerStatusPlugin.getInstance().getAPI().getPlayerStatus(chatMessage.getRecipient()).call();
-					
+
 					if (!player.isOnline()) {
 						return null;
 					}
-					
+
 					if (status != PlayerStatus.ONLINE) {
 						player.sendMessage(Constants.COLOR_ACCENT + chatMessage.getRecipient() + Constants.COLOR_BASE + " is not online.");
 						return null;
@@ -237,7 +237,7 @@ public class PrivateMessageChatChannel extends ChatChannel<PrivateChatMessage> {
 		if (chatMessage.colorizePayload()) {
 			chatMessage.setPayload(ChatColor.translateAlternateColorCodes('&', chatMessage.getPayload()));
 		}
-		
+
 		if (sender != null) {
 			if (sender == recipient) {
 				// sending to themself

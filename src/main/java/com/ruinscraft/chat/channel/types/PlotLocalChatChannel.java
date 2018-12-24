@@ -26,22 +26,22 @@ public class PlotLocalChatChannel extends DefaultLocalChatChannel {
 		if (player == null || !player.isOnline()) {
 			return new HashSet<>();
 		}
-		
+
 		PlotPlayer plotPlayer = PlotPlayer.wrap(player);
-		
+
 		if (plotPlayer == null || !plotPlayer.isOnline()) {
 			return new HashSet<>();
 		}
-		
+
 		Plot currentPlot = plotPlayer.getCurrentPlot();
-		
+
 		if (currentPlot == null) {
 			player.sendMessage(Constants.COLOR_BASE + "You must be in a plot for this local chat channel");
 			return new HashSet<>();
 		}
-		
+
 		Set<Player> recipients = new HashSet<>();
-		
+
 		for (Player recipient : super.getIntendedRecipients(context)) {
 			if (currentPlot.getPlayersInPlot().contains(PlotPlayer.wrap(recipient))) {
 				recipients.add(recipient);
@@ -51,8 +51,8 @@ public class PlotLocalChatChannel extends DefaultLocalChatChannel {
 		if (recipients.size() == 1 && recipients.contains(player)) {
 			player.sendMessage(Constants.COLOR_BASE + "No one is in your plot to hear you");
 		}
-		
+
 		return recipients;
 	}
-	
+
 }

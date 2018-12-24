@@ -29,7 +29,7 @@ public class RedisMessageManager implements MessageManager {
 		int port = redisConfig.getInt("port");
 
 		JedisPoolConfig config = new JedisPoolConfig();
-		
+
 		pool = new JedisPool(config, address, port == 0 ? Protocol.DEFAULT_PORT : port);
 		subscriber = pool.getResource();
 
@@ -52,17 +52,17 @@ public class RedisMessageManager implements MessageManager {
 	protected JedisPool getJedisPool() {
 		return pool;
 	}
-	
+
 	@Override
 	public void close() {
 		if (consumer.isSubscribed()) {
 			consumer.unsubscribe();
 		}
-		
+
 		if (!pool.isClosed()) {
 			pool.close();
 		}
-		
+
 		if (subscriber.isConnected()) {
 			subscriber.close();
 		}

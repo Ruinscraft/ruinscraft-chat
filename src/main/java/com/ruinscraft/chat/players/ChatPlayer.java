@@ -77,9 +77,7 @@ public class ChatPlayer {
 	public boolean ignore(MinecraftIdentity minecraftIdentity) {
 		boolean success = ignoring.add(minecraftIdentity);
 
-		if (success) {
-			save();
-		}
+		if (success) save();
 
 		return success;
 	}
@@ -87,9 +85,7 @@ public class ChatPlayer {
 	public boolean unignore(MinecraftIdentity minecraftIdentity) {
 		boolean success = ignoring.remove(minecraftIdentity);
 
-		if (success) {
-			save();
-		}
+		if (success) save();
 
 		return success;
 	}
@@ -106,9 +102,7 @@ public class ChatPlayer {
 
 	public boolean isIgnoring(UUID uuid) {
 		for (MinecraftIdentity minecraftIdentity : ignoring) {
-			if (!minecraftIdentity.isUUID()) {
-				continue;
-			}
+			if (!minecraftIdentity.isUUID()) continue;
 
 			if (minecraftIdentity.getIdentity().equalsIgnoreCase(uuid.toString())) {
 				return true;
@@ -121,9 +115,7 @@ public class ChatPlayer {
 	public boolean mute(ChatChannel<? extends ChatMessage> chatChannel) {
 		boolean success = muted.add(chatChannel);
 
-		if (success) {
-			save();
-		}
+		if (success) save();
 
 		return success;
 	}
@@ -135,9 +127,7 @@ public class ChatPlayer {
 	public boolean unmute(ChatChannel<? extends ChatMessage> chatChannel) {
 		boolean success = muted.remove(chatChannel);
 
-		if (success) {
-			save();
-		}
+		if (success) save();
 
 		return success;
 	}
@@ -157,9 +147,7 @@ public class ChatPlayer {
 	public boolean spy(ChatChannel<? extends ChatMessage> chatChannel) {
 		boolean success = spying.add(chatChannel);
 
-		if (success) {
-			save();
-		}
+		if (success) save();
 
 		return success;
 	}
@@ -171,9 +159,7 @@ public class ChatPlayer {
 	public boolean unspy(ChatChannel<? extends ChatMessage> chatChannel) {
 		boolean success = spying.remove(chatChannel);
 
-		if (success) {
-			save();
-		}
+		if (success) save();
 
 		return success;
 	}
@@ -200,9 +186,7 @@ public class ChatPlayer {
 
 		meta.put(key, value);
 
-		if (changed) {
-			save();
-		}
+		if (changed) save();
 	}
 
 	public String getMeta(String key) {

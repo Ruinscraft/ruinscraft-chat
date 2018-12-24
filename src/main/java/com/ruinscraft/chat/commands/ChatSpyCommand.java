@@ -114,5 +114,5 @@ public class ChatSpyCommand implements CommandExecutor, Listener {
 			}
 		}
 	}
-	
+
 }

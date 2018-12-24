@@ -25,9 +25,7 @@ public class RedisMessageConsumer extends JedisPubSub implements MessageConsumer
 			e.printStackTrace();
 		}
 
-		if (message != null) {
-			consume(message);
-		}
+		if (message != null) consume(message);
 	}
 
 }
