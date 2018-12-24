@@ -25,12 +25,13 @@ public class MBChatChannel extends LabeledChatChannel<GenericChatMessage> {
 
 	@Override
 	public String getLabel(GenericChatMessage context) {
-		return getMessageColor() + "[" + getPrettyName() + "] ";
+		String label = "&7[" + getMessageColor() + getPrettyName() + "&7] ";
+		return ChatColor.translateAlternateColorCodes('&', label);
 	}
 
 	@Override
 	public String getFormat(String viewer, GenericChatMessage context) {
-		String noColor = getLabel(context) + "&a[%server%] " + getMessageColor() + "[%prefix%" + getMessageColor() + "] %sender% &8&l>" + getMessageColor() + " %message%";
+		String noColor = getLabel(context) + "[" + getMessageColor() + "%server%&7] " + "[%prefix%" + "&7] &c%sender% &8&l>" + getMessageColor() + " %message%";
 		return ChatColor.translateAlternateColorCodes('&', noColor);
 	}
 
