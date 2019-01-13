@@ -1,14 +1,17 @@
 package com.ruinscraft.chat.commands;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.Constants;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.channel.types.DefaultLocalChatChannel;
+import com.ruinscraft.chat.events.DummyAsyncPlayerChatEvent;
 import com.ruinscraft.chat.message.ActionChatMessage;
 import com.ruinscraft.chat.message.GenericChatMessage;
 import com.ruinscraft.chat.players.ChatPlayer;
@@ -20,11 +23,11 @@ public class MeCommand implements CommandExecutor {
 		if (!(sender instanceof Player)) {
 			return true;
 		}
-
+		
 		Player player = (Player) sender;
 		ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(player.getUniqueId());
 		ChatChannel<GenericChatMessage> focused = chatPlayer.getFocused();
-
+		
 		if (args.length < 1) {
 			player.sendMessage(Constants.COLOR_BASE + "You must specify something to say");
 			return true;
@@ -32,6 +35,14 @@ public class MeCommand implements CommandExecutor {
 
 		String message = String.join(" ", args);
 
+		AsyncPlayerChatEvent event = new DummyAsyncPlayerChatEvent(true, player, message);
+
+		Bukkit.getServer().getPluginManager().callEvent(event);
+
+		if (event.isCancelled()) {
+			return true;
+		}
+		
 		if (focused.getPermission() != null && !player.hasPermission(focused.getPermission())) {
 			chatPlayer.setFocused(ChatPlugin.getInstance().getChatChannelManager().getDefaultChatChannel());
 		}
