@@ -81,7 +81,9 @@ public class ChatSpyCommand implements CommandExecutor, Listener {
 		Player player = (Player) event.getWhoClicked();
 		ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(player.getUniqueId());
 
-		if (event.getInventory().getName().equals(INVENTORY_NAME)) {
+		if (player.getOpenInventory() == null) return;
+
+		if (player.getOpenInventory().getTitle().equals(INVENTORY_NAME)) {
 			event.setResult(Result.DENY);
 			event.setCancelled(true);
 

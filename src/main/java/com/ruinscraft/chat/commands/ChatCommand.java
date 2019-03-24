@@ -29,6 +29,9 @@ public class ChatCommand implements CommandExecutor, Listener {
 
 	private static final String INVENTORY_NAME = "Chat Menu";
 
+	private static final Material CHAT_ON = Material.MUSIC_DISC_CHIRP;
+	private static final Material CHAT_OFF = Material.MUSIC_DISC_CAT;
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (!(sender instanceof Player)) return false;
@@ -41,25 +44,17 @@ public class ChatCommand implements CommandExecutor, Listener {
 		Inventory chatMenu = Bukkit.createInventory(null, slots, INVENTORY_NAME);
 
 		for (ChatChannel<?> channel : muteableChannels) {
-			ItemStack channelItem = new ItemStack(Material.GRASS);
+			ItemStack channelItem = new ItemStack(CHAT_ON);
 			ItemMeta channelItemMeta = channelItem.getItemMeta();
-			channelItemMeta.setDisplayName(channel.getPrettyName());
-			channelItem.setItemMeta(channelItemMeta);
-			chatMenu.addItem(channelItem);
-		}
+			channelItemMeta.setDisplayName("Mute " + channel.getPrettyName());
 
-		for (ItemStack itemStack : chatMenu.getContents()) {
-			if (itemStack == null || itemStack.getType() == Material.AIR) continue;
-
-			ItemMeta itemMeta = itemStack.getItemMeta();
-
-			if (chatPlayer.isMuted(itemMeta.getDisplayName())) {
-				itemMeta.setDisplayName("Unmute " + itemMeta.getDisplayName());
-			} else {
-				itemMeta.setDisplayName("Mute " + itemMeta.getDisplayName());
+			if (chatPlayer.isMuted(channel)) {
+				channelItem = new ItemStack(CHAT_OFF);
+				channelItemMeta.setDisplayName("Unmute " + channel.getPrettyName());
 			}
 
-			itemStack.setItemMeta(itemMeta);
+			channelItem.setItemMeta(channelItemMeta);
+			chatMenu.addItem(channelItem);
 		}
 
 		player.openInventory(chatMenu);
@@ -74,7 +69,9 @@ public class ChatCommand implements CommandExecutor, Listener {
 		Player player = (Player) event.getWhoClicked();
 		ChatPlayer chatPlayer = ChatPlugin.getInstance().getChatPlayerManager().getChatPlayer(player.getUniqueId());
 
-		if (event.getInventory().getName().equals(INVENTORY_NAME)) {
+		if (player.getOpenInventory() == null) return;
+
+		if (player.getOpenInventory().getTitle().equals(INVENTORY_NAME)) {
 			event.setResult(Result.DENY);
 			event.setCancelled(true);
 
@@ -93,6 +90,7 @@ public class ChatCommand implements CommandExecutor, Listener {
 					chatPlayer.unmute(channelName);
 					player.sendMessage(Constants.COLOR_BASE + "You have unmuted " + Constants.COLOR_ACCENT + channelName);
 
+					clicked.setType(CHAT_ON);
 					ItemMeta itemMeta = clicked.getItemMeta();
 					itemMeta.setDisplayName("Mute " + channelName);
 					clicked.setItemMeta(itemMeta);
@@ -101,6 +99,7 @@ public class ChatCommand implements CommandExecutor, Listener {
 					chatPlayer.mute(channelName);
 					player.sendMessage(Constants.COLOR_BASE + "You have muted " + Constants.COLOR_ACCENT + channelName);
 
+					clicked.setType(CHAT_OFF);
 					ItemMeta itemMeta = clicked.getItemMeta();
 					itemMeta.setDisplayName("Unmute " + channelName);
 					clicked.setItemMeta(itemMeta);
