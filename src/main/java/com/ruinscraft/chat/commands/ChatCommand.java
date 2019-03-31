@@ -29,8 +29,18 @@ public class ChatCommand implements CommandExecutor, Listener {
 
 	private static final String INVENTORY_NAME = "Chat Menu";
 
-	private static final Material CHAT_ON = Material.MUSIC_DISC_CHIRP;
-	private static final Material CHAT_OFF = Material.MUSIC_DISC_CAT;
+	private static final Material CHAT_ON;
+	private static final Material CHAT_OFF;
+
+	static {
+		if (Bukkit.getVersion().contains("1.13")) {
+			CHAT_ON = Material.MUSIC_DISC_CHIRP;
+			CHAT_OFF = Material.MUSIC_DISC_CAT;
+		} else {
+			CHAT_ON = Material.GRASS;
+			CHAT_OFF = Material.GRASS;
+		}
+	}
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
