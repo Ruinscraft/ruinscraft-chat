@@ -1,14 +1,14 @@
 package com.ruinscraft.chat.logging;
 
-import java.util.concurrent.Callable;
-
 import com.ruinscraft.chat.message.ChatMessage;
+
+import java.util.concurrent.Callable;
 
 public interface ChatLogger extends AutoCloseable {
 
-	Callable<Void> log(ChatMessage message);
+    Callable<Void> log(ChatMessage message);
 
-	@Override
-	default void close() {}
+    @Override
+    default void close() {}
 
 }

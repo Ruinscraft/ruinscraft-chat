@@ -2,7 +2,7 @@ messaging:
   redis:
     use: true
     address: localhost
-    
+
 player-storage:
   mysql:
     use: true

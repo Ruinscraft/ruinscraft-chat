@@ -1,90 +1,83 @@
 package com.ruinscraft.chat.channel;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.bukkit.configuration.ConfigurationSection;
-
-import com.ruinscraft.chat.channel.types.DefaultLocalChatChannel;
-import com.ruinscraft.chat.channel.types.GlobalChatChannel;
-import com.ruinscraft.chat.channel.types.MBAChatChannel;
-import com.ruinscraft.chat.channel.types.MBChatChannel;
-import com.ruinscraft.chat.channel.types.MBHChatChannel;
-import com.ruinscraft.chat.channel.types.MBSChatChannel;
-import com.ruinscraft.chat.channel.types.PlotLocalChatChannel;
+import com.ruinscraft.chat.channel.types.*;
 import com.ruinscraft.chat.channel.types.pm.PrivateMessageChatChannel;
 import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.message.GenericChatMessage;
+import org.bukkit.configuration.ConfigurationSection;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class ChatChannelManager {
 
-	private Set<ChatChannel<?>> channels;
+    private Set<ChatChannel<?>> channels;
 
-	public ChatChannelManager(ConfigurationSection channelSection) {
-		/* Setup channels */
-		channels = new HashSet<>();
-		channels.add(new GlobalChatChannel());
-		switch (channelSection.getString("local.type")) {
-		case "default":
-			channels.add(new DefaultLocalChatChannel());
-			break;
-		case "plot": // requires PlotSquared
-			channels.add(new PlotLocalChatChannel());
-			break;
-		}
-		channels.add(new PrivateMessageChatChannel(channelSection.getConfigurationSection("private-message")));
-		channels.add(new MBChatChannel());
-		channels.add(new MBHChatChannel());
-		channels.add(new MBSChatChannel());
-		channels.add(new MBAChatChannel());
-		channels.forEach(c -> c.registerCommands());
-	}
+    public ChatChannelManager(ConfigurationSection channelSection) {
+        /* Setup channels */
+        channels = new HashSet<>();
+        channels.add(new GlobalChatChannel());
+        switch (channelSection.getString("local.type")) {
+            case "default":
+                channels.add(new DefaultLocalChatChannel());
+                break;
+            case "plot": // requires PlotSquared
+                channels.add(new PlotLocalChatChannel());
+                break;
+        }
+        channels.add(new PrivateMessageChatChannel(channelSection.getConfigurationSection("private-message")));
+        channels.add(new MBChatChannel());
+        channels.add(new MBHChatChannel());
+        channels.add(new MBSChatChannel());
+        channels.add(new MBAChatChannel());
+        channels.forEach(c -> c.registerCommands());
+    }
 
-	public <T extends ChatMessage> ChatChannel<T> getByName(String name) {
-		for (ChatChannel<?> chatChannel : channels) {
-			if (chatChannel.getName().equalsIgnoreCase(name)) {
-				return (ChatChannel<T>) chatChannel;
-			}
+    public <T extends ChatMessage> ChatChannel<T> getByName(String name) {
+        for (ChatChannel<?> chatChannel : channels) {
+            if (chatChannel.getName().equalsIgnoreCase(name)) {
+                return (ChatChannel<T>) chatChannel;
+            }
 
-			if (chatChannel.getPrettyName().equalsIgnoreCase(name)) {
-				return (ChatChannel<T>) chatChannel;
-			}
-		}
+            if (chatChannel.getPrettyName().equalsIgnoreCase(name)) {
+                return (ChatChannel<T>) chatChannel;
+            }
+        }
 
-		return (ChatChannel<T>) new GlobalChatChannel();
-	}
+        return (ChatChannel<T>) new GlobalChatChannel();
+    }
 
-	public ChatChannel<GenericChatMessage> getDefaultChatChannel() {
-		return getByName("global");
-	}
+    public ChatChannel<GenericChatMessage> getDefaultChatChannel() {
+        return getByName("global");
+    }
 
-	public Set<ChatChannel<?>> getChatChannels() {
-		return channels;
-	}
+    public Set<ChatChannel<?>> getChatChannels() {
+        return channels;
+    }
 
-	public Set<ChatChannel<?>> getMuteableChannels() {
-		Set<ChatChannel<?>> muteable = new HashSet<>();
-		for (ChatChannel<?> channel : channels) {
-			if (channel.isMutable()) {
-				muteable.add(channel);
-			}
-		}
-		return muteable;
-	}
+    public Set<ChatChannel<?>> getMuteableChannels() {
+        Set<ChatChannel<?>> muteable = new HashSet<>();
+        for (ChatChannel<?> channel : channels) {
+            if (channel.isMutable()) {
+                muteable.add(channel);
+            }
+        }
+        return muteable;
+    }
 
-	public Set<ChatChannel<?>> getSpyableChannels() {
-		Set<ChatChannel<?>> spyable = new HashSet<>();
-		for (ChatChannel<?> channel : channels) {
-			if (channel.isSpyable()) {
-				spyable.add(channel);
-			}
-		}
-		return spyable;
-	}
+    public Set<ChatChannel<?>> getSpyableChannels() {
+        Set<ChatChannel<?>> spyable = new HashSet<>();
+        for (ChatChannel<?> channel : channels) {
+            if (channel.isSpyable()) {
+                spyable.add(channel);
+            }
+        }
+        return spyable;
+    }
 
-	public void unregisterAll() {
-		channels.forEach(c -> c.unregisterCommands());
-		channels.clear();
-	}
+    public void unregisterAll() {
+        channels.forEach(c -> c.unregisterCommands());
+        channels.clear();
+    }
 
 }

@@ -4,11 +4,12 @@ import java.util.concurrent.Callable;
 
 public interface ReplyStorage extends AutoCloseable {
 
-	Callable<String> getReply(String username);
+    Callable<String> getReply(String username);
 
-	Callable<Void> setReply(String username, String _username);
+    Callable<Void> setReply(String username, String _username);
 
-	@Override
-	default void close() {}
+    @Override
+    default void close() {
+    }
 
 }

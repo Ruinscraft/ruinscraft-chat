@@ -4,22 +4,22 @@ import java.util.UUID;
 
 public interface ChatMessage {
 
-	String getSenderPrefix();
+    String getSenderPrefix();
 
-	String getSenderNickname();
+    String getSenderNickname();
 
-	UUID getSenderUUID();
+    UUID getSenderUUID();
 
-	String getSender();
+    String getSender();
 
-	String getServerSentFrom();
+    String getServerSentFrom();
 
-	String getIntendedChannelName();
+    String getIntendedChannelName();
 
-	boolean colorizePayload();
+    boolean colorizePayload();
 
-	void setPayload(String payload);
+    void setPayload(String payload);
 
-	String getPayload();
+    String getPayload();
 
 }

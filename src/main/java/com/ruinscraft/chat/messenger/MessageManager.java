@@ -2,11 +2,11 @@ package com.ruinscraft.chat.messenger;
 
 public interface MessageManager extends AutoCloseable {
 
-	MessageConsumer getConsumer();
+    MessageConsumer getConsumer();
 
-	MessageDispatcher getDispatcher();
+    MessageDispatcher getDispatcher();
 
-	@Override
-	default void close() {}
+    @Override
+    default void close() {}
 
 }
