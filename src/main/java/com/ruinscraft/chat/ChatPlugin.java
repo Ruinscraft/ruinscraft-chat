@@ -26,6 +26,7 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
     /* ============== Start of statics ============== */
     private static ChatPlugin instance;
     private static Chat vaultChat;
+    private static boolean is_112;
 
     public static ChatPlugin getInstance() {
         return instance;
@@ -41,6 +42,10 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
 
     public static Chat getVaultChat() {
         return vaultChat;
+    }
+
+    public static boolean is_112() {
+        return is_112;
     }
     /* ============== End of statics ============== */
 
@@ -61,6 +66,8 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
     @Override
     public void onEnable() {
         instance = this;
+
+        is_112 = Bukkit.getVersion().contains("1.12") ? true : false;
 
         PluginManager pm = getServer().getPluginManager();
 

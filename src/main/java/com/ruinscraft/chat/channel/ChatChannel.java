@@ -244,6 +244,10 @@ public abstract class ChatChannel<T extends ChatMessage> {
     }
 
     public void unregisterCommands() {
+        if (!ChatPlugin.is_112()) {
+            return;
+        }
+
         if (getCommand() == null) {
             return;
         }

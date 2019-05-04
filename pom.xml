@@ -78,12 +78,12 @@
             <version>3.0.1</version>
             <scope>compile</scope>
         </dependency>
-        <!-- commons-pool2 provided with Jedis -->
+        <!-- commons-pool2 for use with Jedis -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
             <version>2.4.3</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>
