@@ -1,6 +1,5 @@
 package com.ruinscraft.chat.messenger.redis;
 
-import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.messenger.MessageConsumer;
 import com.ruinscraft.chat.messenger.MessageDispatcher;
 import com.ruinscraft.chat.messenger.MessageManager;
@@ -31,10 +30,8 @@ public class RedisMessageManager implements MessageManager {
         pool = new JedisPool(config, address, port == 0 ? Protocol.DEFAULT_PORT : port);
         subscriber = pool.getResource();
 
-        ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
-            subscriber.connect();
-            subscriber.subscribe(consumer, REDIS_CHAT_CHANNEL);
-        });
+        subscriber.connect();
+        subscriber.subscribe(consumer, REDIS_CHAT_CHANNEL);
     }
 
     @Override
