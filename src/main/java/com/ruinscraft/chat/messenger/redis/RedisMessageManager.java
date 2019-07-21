@@ -1,5 +1,6 @@
 package com.ruinscraft.chat.messenger.redis;
 
+import com.ruinscraft.chat.Tasks;
 import com.ruinscraft.chat.messenger.MessageConsumer;
 import com.ruinscraft.chat.messenger.MessageDispatcher;
 import com.ruinscraft.chat.messenger.MessageManager;
@@ -31,7 +32,13 @@ public class RedisMessageManager implements MessageManager {
         subscriber = pool.getResource();
 
         subscriber.connect();
-        subscriber.subscribe(consumer, REDIS_CHAT_CHANNEL);
+
+        // blocks indefinitely
+        Tasks.async(() -> {
+            while (true) {
+                subscriber.subscribe(consumer, REDIS_CHAT_CHANNEL);
+            }
+        });
     }
 
     @Override
