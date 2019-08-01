@@ -27,7 +27,7 @@ public class DefaultLocalChatChannel extends LabeledChatChannel<GenericChatMessa
 
     @Override
     public String getFormat(String viewer, GenericChatMessage context) {
-        String noColor = "";
+        String noColor;
         if (context.getSenderNickname() != null) {
             if (context instanceof ActionChatMessage) {
                 noColor = getLabel(context) + "&d*%sender% (%nickname%) %message%*";

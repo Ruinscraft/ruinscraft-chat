@@ -196,7 +196,7 @@ public class PrivateMessageChatChannel extends ChatChannel<PrivateChatMessage> {
     public Callable<Void> dispatch(Player player, PrivateChatMessage chatMessage, boolean filter) {
         return new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 AsyncPlayerChatEvent event = new DummyAsyncPlayerChatEvent(true, player, chatMessage.getPayload());
 
                 Bukkit.getServer().getPluginManager().callEvent(event);

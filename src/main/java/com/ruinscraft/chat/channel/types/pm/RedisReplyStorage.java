@@ -51,7 +51,7 @@ public class RedisReplyStorage implements ReplyStorage {
 
     @Override
     public void close() {
-        if (!pool.isClosed()) {
+        if (pool != null && !pool.isClosed()) {
             pool.close();
         }
     }
