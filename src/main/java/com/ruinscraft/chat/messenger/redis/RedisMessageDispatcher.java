@@ -16,6 +16,8 @@ public class RedisMessageDispatcher implements MessageDispatcher {
     public void dispatch(Message message) {
         try (Jedis jedis = manager.getJedisPool().getResource()) {
             jedis.publish(RedisMessageManager.REDIS_CHAT_CHANNEL, message.serialize());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
