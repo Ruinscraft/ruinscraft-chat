@@ -22,8 +22,8 @@ public class ChatPlayerManager implements AutoCloseable {
 
     public ChatPlayerManager(ConfigurationSection playerStorageSection) {
         /* Setup cache*/
-        toLoad = new ArrayBlockingQueue<>(32);
-        toSave = new ArrayBlockingQueue<>(32);
+        toLoad = new ArrayBlockingQueue<>(256);
+        toSave = new ArrayBlockingQueue<>(256);
         cache = CacheBuilder.newBuilder()
                 .build(new ChatPlayerCacheLoader());
 
