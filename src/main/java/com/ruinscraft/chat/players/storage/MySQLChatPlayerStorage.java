@@ -88,7 +88,7 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
     public Callable<Void> loadChatPlayer(ChatPlayer chatPlayer) {
         return new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 try (Connection connection = getConnection()) {
                     /* SELECT FROM PLAYERS TABLE */
                     try (PreparedStatement select = connection.prepareStatement(SQL_SELECT_PLAYER_BY_UUID)) {
@@ -166,6 +166,8 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
                             }
                         }
                     }
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
 
                 return null;
@@ -177,7 +179,7 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
     public Callable<Void> saveChatPlayer(ChatPlayer chatPlayer) {
         return new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 try (Connection connection = getConnection()) {
                     /* Player not in database, insert */
                     if (chatPlayer.getChatPlayerId() == 0) {
@@ -315,6 +317,8 @@ public class MySQLChatPlayerStorage implements SQLChatPlayerStorage {
                             }
                         }
                     }
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
 
                 return null;
