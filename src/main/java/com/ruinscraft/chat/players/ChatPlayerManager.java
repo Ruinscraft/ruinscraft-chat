@@ -11,7 +11,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
 
 public class ChatPlayerManager implements AutoCloseable {
 
@@ -43,11 +42,12 @@ public class ChatPlayerManager implements AutoCloseable {
         /* Setup cache loader */
         ChatPlugin.getInstance().getServer().getScheduler().runTaskAsynchronously(ChatPlugin.getInstance(), () -> {
             while (toLoad != null) {
+                if (toLoad.remainingCapacity() <= 1) {
+                    ChatPlugin.warning("ChatPlayerManager: toLoad capacity <= 1");
+                }
                 try {
                     cache.get(toLoad.take());
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -62,8 +62,6 @@ public class ChatPlayerManager implements AutoCloseable {
                     if (saving instanceof ChatPlayer) {
                         storage.saveChatPlayer(saving).call();
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -74,6 +74,10 @@ public class PrivateMessageChatChannel extends ChatChannel<PrivateChatMessage> {
 
             @Override
             public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
+                if (ChatPlugin.getInstance() == null || PlayerStatusPlugin.get() == null) {
+                    return new ArrayList<>();
+                }
+
                 List<String> players = new ArrayList<>();
 
                 if (args.length < 1) {
@@ -102,7 +106,7 @@ public class PrivateMessageChatChannel extends ChatChannel<PrivateChatMessage> {
 
                     Player player = (Player) sender;
 
-                    String message = null;
+                    String message;
                     String recipient = null;
                     boolean reply = false;
 
