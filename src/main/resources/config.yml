@@ -13,6 +13,7 @@ player-storage:
     password: password
 
 channels:
+  disable: false
   local:
     type: default
   private-message:

@@ -4,7 +4,7 @@ main: ${mainClass}
 
 api-version: 1.13
 
-depend: [ruinscraft-player-status, Vault, Towny]
+depend: [ruinscraft-player-status, Vault, Towny, mcMMO]
 
 commands:
   ignore:
