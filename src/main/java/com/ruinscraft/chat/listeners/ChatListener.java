@@ -4,8 +4,13 @@ import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.Constants;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.events.DummyAsyncPlayerChatEvent;
+import com.ruinscraft.chat.events.FullAsyncPlayerChatEvent;
+import com.ruinscraft.chat.filters.ChatFilter;
+import com.ruinscraft.chat.filters.ChatFilterManager;
+import com.ruinscraft.chat.filters.NotSendableException;
 import com.ruinscraft.chat.message.GenericChatMessage;
 import com.ruinscraft.chat.players.ChatPlayer;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -29,6 +34,19 @@ public class ChatListener implements Listener {
         String payload = event.getMessage();
 
         if (payload.isEmpty()) {
+            return;
+        }
+
+        if (ChatPlugin.getInstance().getConfig().getBoolean("channels.disable") || event instanceof FullAsyncPlayerChatEvent) {
+            final ChatFilterManager chatFilterManager = ChatPlugin.getInstance().getChatFilterManager();
+            for (final ChatFilter filter : chatFilterManager.getChatFilters()) {
+                try {
+                    event.setMessage(filter.filter(event.getMessage()));
+                } catch (NotSendableException e) {
+                    player.sendMessage(ChatColor.RED + e.getMessage());
+                    event.setCancelled(true);
+                }
+            }
             return;
         }
 

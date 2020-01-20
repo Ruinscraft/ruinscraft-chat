@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
+import com.ruinscraft.chat.channel.types.GlobalChatChannel;
 import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.message.GenericChatMessage;
 import com.ruinscraft.chat.message.PrivateChatMessage;
@@ -35,6 +36,9 @@ public interface MessageConsumer {
             else if (chatMessage instanceof GenericChatMessage) {
                 GenericChatMessage genericChatMessage = (GenericChatMessage) chatMessage;
                 ChatChannel<GenericChatMessage> intendedChannel = ChatPlugin.getInstance().getChatChannelManager().getByName(chatMessage.getIntendedChannelName());
+                if (ChatPlugin.getInstance().getConfig().getBoolean("channels.disable") && intendedChannel instanceof GlobalChatChannel) {
+                    return;
+                }
                 intendedChannel.sendToChat(genericChatMessage);
             }
         }
