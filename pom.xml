@@ -73,6 +73,13 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>mcMMO</groupId>
+            <artifactId>mcMMO</artifactId>
+            <version>unknown</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/libs/mcMMO.jar</systemPath>
+        </dependency>
+        <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>3.0.1</version>

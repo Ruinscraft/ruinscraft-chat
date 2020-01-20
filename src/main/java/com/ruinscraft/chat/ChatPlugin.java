@@ -8,6 +8,7 @@ import com.ruinscraft.chat.commands.*;
 import com.ruinscraft.chat.filters.ChatFilterManager;
 import com.ruinscraft.chat.listeners.ChatListener;
 import com.ruinscraft.chat.listeners.QuitJoinListener;
+import com.ruinscraft.chat.listeners.McMMOChatListener;
 import com.ruinscraft.chat.logging.ChatLoggingManager;
 import com.ruinscraft.chat.messenger.MessageManager;
 import com.ruinscraft.chat.messenger.redis.RedisMessageManager;
@@ -85,6 +86,12 @@ public class ChatPlugin extends JavaPlugin implements PluginMessageListener {
             warning("ruinscraft-player-status required");
             pm.disablePlugin(this);
             return;
+        }
+
+        /* Check for mcMMO to setup party chat listener */
+        if (pm.getPlugin("mcMMO") != null) {
+            pm.registerEvents(new McMMOChatListener(), this);
+            info("Hooked into mcMMO events");
         }
 
         /* Setup MessageManager*/
