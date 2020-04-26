@@ -18,15 +18,8 @@ public class ChatPlugin extends JavaPlugin {
         chat.start();
 
         // load bukkit plugin integrations
-        if (getServer().getPluginManager().getPlugin("PlotSquared") != null) {
-            PlotSquared4Integration ps4i = null;
-            ps4i.getAdditionalChannels().forEach(channel -> chat.registerChannel(channel));
-        }
-
-        if (getServer().getPluginManager().getPlugin("Towny") != null) {
-            TownyIntegration ti = null;
-            ti.getAdditionalChannels().forEach(channel -> chat.registerChannel(channel));
-        }
+        new PlotSquared4Integration(chat);
+        new TownyIntegration(chat);
 
         // register bukkit chat listener
         getServer().getPluginManager().registerEvents(new PlayerChatListener(), this);
