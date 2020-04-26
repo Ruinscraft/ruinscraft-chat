@@ -28,6 +28,10 @@ public class ChatPlugin extends JavaPlugin {
             ti.getAdditionalChannels().forEach(channel -> chat.registerChannel(channel));
         }
 
+        // register bukkit chat listener
+        getServer().getPluginManager().registerEvents(new PlayerChatListener(), this);
+
+        // register bukkit commands
 
     }
 
