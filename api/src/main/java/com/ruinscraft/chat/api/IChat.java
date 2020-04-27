@@ -6,9 +6,11 @@ public interface IChat {
 
     IChatStorage getStorage();
 
-    void registerChannel(IChatChannel chatChannel);
+    Map<String, IChatLogger> getLoggers();
 
-    Map<String, IChatChannel> getRegisteredChannels();
+    Map<String, IChatChannel> getChannels();
+
+    Map<String, IMessageFilter> getFilters();
 
     void start();
 

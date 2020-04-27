@@ -7,6 +7,4 @@ public interface IMessageFormatter {
 
     Set<Function<String, String>> getReplacements();
 
-    String format(String message);
-
 }

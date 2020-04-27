@@ -23,10 +23,4 @@ public class DefaultMessageFormatter implements IMessageFormatter {
         return replacements;
     }
 
-    @Override
-    public String format(String message) {
-        replacements.forEach(f -> f.apply(message));
-        return message;
-    }
-
 }

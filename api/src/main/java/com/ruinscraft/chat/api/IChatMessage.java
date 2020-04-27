@@ -14,6 +14,6 @@ public interface IChatMessage {
 
     String getMessage();
 
-    String createLogEntry();
+    void applyFormatter(IMessageFormatter formatter);
 
 }

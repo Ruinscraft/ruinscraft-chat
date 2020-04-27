@@ -1,8 +1,6 @@
 package com.ruinscraft.chat.core;
 
-import com.ruinscraft.chat.api.IChat;
-import com.ruinscraft.chat.api.IChatChannel;
-import com.ruinscraft.chat.api.IChatStorage;
+import com.ruinscraft.chat.api.*;
 import com.ruinscraft.chat.core.storage.MySQLChatStorage;
 
 import java.util.HashMap;
@@ -12,7 +10,10 @@ public class Chat implements IChat {
 
     private ChatConfig config;
     private IChatStorage storage;
-    private Map<String, IChatChannel> registeredChannels;
+
+    private Map<String, IChatChannel> channels;
+    private Map<String, IChatLogger> loggers;
+    private Map<String, IMessageFilter> filters;
 
     public ChatConfig getConfig() {
         if (config == null) {
@@ -28,13 +29,18 @@ public class Chat implements IChat {
     }
 
     @Override
-    public void registerChannel(IChatChannel chatChannel) {
-        registeredChannels.put(chatChannel.getName(), chatChannel);
+    public Map<String, IChatLogger> getLoggers() {
+        return loggers;
     }
 
     @Override
-    public Map<String, IChatChannel> getRegisteredChannels() {
-        return registeredChannels;
+    public Map<String, IChatChannel> getChannels() {
+        return channels;
+    }
+
+    @Override
+    public Map<String, IMessageFilter> getFilters() {
+        return filters;
     }
 
     @Override
@@ -52,17 +58,21 @@ public class Chat implements IChat {
             throw new RuntimeException("No storage defined");
         }
 
-        registeredChannels = new HashMap<>();
-
+        loggers = new HashMap<>();
+        channels = new HashMap<>();
+        filters = new HashMap<>();
 
 
     }
 
     @Override
     public void shutdown() {
-        if (storage != null) {
-            storage.close();
-        }
+        storage.close();
+        loggers.clear();
+        channels.clear();
+        filters.clear();
+
+
     }
 
 }
