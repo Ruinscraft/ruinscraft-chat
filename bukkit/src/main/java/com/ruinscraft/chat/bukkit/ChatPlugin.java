@@ -4,15 +4,16 @@ import com.ruinscraft.chat.api.IChat;
 import com.ruinscraft.chat.bukkit.integrations.PlotSquared4Integration;
 import com.ruinscraft.chat.bukkit.integrations.TownyIntegration;
 import com.ruinscraft.chat.core.Chat;
+import com.ruinscraft.chat.core.ChatPlatform;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class ChatPlugin extends JavaPlugin {
+public class ChatPlugin extends JavaPlugin implements ChatPlatform {
 
     private IChat chat;
 
     @Override
     public void onEnable() {
-        chat = new Chat();
+        chat = new Chat(this);
 
         // start chat
         chat.start();

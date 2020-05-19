@@ -7,6 +7,7 @@ import com.ruinscraft.chat.api.IChatStorage;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.concurrent.CompletableFuture;
 
 public abstract class SQLChatStorage implements IChatStorage {
 
@@ -29,30 +30,36 @@ public abstract class SQLChatStorage implements IChatStorage {
     }
 
     @Override
-    public void savePlayer(IChatPlayer player) {
-        try {
-            savePlayer(player, getConnection());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    public CompletableFuture<Void> savePlayer(IChatPlayer player) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                savePlayer(player, getConnection());
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     @Override
-    public void loadPlayer(IChatPlayer player) {
-        try {
-            loadPlayer(player, getConnection());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    public CompletableFuture<Void> loadPlayer(IChatPlayer player) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                loadPlayer(player, getConnection());
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     @Override
-    public void logMessage(IChatMessage message) {
-        try {
-            logMessage(message, getConnection());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    public CompletableFuture<Void> logMessage(IChatMessage message) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                logMessage(message, getConnection());
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public abstract Connection getConnection();

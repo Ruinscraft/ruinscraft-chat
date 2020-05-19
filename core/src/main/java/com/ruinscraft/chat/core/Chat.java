@@ -8,6 +8,8 @@ import java.util.Map;
 
 public class Chat implements IChat {
 
+    private ChatPlatform platform;
+
     private ChatConfig config;
     private IChatStorage storage;
 
@@ -15,11 +17,15 @@ public class Chat implements IChat {
     private Map<String, IChatLogger> loggers;
     private Map<String, IMessageFilter> filters;
 
-    public ChatConfig getConfig() {
-        if (config == null) {
-            config = new ChatConfig();
-        }
+    public Chat(ChatPlatform platform) {
+        this.platform = platform;
+    }
 
+    public ChatPlatform getPlatform() {
+        return platform;
+    }
+
+    public ChatConfig getConfig() {
         return config;
     }
 
@@ -44,30 +50,39 @@ public class Chat implements IChat {
     }
 
     @Override
-    public void start() {
+    public void start() throws Exception {
+        // load config
+        platform.getJLogger().info("Loading configuration");
+        platform.loadConfigFromDisk();
+
+        // load storage
+        platform.getJLogger().info("Loading storage");
         if (config.storageType.equals("mysql")) {
             String host = config.storageMySQLHost;
             int port = config.storageMySQLPort;
             String db = config.storageMySQLDatabase;
             String user = config.storageMySQLUsername;
             String pass = config.storageMySQLPassword;
-
             storage = new MySQLChatStorage(host, port, db, user, pass);
+        } else {
+            throw new Exception("Could not setup storage. No valid storage type defined.");
         }
 
-        if (storage == null) {
-            throw new RuntimeException("No storage defined");
-        }
-
-        loggers = new HashMap<>();
+        // setup chat channels
+        platform.getJLogger().info("Loading channels");
         channels = new HashMap<>();
+
+        // setup chat loggers
+        platform.getJLogger().info("Loading loggers");
+        loggers = new HashMap<>();
+
+        // setup chat filters
+        platform.getJLogger().info("Loading filters");
         filters = new HashMap<>();
-
-
     }
 
     @Override
-    public void shutdown() {
+    public void shutdown() throws Exception {
         storage.close();
     }
 

@@ -1,12 +1,14 @@
 package com.ruinscraft.chat.api;
 
+import java.util.concurrent.CompletableFuture;
+
 public interface IChatStorage {
 
-    void savePlayer(IChatPlayer player);
+    CompletableFuture<Void> savePlayer(IChatPlayer player);
 
-    void loadPlayer(IChatPlayer player);
+    CompletableFuture<Void> loadPlayer(IChatPlayer player);
 
-    void logMessage(IChatMessage message);
+    CompletableFuture<Void> logMessage(IChatMessage message);
 
     void close();
 
