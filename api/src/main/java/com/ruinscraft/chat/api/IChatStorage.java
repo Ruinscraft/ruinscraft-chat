@@ -6,6 +6,8 @@ public interface IChatStorage {
 
     void loadPlayer(IChatPlayer player);
 
+    void logMessage(IChatMessage message);
+
     void close();
 
 }

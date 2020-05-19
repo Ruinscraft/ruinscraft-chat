@@ -10,10 +10,10 @@ public abstract class BukkitPluginIntegration {
 
     public BukkitPluginIntegration(String dependency, IChat chat) {
         if (Bukkit.getServer().getPluginManager().getPlugin(dependency) != null) {
-            getAdditionalChannels().forEach(channel -> chat.registerChannel(channel));
+//            getChannels().forEach(channel -> chat.registerChannel(channel));
         }
     }
 
-    public abstract Set<IChatChannel> getAdditionalChannels();
+    public abstract Set<IChatChannel> getChannels();
 
 }

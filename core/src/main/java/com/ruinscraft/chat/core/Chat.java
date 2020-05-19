@@ -46,12 +46,13 @@ public class Chat implements IChat {
     @Override
     public void start() {
         if (config.storageType.equals("mysql")) {
-            storage = new MySQLChatStorage(true,
-                    config.storageMySQLHost,
-                    config.storageMySQLPort,
-                    config.storageMySQLDatabase,
-                    config.storageMySQLUsername,
-                    config.storageMySQLPassword);
+            String host = config.storageMySQLHost;
+            int port = config.storageMySQLPort;
+            String db = config.storageMySQLDatabase;
+            String user = config.storageMySQLUsername;
+            String pass = config.storageMySQLPassword;
+
+            storage = new MySQLChatStorage(host, port, db, user, pass);
         }
 
         if (storage == null) {
@@ -68,11 +69,6 @@ public class Chat implements IChat {
     @Override
     public void shutdown() {
         storage.close();
-        loggers.clear();
-        channels.clear();
-        filters.clear();
-
-
     }
 
 }

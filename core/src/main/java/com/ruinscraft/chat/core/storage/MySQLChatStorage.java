@@ -1,18 +1,19 @@
 package com.ruinscraft.chat.core.storage;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class MySQLChatStorage extends SQLChatStorage {
 
-    private boolean pool;
     private String host;
     private int port;
     private String database;
     private String username;
     private String password;
+    private Connection connection;
 
-    public MySQLChatStorage(boolean pool, String host, int port, String database, String username, String password) {
-        this.pool = pool;
+    public MySQLChatStorage(String host, int port, String database, String username, String password) {
         this.host = host;
         this.port = port;
         this.database = database;
@@ -22,12 +23,26 @@ public class MySQLChatStorage extends SQLChatStorage {
 
     @Override
     public Connection getConnection() {
-        return null; // TODO:
+        try {
+            if (connection == null || connection.isClosed()) {
+                connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return connection;
     }
 
     @Override
     public void close() {
-        // TODO:
+        try {
+            if (connection != null && !connection.isClosed()) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 }
