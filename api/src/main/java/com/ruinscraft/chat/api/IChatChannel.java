@@ -1,10 +1,10 @@
 package com.ruinscraft.chat.api;
 
+import java.util.Collection;
+
 public interface IChatChannel<MTYPE extends IChatMessage> {
 
     String getName();
-
-    String getDescription();
 
     String getPermission();
 
@@ -17,5 +17,7 @@ public interface IChatChannel<MTYPE extends IChatMessage> {
     void send(MTYPE message);
 
     IMessageFormatter getFormatter();
+
+    Collection<IChatPlayer> getRecipients();
 
 }

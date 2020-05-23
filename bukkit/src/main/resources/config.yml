@@ -1,0 +1,11 @@
+storage:
+  type: mysql
+  mysql:
+    host: localhost
+    port: 3306
+    database: ruinscraft-chat
+    username: root
+    password: password
+
+filters:
+  webpurify-api-key: abc123

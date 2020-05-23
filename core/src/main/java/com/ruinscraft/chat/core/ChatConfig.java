@@ -8,5 +8,6 @@ public final class ChatConfig {
     public String storageMySQLDatabase = "chat";
     public String storageMySQLUsername = "root";
     public String storageMySQLPassword = "password";
+    public String filtersWebpurifyApiKey = "abc123";
 
 }

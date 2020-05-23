@@ -5,8 +5,11 @@ import com.ruinscraft.chat.core.storage.MySQLChatStorage;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class Chat implements IChat {
+
+    private UUID nodeId;
 
     private ChatPlatform platform;
 
@@ -30,6 +33,11 @@ public class Chat implements IChat {
     }
 
     @Override
+    public UUID getNodeId() {
+        return nodeId;
+    }
+
+    @Override
     public IChatStorage getStorage() {
         return storage;
     }
@@ -50,10 +58,17 @@ public class Chat implements IChat {
     }
 
     @Override
+    public Map<String, IChatPlayer> getPlayers() {
+        return null;
+    }
+
+    @Override
     public void start() throws Exception {
+        nodeId = UUID.randomUUID();
+
         // load config
         platform.getJLogger().info("Loading configuration");
-        platform.loadConfigFromDisk();
+        config = platform.loadConfigFromDisk();
 
         // load storage
         platform.getJLogger().info("Loading storage");

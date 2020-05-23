@@ -3,10 +3,12 @@ package com.ruinscraft.chat.core.storage;
 import com.ruinscraft.chat.api.IChatMessage;
 import com.ruinscraft.chat.api.IChatPlayer;
 import com.ruinscraft.chat.api.IChatStorage;
+import com.ruinscraft.chat.api.IOnlinePlayers;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public abstract class SQLChatStorage implements IChatStorage {
@@ -29,6 +31,18 @@ public abstract class SQLChatStorage implements IChatStorage {
         }
     }
 
+    private void queryOnlinePlayers(IOnlinePlayers onlinePlayers, Connection connection) throws SQLException {
+        try (PreparedStatement query = connection.prepareStatement("")) {
+
+        }
+    }
+
+    private void purgeOfflinePlayers(List<String> offlinePlayers, Connection connection) throws SQLException {
+        try (PreparedStatement delete = connection.prepareStatement("")) {
+
+        }
+    }
+
     @Override
     public CompletableFuture<Void> savePlayer(IChatPlayer player) {
         return CompletableFuture.runAsync(() -> {
@@ -45,6 +59,28 @@ public abstract class SQLChatStorage implements IChatStorage {
         return CompletableFuture.runAsync(() -> {
             try {
                 loadPlayer(player, getConnection());
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> queryOnlinePlayers(IOnlinePlayers onlinePlayers) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                queryOnlinePlayers(onlinePlayers, getConnection());
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> purgeOfflinePlayers(List<String> usernames) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                purgeOfflinePlayers(usernames, getConnection());
             } catch (SQLException e) {
                 e.printStackTrace();
             }

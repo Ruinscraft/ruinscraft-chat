@@ -4,8 +4,11 @@ import com.ruinscraft.chat.api.IChat;
 import com.ruinscraft.chat.bukkit.integrations.PlotSquared4Integration;
 import com.ruinscraft.chat.bukkit.integrations.TownyIntegration;
 import com.ruinscraft.chat.core.Chat;
+import com.ruinscraft.chat.core.ChatConfig;
 import com.ruinscraft.chat.core.ChatPlatform;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.logging.Logger;
 
 public class ChatPlugin extends JavaPlugin implements ChatPlatform {
 
@@ -16,7 +19,13 @@ public class ChatPlugin extends JavaPlugin implements ChatPlatform {
         chat = new Chat(this);
 
         // start chat
-        chat.start();
+        try {
+            chat.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
 
         // load bukkit plugin integrations
         new PlotSquared4Integration(chat);
@@ -31,7 +40,36 @@ public class ChatPlugin extends JavaPlugin implements ChatPlatform {
 
     @Override
     public void onDisable() {
-        chat.shutdown();
+        try {
+            chat.shutdown();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public ChatConfig loadConfigFromDisk() {
+        saveDefaultConfig();
+
+        ChatConfig config = new ChatConfig();
+
+        // storage
+        config.storageType = getConfig().getString("storage.type");
+        config.storageMySQLHost = getConfig().getString("storage.mysql.host");
+        config.storageMySQLPort = getConfig().getInt("storage.mysql.port");
+        config.storageMySQLDatabase = getConfig().getString("storage.mysql.database");
+        config.storageMySQLUsername = getConfig().getString("storage.mysql.username");
+        config.storageMySQLPassword = getConfig().getString("storage.mysql.password");
+
+        // filters
+        config.filtersWebpurifyApiKey = getConfig().getString("filters.webpurify-api-key");
+
+        return config;
+    }
+
+    @Override
+    public Logger getJLogger() {
+        return getLogger();
     }
 
 }
