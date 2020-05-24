@@ -3,12 +3,17 @@ package com.ruinscraft.chat.bukkit;
 import com.ruinscraft.chat.api.IChat;
 import com.ruinscraft.chat.bukkit.integrations.PlotSquared4Integration;
 import com.ruinscraft.chat.bukkit.integrations.TownyIntegration;
+import com.ruinscraft.chat.bukkit.listeners.PlayerChatListener;
 import com.ruinscraft.chat.core.Chat;
 import com.ruinscraft.chat.core.ChatConfig;
 import com.ruinscraft.chat.core.ChatPlatform;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class ChatPlugin extends JavaPlugin implements ChatPlatform {
 
@@ -31,11 +36,10 @@ public class ChatPlugin extends JavaPlugin implements ChatPlatform {
         new PlotSquared4Integration(chat);
         new TownyIntegration(chat);
 
-        // register bukkit chat listener
-        getServer().getPluginManager().registerEvents(new PlayerChatListener(), this);
-
         // register bukkit commands
 
+        // register bukkit listeners
+        getServer().getPluginManager().registerEvents(new PlayerChatListener(chat), this);
     }
 
     @Override
@@ -45,6 +49,11 @@ public class ChatPlugin extends JavaPlugin implements ChatPlatform {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public IChat getChat() {
+        return chat;
     }
 
     @Override
@@ -70,6 +79,11 @@ public class ChatPlugin extends JavaPlugin implements ChatPlatform {
     @Override
     public Logger getJLogger() {
         return getLogger();
+    }
+
+    @Override
+    public Set<UUID> getOnlinePlayers() {
+        return getServer().getOnlinePlayers().stream().map(Player::getUniqueId).collect(Collectors.toSet());
     }
 
 }

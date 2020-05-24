@@ -15,8 +15,9 @@ public interface IChat {
 
     Map<String, IMessageFilter> getFilters();
 
-    // online chat players
-    Map<String, IChatPlayer> getPlayers();
+    Map<UUID, IChatPlayer> getPlayers();
+
+    IChatPlayer getPlayer(UUID uuid);
 
     void start() throws Exception;
 

@@ -17,6 +17,8 @@ public abstract class ChatPlayer implements IChatPlayer {
     private Set<IChatChannel> muted;
     private Set<IChatChannel> spying;
 
+    private transient long lastPinged;
+
     public ChatPlayer(UUID mojangId) {
         this.mojangId = mojangId;
     }
@@ -99,6 +101,14 @@ public abstract class ChatPlayer implements IChatPlayer {
     @Override
     public void unspy(IChatChannel channel) {
         spying.remove(channel);
+    }
+
+    public long getLastPinged() {
+        return lastPinged;
+    }
+
+    public void ping() {
+        lastPinged = System.currentTimeMillis();
     }
 
 }

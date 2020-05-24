@@ -12,7 +12,7 @@ public class PlotSquared4Integration extends BukkitPluginIntegration {
     }
 
     @Override
-    public Set<IChatChannel> getAdditionalChannels() {
+    public Set<IChatChannel> getChannels() {
         return null;
     }
 

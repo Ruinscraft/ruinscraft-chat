@@ -19,6 +19,7 @@ public class Chat implements IChat {
     private Map<String, IChatChannel> channels;
     private Map<String, IChatLogger> loggers;
     private Map<String, IMessageFilter> filters;
+    private Map<UUID, IChatPlayer> players;
 
     public Chat(ChatPlatform platform) {
         this.platform = platform;
@@ -58,8 +59,19 @@ public class Chat implements IChat {
     }
 
     @Override
-    public Map<String, IChatPlayer> getPlayers() {
-        return null;
+    public Map<UUID, IChatPlayer> getPlayers() {
+        return players;
+    }
+
+    @Override
+    public IChatPlayer getPlayer(UUID uuid) {
+        IChatPlayer player = players.get(uuid);
+
+        if (player != null) {
+            // check if last ping is old...
+        }
+
+        return player;
     }
 
     @Override
