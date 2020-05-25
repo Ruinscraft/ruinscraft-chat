@@ -57,10 +57,8 @@ public class ChatPlugin extends JavaPlugin implements ChatPlatform {
     }
 
     @Override
-    public ChatConfig loadConfigFromDisk() {
+    public void loadConfigFromDisk(ChatConfig config) {
         saveDefaultConfig();
-
-        ChatConfig config = new ChatConfig();
 
         // storage
         config.storageType = getConfig().getString("storage.type");
@@ -72,12 +70,10 @@ public class ChatPlugin extends JavaPlugin implements ChatPlatform {
 
         // filters
         config.filtersWebpurifyApiKey = getConfig().getString("filters.webpurify-api-key");
-
-        return config;
     }
 
     @Override
-    public Logger getJLogger() {
+    public Logger getLogger() {
         return getLogger();
     }
 

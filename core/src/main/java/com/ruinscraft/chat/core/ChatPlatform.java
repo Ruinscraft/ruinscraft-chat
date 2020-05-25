@@ -10,10 +10,10 @@ public interface ChatPlatform {
 
     IChat getChat();
 
-    ChatConfig loadConfigFromDisk();
-
-    Logger getJLogger();
+    Logger getLogger();
 
     Set<UUID> getOnlinePlayers();
+
+    void loadConfigFromDisk(ChatConfig config);
 
 }

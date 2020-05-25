@@ -2,6 +2,7 @@ package com.ruinscraft.chat.core.channel;
 
 import com.ruinscraft.chat.api.IChatChannel;
 import com.ruinscraft.chat.api.IChatMessage;
+import com.ruinscraft.chat.api.IChatPlayer;
 
 public abstract class ChatChannel implements IChatChannel {
 
@@ -44,7 +45,17 @@ public abstract class ChatChannel implements IChatChannel {
     }
 
     public void send(IChatMessage message) {
+        for (IChatPlayer player : getRecipients()) {
+            if (player.isMuted(this)) {
+                continue;
+            }
 
+            if (player.isIgnoring(message.getSender())) {
+                continue;
+            }
+
+            player.sendMessage(message);
+        }
     }
 
 }

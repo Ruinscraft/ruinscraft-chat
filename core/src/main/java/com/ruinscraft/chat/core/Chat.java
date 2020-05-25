@@ -79,11 +79,12 @@ public class Chat implements IChat {
         nodeId = UUID.randomUUID();
 
         // load config
-        platform.getJLogger().info("Loading configuration");
-        config = platform.loadConfigFromDisk();
+        platform.getLogger().info("Loading configuration");
+        config = new ChatConfig();
+        platform.loadConfigFromDisk(config);
 
         // load storage
-        platform.getJLogger().info("Loading storage");
+        platform.getLogger().info("Loading storage");
         if (config.storageType.equals("mysql")) {
             String host = config.storageMySQLHost;
             int port = config.storageMySQLPort;
@@ -96,15 +97,15 @@ public class Chat implements IChat {
         }
 
         // setup chat channels
-        platform.getJLogger().info("Loading channels");
+        platform.getLogger().info("Loading channels");
         channels = new HashMap<>();
 
         // setup chat loggers
-        platform.getJLogger().info("Loading loggers");
+        platform.getLogger().info("Loading loggers");
         loggers = new HashMap<>();
 
         // setup chat filters
-        platform.getJLogger().info("Loading filters");
+        platform.getLogger().info("Loading filters");
         filters = new HashMap<>();
     }
 

@@ -4,7 +4,7 @@ import com.ruinscraft.chat.api.IChatPlayer;
 import com.ruinscraft.chat.api.IMessageFormatter;
 import com.ruinscraft.chat.core.message.DefaultMessageFormatter;
 
-import java.util.Collection;
+import java.util.Set;
 
 public class DefaultChatChannel extends ChatChannel {
 
@@ -21,7 +21,7 @@ public class DefaultChatChannel extends ChatChannel {
     }
 
     @Override
-    public Collection<IChatPlayer> getRecipients() {
+    public Set<IChatPlayer> getRecipients() {
         return null;
     }
 

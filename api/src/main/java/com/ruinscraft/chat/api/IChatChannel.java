@@ -1,6 +1,6 @@
 package com.ruinscraft.chat.api;
 
-import java.util.Collection;
+import java.util.Set;
 
 public interface IChatChannel<MTYPE extends IChatMessage> {
 
@@ -18,6 +18,6 @@ public interface IChatChannel<MTYPE extends IChatMessage> {
 
     IMessageFormatter getFormatter();
 
-    Collection<IChatPlayer> getRecipients();
+    Set<IChatPlayer> getRecipients();
 
 }
