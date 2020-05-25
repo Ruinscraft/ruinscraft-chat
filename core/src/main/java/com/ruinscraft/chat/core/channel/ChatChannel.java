@@ -4,7 +4,7 @@ import com.ruinscraft.chat.api.IChatChannel;
 import com.ruinscraft.chat.api.IChatMessage;
 import com.ruinscraft.chat.api.IChatPlayer;
 
-public abstract class ChatChannel implements IChatChannel {
+public abstract class ChatChannel<MTYPE extends IChatMessage> implements IChatChannel<MTYPE> {
 
     private String name;
     private String permission;
@@ -44,7 +44,7 @@ public abstract class ChatChannel implements IChatChannel {
         return filtered;
     }
 
-    public void send(IChatMessage message) {
+    public void send(MTYPE message) {
         for (IChatPlayer player : getRecipients()) {
             if (player.isMuted(this)) {
                 continue;
