@@ -1,31 +1,42 @@
 package com.ruinscraft.chat.core.messagebroker;
 
-import com.google.gson.Gson;
-import com.ruinscraft.chat.api.IChatMessage;
 import com.ruinscraft.chat.api.messagebroker.IMessage;
+import com.ruinscraft.chat.api.messagebroker.MessageType;
 
-public class Message implements IMessage {
+import java.util.UUID;
 
-    private static final Gson gson = new Gson();
+public abstract class Message implements IMessage {
 
-    public static Message deserialize(String serialized) {
-        return gson.fromJson(serialized, Message.class);
-    }
+    private final UUID id;
+    private final long time;
+    private final MessageType type;
+    private final String payload;
 
-    private IChatMessage content;
-
-    public Message(IChatMessage content) {
-        this.content = content;
+    public Message(UUID id, long time, MessageType type, String payload) {
+        this.id = id;
+        this.time = time;
+        this.type = type;
+        this.payload = payload;
     }
 
     @Override
-    public IChatMessage getContent() {
-        return content;
+    public UUID getId() {
+        return id;
     }
 
     @Override
-    public String serialize() {
-        return gson.toJson(this);
+    public long getTime() {
+        return time;
+    }
+
+    @Override
+    public MessageType getType() {
+        return type;
+    }
+
+    @Override
+    public String getPayload() {
+        return payload;
     }
 
 }

@@ -1,11 +1,15 @@
 package com.ruinscraft.chat.api.messagebroker;
 
-import com.ruinscraft.chat.api.IChatMessage;
+import java.util.UUID;
 
 public interface IMessage {
 
-    IChatMessage getContent();
+    UUID getId();
 
-    String serialize();
+    long getTime();
+
+    MessageType getType();
+
+    String getPayload();
 
 }
