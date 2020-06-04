@@ -9,15 +9,15 @@ public interface IChat {
 
     IChatStorage getStorage();
 
+    IOnlinePlayers getOnlinePlayers();
+
+    IChatPlayer getChatPlayer(UUID playerId);
+
     Map<String, IChatLogger> getLoggers();
 
     Map<String, IChatChannel> getChannels();
 
     Map<String, IMessageFilter> getFilters();
-
-    Map<UUID, IChatPlayer> getPlayers();
-
-    IChatPlayer getPlayer(UUID uuid);
 
     void start() throws Exception;
 

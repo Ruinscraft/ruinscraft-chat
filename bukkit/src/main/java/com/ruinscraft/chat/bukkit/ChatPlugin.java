@@ -7,6 +7,7 @@ import com.ruinscraft.chat.bukkit.listeners.PlayerChatListener;
 import com.ruinscraft.chat.core.Chat;
 import com.ruinscraft.chat.core.ChatConfig;
 import com.ruinscraft.chat.core.ChatPlatform;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -80,6 +81,29 @@ public class ChatPlugin extends JavaPlugin implements ChatPlatform {
     @Override
     public Set<UUID> getOnlinePlayers() {
         return getServer().getOnlinePlayers().stream().map(Player::getUniqueId).collect(Collectors.toSet());
+    }
+
+    @Override
+    public boolean playerSendChatMessage(UUID playerId, String message) {
+        Player player = Bukkit.getPlayer(playerId);
+
+        if (player != null) {
+            player.sendMessage(message);
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean playerHasPermission(UUID playerId, String permission) {
+        Player player = Bukkit.getPlayer(playerId);
+
+        if (player != null) {
+            return player.hasPermission(permission);
+        }
+
+        return false;
     }
 
 }

@@ -1,6 +1,7 @@
 package com.ruinscraft.chat.core.player;
 
 import com.ruinscraft.chat.api.IChatChannel;
+import com.ruinscraft.chat.api.IChatMessage;
 import com.ruinscraft.chat.api.IChatPlayer;
 
 import java.util.Set;
@@ -17,7 +18,7 @@ public abstract class ChatPlayer implements IChatPlayer {
     private Set<IChatChannel> muted;
     private Set<IChatChannel> spying;
 
-    private transient long lastPinged;
+    private transient UUID nodeId;
 
     public ChatPlayer(UUID mojangId) {
         this.mojangId = mojangId;
@@ -103,12 +104,9 @@ public abstract class ChatPlayer implements IChatPlayer {
         spying.remove(channel);
     }
 
-    public long getLastPinged() {
-        return lastPinged;
-    }
+    @Override
+    public void sendMessage(IChatMessage message) {
 
-    public void ping() {
-        lastPinged = System.currentTimeMillis();
     }
 
 }

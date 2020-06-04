@@ -10,12 +10,7 @@ public class JsonMessage extends Message {
     private JsonObject json;
 
     public JsonMessage(UUID id, long time, MessageType type, JsonObject json) {
-        this(id, time, type, json.toString());
-        this.json = json;
-    }
-
-    private JsonMessage(UUID id, long time, MessageType type, String payload) {
-        super(id, time, type, payload);
+        super(id, time, type, json.getAsString());
     }
 
     public JsonObject getJson() {

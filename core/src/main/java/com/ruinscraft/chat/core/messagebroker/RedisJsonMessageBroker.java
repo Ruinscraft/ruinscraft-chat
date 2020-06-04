@@ -1,18 +1,22 @@
 package com.ruinscraft.chat.core.messagebroker;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.ruinscraft.chat.api.messagebroker.MessageType;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class RedisMessageBroker extends MessageBroker {
+public class RedisJsonMessageBroker extends JsonMessageBroker {
 
     private JedisPool jPool;
     private PubSub jPubSub;
 
-    public RedisMessageBroker(String host, int port) {
+    public RedisJsonMessageBroker(String host, int port) {
         JedisPoolConfig jPoolConfig = new JedisPoolConfig();
         jPoolConfig.setMaxIdle(16);
         jPoolConfig.setMaxTotal(64);
@@ -35,6 +39,8 @@ public class RedisMessageBroker extends MessageBroker {
     private final class PubSub extends JedisPubSub {
         private Jedis subscriber;
 
+        private final JsonParser parser = new JsonParser();
+
         private PubSub(Jedis subscriber, String channel) {
             this.subscriber = subscriber;
             CompletableFuture.runAsync(() -> subscriber.subscribe(this, channel));
@@ -43,9 +49,16 @@ public class RedisMessageBroker extends MessageBroker {
         @Override
         public void onMessage(String channel, String message) {
             try {
-                consume(Message.deserialize(message));
+                JsonObject json = parser.parse(message).getAsJsonObject();
+                UUID id = UUID.fromString(json.get("id").getAsString());
+                long time = json.get("time").getAsLong();
+                MessageType type = MessageType.valueOf(json.get("type").getAsString());
+                JsonObject payload = json.get("payload").getAsJsonObject();
+                JsonMessage jsonMessage = new JsonMessage(id, time, type, payload);
+
+                consume(jsonMessage);
             } catch (Exception e) {
-                // could not deserialize message
+                // message was not json
                 e.printStackTrace();
             }
         }

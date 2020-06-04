@@ -1,10 +1,10 @@
 package com.ruinscraft.chat.api.messagebroker;
 
-public interface IMessageBroker {
+public interface IMessageBroker<T extends IMessage> {
 
-    void publish(IMessage message);
+    void publish(T message);
 
-    void consume(IMessage message);
+    void consume(T message);
 
     void close();
 

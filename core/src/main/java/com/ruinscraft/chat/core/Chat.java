@@ -9,17 +9,23 @@ import java.util.UUID;
 
 public class Chat implements IChat {
 
+    /**
+     * Every Chat instance (ie a server running Chat) has a unique node id generated
+     * at boot time which lasts until the node is destroyed
+     * <p>
+     * A null node id implies the Chat instance has been stopped or has not been started
+     */
     private UUID nodeId;
 
     private ChatPlatform platform;
 
     private ChatConfig config;
     private IChatStorage storage;
+    private IOnlinePlayers onlinePlayers;
 
     private Map<String, IChatChannel> channels;
     private Map<String, IChatLogger> loggers;
     private Map<String, IMessageFilter> filters;
-    private Map<UUID, IChatPlayer> players;
 
     public Chat(ChatPlatform platform) {
         this.platform = platform;
@@ -44,6 +50,16 @@ public class Chat implements IChat {
     }
 
     @Override
+    public IOnlinePlayers getOnlinePlayers() {
+        return onlinePlayers;
+    }
+
+    @Override
+    public IChatPlayer getChatPlayer(UUID playerId) {
+        return onlinePlayers.find(playerId).get(); // may be null
+    }
+
+    @Override
     public Map<String, IChatLogger> getLoggers() {
         return loggers;
     }
@@ -56,22 +72,6 @@ public class Chat implements IChat {
     @Override
     public Map<String, IMessageFilter> getFilters() {
         return filters;
-    }
-
-    @Override
-    public Map<UUID, IChatPlayer> getPlayers() {
-        return players;
-    }
-
-    @Override
-    public IChatPlayer getPlayer(UUID uuid) {
-        IChatPlayer player = players.get(uuid);
-
-        if (player != null) {
-            // check if last ping is old...
-        }
-
-        return player;
     }
 
     @Override
@@ -112,6 +112,8 @@ public class Chat implements IChat {
     @Override
     public void shutdown() throws Exception {
         storage.close();
+
+        nodeId = null;
     }
 
 }

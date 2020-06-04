@@ -34,7 +34,7 @@ public class PlayerChatListener implements Listener {
 
         UUID playerId = event.getPlayer().getUniqueId();
 
-        IChatPlayer sender = chat.getPlayer(playerId);
+        IChatPlayer sender = chat.getChatPlayer(playerId); // TODO: check for null? or switch to Optional
         IChatChannel channel = sender.getFocused();
         IChatMessage message = ChatMessage.of(sender, channel, event.getMessage());
 

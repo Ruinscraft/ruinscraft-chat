@@ -14,6 +14,10 @@ public interface ChatPlatform {
 
     Set<UUID> getOnlinePlayers();
 
+    boolean playerSendChatMessage(UUID playerId, String message);
+
+    boolean playerHasPermission(UUID playerId, String permission);
+
     void loadConfigFromDisk(ChatConfig config);
 
 }

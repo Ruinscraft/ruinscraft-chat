@@ -1,12 +1,15 @@
 package com.ruinscraft.chat.api;
 
-import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public interface IOnlinePlayers {
 
-    List<String> getPlayers(UUID nodeId);
+    Set<IChatPlayer> get(UUID nodeId);
 
-    void setPlayers(UUID nodeId, List<String> players);
+    Set<IChatPlayer> getAll();
+
+    Optional<IChatPlayer> find(UUID playerId);
 
 }

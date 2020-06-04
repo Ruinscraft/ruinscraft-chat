@@ -6,9 +6,7 @@ import com.ruinscraft.chat.api.IMessageFormatter;
 import com.ruinscraft.chat.core.ChatPlatform;
 import com.ruinscraft.chat.core.message.DefaultMessageFormatter;
 
-import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 public class DefaultChatChannel extends ChatChannel {
 
@@ -30,12 +28,7 @@ public class DefaultChatChannel extends ChatChannel {
     public Set<IChatPlayer> getRecipients() {
         IChat chat = platform.getChat();
 
-        Set<UUID> online = platform.getOnlinePlayers();
-        Set<IChatPlayer> recipients = new HashSet<>();
-
-        online.forEach(uuid -> recipients.add(chat.getPlayer(uuid)));
-
-        return recipients;
+        return chat.getOnlinePlayers().getAll();
     }
 
 }

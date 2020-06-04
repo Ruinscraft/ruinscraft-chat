@@ -5,7 +5,7 @@ import com.ruinscraft.chat.api.messagebroker.MessageType;
 
 import java.util.UUID;
 
-public abstract class Message implements IMessage {
+public class Message implements IMessage {
 
     private final UUID id;
     private final long time;
