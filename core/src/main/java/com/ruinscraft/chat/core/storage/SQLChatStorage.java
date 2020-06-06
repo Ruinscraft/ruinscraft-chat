@@ -8,7 +8,7 @@ import com.ruinscraft.chat.api.IOnlinePlayers;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public abstract class SQLChatStorage implements IChatStorage {
@@ -37,7 +37,7 @@ public abstract class SQLChatStorage implements IChatStorage {
         }
     }
 
-    private void purgeOfflinePlayers(List<String> offlinePlayers, Connection connection) throws SQLException {
+    private void purgeOfflinePlayers(Set<IChatPlayer> toPurge, Connection connection) throws SQLException {
         try (PreparedStatement delete = connection.prepareStatement("")) {
 
         }
@@ -77,10 +77,10 @@ public abstract class SQLChatStorage implements IChatStorage {
     }
 
     @Override
-    public CompletableFuture<Void> purgeOfflinePlayers(List<String> usernames) {
+    public CompletableFuture<Void> purgeOfflinePlayers(Set<IChatPlayer> toPurge) {
         return CompletableFuture.runAsync(() -> {
             try {
-                purgeOfflinePlayers(usernames, getConnection());
+                purgeOfflinePlayers(toPurge, getConnection());
             } catch (SQLException e) {
                 e.printStackTrace();
             }

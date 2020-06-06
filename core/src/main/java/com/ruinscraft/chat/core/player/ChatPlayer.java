@@ -19,6 +19,7 @@ public abstract class ChatPlayer implements IChatPlayer {
     private Set<IChatChannel> spying;
 
     private transient UUID nodeId;
+    private transient boolean requiresSave;
 
     public ChatPlayer(UUID mojangId) {
         this.mojangId = mojangId;
@@ -107,6 +108,10 @@ public abstract class ChatPlayer implements IChatPlayer {
     @Override
     public void sendMessage(IChatMessage message) {
 
+    }
+
+    public boolean requiresSave() {
+        return requiresSave;
     }
 
 }
