@@ -83,6 +83,9 @@ public class Chat implements IChat {
 
     @Override
     public void start() throws Exception {
+        // set singleton
+        instance = this;
+
         nodeId = UUID.randomUUID();
 
         // load config
@@ -125,6 +128,15 @@ public class Chat implements IChat {
         storage.close();
 
         nodeId = null;
+
+        // remove singleton
+        instance = null;
+    }
+
+    private static Chat instance;
+
+    public static Chat getInstance() {
+        return instance;
     }
 
 }

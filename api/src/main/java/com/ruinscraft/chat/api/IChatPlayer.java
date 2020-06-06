@@ -49,6 +49,6 @@ public interface IChatPlayer {
 
     boolean hasPermission(String permission);
 
-    void sendMessage(IChatMessage message);
+    void sendMessage(IChatMessage message, IMessageFormatter formatter);
 
 }

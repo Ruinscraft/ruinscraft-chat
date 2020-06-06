@@ -54,7 +54,7 @@ public abstract class ChatChannel<MTYPE extends IChatMessage> implements IChatCh
                 continue;
             }
 
-            player.sendMessage(message);
+            player.sendMessage(message, getFormatter());
         }
     }
 

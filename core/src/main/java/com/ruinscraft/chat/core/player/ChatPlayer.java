@@ -3,6 +3,8 @@ package com.ruinscraft.chat.core.player;
 import com.ruinscraft.chat.api.IChatChannel;
 import com.ruinscraft.chat.api.IChatMessage;
 import com.ruinscraft.chat.api.IChatPlayer;
+import com.ruinscraft.chat.api.IMessageFormatter;
+import com.ruinscraft.chat.core.Chat;
 
 import java.util.Set;
 import java.util.UUID;
@@ -106,8 +108,15 @@ public abstract class ChatPlayer implements IChatPlayer {
     }
 
     @Override
-    public void sendMessage(IChatMessage message) {
-        
+    public void sendMessage(IChatMessage message, IMessageFormatter formatter) {
+        // apply formatter
+        message.applyFormatter(formatter);
+
+        // get content
+        String content = message.getContent();
+
+        // send message to player
+        Chat.getInstance().getPlatform().playerSendChatMessage(mojangId, content);
     }
 
     public boolean requiresSave() {
