@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public abstract class ChatPlayer implements IChatPlayer {
+public class ChatPlayer implements IChatPlayer {
 
     private final UUID mojangId;
 
@@ -105,6 +105,11 @@ public abstract class ChatPlayer implements IChatPlayer {
     @Override
     public void unspy(IChatChannel channel) {
         spying.remove(channel);
+    }
+
+    @Override
+    public boolean hasPermission(String permission) {
+        return Chat.getInstance().getPlatform().playerHasPermission(mojangId, permission);
     }
 
     @Override
