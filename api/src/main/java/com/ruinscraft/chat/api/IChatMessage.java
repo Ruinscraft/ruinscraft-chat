@@ -10,9 +10,7 @@ public interface IChatMessage {
 
     UUID getSenderId();
 
-    String getChannelName();
-
-    String getMessage();
+    String getContent();
 
     void applyFormatter(IMessageFormatter formatter);
 

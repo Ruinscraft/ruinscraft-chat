@@ -3,3 +3,19 @@ version: ${project.version}
 main: ${mainClass}
 author: royalkingkb
 api-version: 1.13
+
+commands:
+  chat:
+    description: Manage chat settings
+  chatspy:
+    descripiton: Manage chat spy settings
+  block:
+    description: Block a player in chat
+  unblock:
+    description: Unblock a player in chat
+  clearchat:
+    description: Clear the Minecraft chat
+  nickname:
+    description: Display or set your nickname
+  nicknamereset:
+    description: Reset your nickname

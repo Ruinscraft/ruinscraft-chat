@@ -74,6 +74,11 @@ public class ChatPlugin extends JavaPlugin implements ChatPlatform {
     }
 
     @Override
+    public void runTaskTimerAsync(Runnable task, long delay, long period) {
+        getServer().getScheduler().runTaskTimerAsynchronously(this, task, delay, period);
+    }
+
+    @Override
     public Logger getLogger() {
         return getLogger();
     }

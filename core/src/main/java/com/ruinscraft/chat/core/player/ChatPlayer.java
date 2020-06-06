@@ -107,7 +107,7 @@ public abstract class ChatPlayer implements IChatPlayer {
 
     @Override
     public void sendMessage(IChatMessage message) {
-
+        
     }
 
     public boolean requiresSave() {

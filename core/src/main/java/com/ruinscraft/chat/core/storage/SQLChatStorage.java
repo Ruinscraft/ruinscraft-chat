@@ -3,7 +3,6 @@ package com.ruinscraft.chat.core.storage;
 import com.ruinscraft.chat.api.IChatMessage;
 import com.ruinscraft.chat.api.IChatPlayer;
 import com.ruinscraft.chat.api.IChatStorage;
-import com.ruinscraft.chat.api.IOnlinePlayers;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -31,7 +30,7 @@ public abstract class SQLChatStorage implements IChatStorage {
         }
     }
 
-    private void queryOnlinePlayers(IOnlinePlayers onlinePlayers, Connection connection) throws SQLException {
+    private void setOnlinePlayers(Set<IChatPlayer> online, Connection connection) throws SQLException {
         try (PreparedStatement query = connection.prepareStatement("")) {
 
         }
@@ -66,10 +65,10 @@ public abstract class SQLChatStorage implements IChatStorage {
     }
 
     @Override
-    public CompletableFuture<Void> queryOnlinePlayers(IOnlinePlayers onlinePlayers) {
+    public CompletableFuture<Void> setOnlinePlayers(Set<IChatPlayer> online) {
         return CompletableFuture.runAsync(() -> {
             try {
-                queryOnlinePlayers(onlinePlayers, getConnection());
+                setOnlinePlayers(online, getConnection());
             } catch (SQLException e) {
                 e.printStackTrace();
             }

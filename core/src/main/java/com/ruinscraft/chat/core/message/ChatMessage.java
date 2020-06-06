@@ -1,6 +1,5 @@
 package com.ruinscraft.chat.core.message;
 
-import com.ruinscraft.chat.api.IChatChannel;
 import com.ruinscraft.chat.api.IChatMessage;
 import com.ruinscraft.chat.api.IChatPlayer;
 import com.ruinscraft.chat.api.IMessageFormatter;
@@ -12,15 +11,13 @@ public class ChatMessage implements IChatMessage {
     private long time;
     private String sender;
     private UUID senderId;
-    private String channelName;
-    private String message;
+    private String content;
 
-    private ChatMessage(long time, String sender, UUID senderId, String channelName, String message) {
+    private ChatMessage(long time, String sender, UUID senderId, String content) {
         this.time = time;
         this.sender = sender;
         this.senderId = senderId;
-        this.channelName = channelName;
-        this.message = message;
+        this.content = content;
     }
 
     @Override
@@ -39,18 +36,13 @@ public class ChatMessage implements IChatMessage {
     }
 
     @Override
-    public String getChannelName() {
-        return channelName;
-    }
-
-    @Override
-    public String getMessage() {
-        return message;
+    public String getContent() {
+        return content;
     }
 
     @Override
     public void applyFormatter(IMessageFormatter formatter) {
-        formatter.getReplacements().forEach(f -> message = f.apply(message));
+        formatter.getReplacements().forEach(f -> content = f.apply(content));
     }
 
     @Override
@@ -59,13 +51,12 @@ public class ChatMessage implements IChatMessage {
                 "time=" + time +
                 ", sender='" + sender + '\'' +
                 ", senderId=" + senderId +
-                ", channelName='" + channelName + '\'' +
-                ", message='" + message + '\'' +
+                ", content='" + content + '\'' +
                 '}';
     }
 
-    public static ChatMessage of(IChatPlayer sender, IChatChannel channel, String message) {
-        return new ChatMessage(System.currentTimeMillis(), sender.getNickname(), sender.getMojangId(), channel.getName(), message);
+    public static ChatMessage of(IChatPlayer sender, String message) {
+        return new ChatMessage(System.currentTimeMillis(), sender.getNickname(), sender.getMojangId(), message);
     }
 
 }

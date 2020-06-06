@@ -2,6 +2,7 @@ package com.ruinscraft.chat.core;
 
 import com.ruinscraft.chat.api.*;
 import com.ruinscraft.chat.core.storage.MySQLChatStorage;
+import com.ruinscraft.chat.core.tasks.PlayerHeartbeatTask;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +27,8 @@ public class Chat implements IChat {
     private Map<String, IChatChannel> channels;
     private Map<String, IChatLogger> loggers;
     private Map<String, IMessageFilter> filters;
+
+    private PlayerHeartbeatTask heartbeatTask;
 
     public Chat(ChatPlatform platform) {
         this.platform = platform;
@@ -74,6 +77,10 @@ public class Chat implements IChat {
         return filters;
     }
 
+    public PlayerHeartbeatTask getHeartbeatTask() {
+        return heartbeatTask;
+    }
+
     @Override
     public void start() throws Exception {
         nodeId = UUID.randomUUID();
@@ -107,6 +114,10 @@ public class Chat implements IChat {
         // setup chat filters
         platform.getLogger().info("Loading filters");
         filters = new HashMap<>();
+
+        // start player heartbeat task
+        heartbeatTask = new PlayerHeartbeatTask(platform);
+        platform.runTaskTimerAsync(heartbeatTask, 0L, 1000L); // period of 1 second
     }
 
     @Override

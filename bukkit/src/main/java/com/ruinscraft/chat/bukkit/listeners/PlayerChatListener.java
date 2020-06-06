@@ -36,7 +36,7 @@ public class PlayerChatListener implements Listener {
 
         IChatPlayer sender = chat.getChatPlayer(playerId);
         IChatChannel channel = sender.getFocused();
-        IChatMessage message = ChatMessage.of(sender, channel, event.getMessage());
+        IChatMessage message = ChatMessage.of(sender, event.getMessage());
 
         channel.send(message);
     }

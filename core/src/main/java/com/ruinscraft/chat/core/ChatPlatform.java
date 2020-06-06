@@ -20,4 +20,6 @@ public interface ChatPlatform {
 
     void loadConfigFromDisk(ChatConfig config);
 
+    void runTaskTimerAsync(Runnable task, long delay, long period);
+
 }
