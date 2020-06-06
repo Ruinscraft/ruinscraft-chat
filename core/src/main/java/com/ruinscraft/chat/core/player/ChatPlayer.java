@@ -6,6 +6,7 @@ import com.ruinscraft.chat.api.IChatPlayer;
 import com.ruinscraft.chat.api.IMessageFormatter;
 import com.ruinscraft.chat.core.Chat;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -44,6 +45,10 @@ public class ChatPlayer implements IChatPlayer {
 
     @Override
     public Set<String> getIgnoring() {
+        if (ignoring == null) {
+            ignoring = new HashSet<>();
+        }
+
         return ignoring;
     }
 
@@ -75,6 +80,10 @@ public class ChatPlayer implements IChatPlayer {
 
     @Override
     public Set<IChatChannel> getMuted() {
+        if (muted == null) {
+            muted = new HashSet<>();
+        }
+
         return muted.stream()
                 .filter(channel -> channel.isMutable())
                 .collect(Collectors.toSet());
@@ -92,6 +101,10 @@ public class ChatPlayer implements IChatPlayer {
 
     @Override
     public Set<IChatChannel> getSpying() {
+        if (spying == null) {
+            spying = new HashSet<>();
+        }
+
         return spying.stream()
                 .filter(channel -> channel.isSpyable() && hasPermission(channel.getPermission()))
                 .collect(Collectors.toSet());
