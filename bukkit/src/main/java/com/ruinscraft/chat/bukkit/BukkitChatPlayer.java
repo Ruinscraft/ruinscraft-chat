@@ -25,4 +25,9 @@ public class BukkitChatPlayer extends ChatPlayer {
         return handle.hasPermission(permission);
     }
 
+    @Override
+    public void sendMessage(String content) {
+        handle.sendMessage(content);
+    }
+
 }

@@ -4,7 +4,6 @@ import com.ruinscraft.chat.api.IChatChannel;
 import com.ruinscraft.chat.api.IChatMessage;
 import com.ruinscraft.chat.api.IChatPlayer;
 import com.ruinscraft.chat.api.IMessageFormatter;
-import com.ruinscraft.chat.core.Chat;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -131,9 +130,7 @@ public abstract class ChatPlayer implements IChatPlayer {
     @Override
     public void sendMessage(IChatMessage message, IMessageFormatter formatter) {
         String format = formatter.format(message);
-
-        // send message to player
-        Chat.getInstance().getPlatform().playerSendChatMessage(mojangId, format);
+        sendMessage(format);
     }
 
     public boolean requiresSave() {

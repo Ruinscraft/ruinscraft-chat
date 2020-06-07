@@ -51,4 +51,6 @@ public interface IChatPlayer {
 
     void sendMessage(IChatMessage message, IMessageFormatter formatter);
 
+    void sendMessage(String content);
+
 }
