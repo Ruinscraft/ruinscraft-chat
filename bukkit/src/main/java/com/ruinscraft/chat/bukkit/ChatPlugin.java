@@ -1,13 +1,12 @@
 package com.ruinscraft.chat.bukkit;
 
-import com.ruinscraft.chat.api.IChat;
 import com.ruinscraft.chat.bukkit.integrations.PlotSquared4Integration;
 import com.ruinscraft.chat.bukkit.integrations.TownyIntegration;
 import com.ruinscraft.chat.bukkit.listeners.PlayerChatListener;
 import com.ruinscraft.chat.core.Chat;
 import com.ruinscraft.chat.core.ChatConfig;
 import com.ruinscraft.chat.core.ChatPlatform;
-import org.bukkit.Bukkit;
+import com.ruinscraft.chat.core.player.ChatPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
 
 public class ChatPlugin extends JavaPlugin implements ChatPlatform {
 
-    private IChat chat;
+    private Chat chat;
 
     @Override
     public void onEnable() {
@@ -53,7 +52,7 @@ public class ChatPlugin extends JavaPlugin implements ChatPlatform {
     }
 
     @Override
-    public IChat getChat() {
+    public Chat getChat() {
         return chat;
     }
 
@@ -79,6 +78,11 @@ public class ChatPlugin extends JavaPlugin implements ChatPlatform {
     }
 
     @Override
+    public ChatPlayer createChatPlayer(UUID id) {
+        return new BukkitChatPlayer(id);
+    }
+
+    @Override
     public Logger getLogger() {
         return getLogger();
     }
@@ -86,29 +90,6 @@ public class ChatPlugin extends JavaPlugin implements ChatPlatform {
     @Override
     public Set<UUID> getOnlinePlayers() {
         return getServer().getOnlinePlayers().stream().map(Player::getUniqueId).collect(Collectors.toSet());
-    }
-
-    @Override
-    public boolean playerSendChatMessage(UUID playerId, String message) {
-        Player player = Bukkit.getPlayer(playerId);
-
-        if (player != null) {
-            player.sendMessage(message);
-            return true;
-        }
-
-        return false;
-    }
-
-    @Override
-    public boolean playerHasPermission(UUID playerId, String permission) {
-        Player player = Bukkit.getPlayer(playerId);
-
-        if (player != null) {
-            return player.hasPermission(permission);
-        }
-
-        return false;
     }
 
 }

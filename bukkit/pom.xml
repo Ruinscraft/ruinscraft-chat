@@ -34,12 +34,6 @@
         </dependency>
         <dependency>
             <groupId>com.ruinscraft</groupId>
-            <artifactId>ruinscraft-chat-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.ruinscraft</groupId>
             <artifactId>ruinscraft-chat-core</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>

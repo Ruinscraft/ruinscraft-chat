@@ -1,6 +1,6 @@
 package com.ruinscraft.chat.core;
 
-import com.ruinscraft.chat.api.IChat;
+import com.ruinscraft.chat.core.player.ChatPlayer;
 
 import java.util.Set;
 import java.util.UUID;
@@ -8,18 +8,16 @@ import java.util.logging.Logger;
 
 public interface ChatPlatform {
 
-    IChat getChat();
+    Chat getChat();
 
     Logger getLogger();
 
     Set<UUID> getOnlinePlayers();
 
-    boolean playerSendChatMessage(UUID playerId, String message);
-
-    boolean playerHasPermission(UUID playerId, String permission);
-
     void loadConfigFromDisk(ChatConfig config);
 
     void runTaskTimerAsync(Runnable task, long delay, long period);
+
+    ChatPlayer createChatPlayer(UUID id);
 
 }
