@@ -50,7 +50,7 @@ public abstract class ChatChannel<MTYPE extends IChatMessage> implements IChatCh
                 continue;
             }
 
-            if (player.isIgnoring(message.getSender())) {
+            if (player.isBlocked(message.getSender())) {
                 continue;
             }
 

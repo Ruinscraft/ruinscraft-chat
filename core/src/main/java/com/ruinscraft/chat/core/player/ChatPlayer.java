@@ -11,13 +11,13 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class ChatPlayer implements IChatPlayer {
+public abstract class ChatPlayer implements IChatPlayer {
 
     private final UUID mojangId;
 
     private String nickname;
-    private Set<String> ignoring;
     private IChatChannel focused;
+    private Set<IChatPlayer> blocked;
     private Set<IChatChannel> muted;
     private Set<IChatChannel> spying;
 
@@ -44,25 +44,6 @@ public class ChatPlayer implements IChatPlayer {
     }
 
     @Override
-    public Set<String> getIgnoring() {
-        if (ignoring == null) {
-            ignoring = new HashSet<>();
-        }
-
-        return ignoring;
-    }
-
-    @Override
-    public void ignore(String user) {
-        ignoring.add(user);
-    }
-
-    @Override
-    public void unignore(String user) {
-        ignoring.remove(user);
-    }
-
-    @Override
     public IChatChannel getFocused() {
         if (focused == null || !hasPermission(focused.getPermission())) {
             // set focused to default chat channel?
@@ -76,6 +57,33 @@ public class ChatPlayer implements IChatPlayer {
         if (hasPermission(channel.getPermission())) {
             focused = channel;
         }
+    }
+
+    @Override
+    public Set<IChatPlayer> getBlocked() {
+        if (blocked == null) {
+            blocked = new HashSet<>();
+        }
+
+        return blocked;
+    }
+
+    @Override
+    public boolean block(IChatPlayer other) {
+        if (getBlocked().add(other)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean unblock(IChatPlayer other) {
+        if (getBlocked().remove(other)) {
+            return true;
+        }
+
+        return false;
     }
 
     @Override
@@ -121,20 +129,11 @@ public class ChatPlayer implements IChatPlayer {
     }
 
     @Override
-    public boolean hasPermission(String permission) {
-        return Chat.getInstance().getPlatform().playerHasPermission(mojangId, permission);
-    }
-
-    @Override
     public void sendMessage(IChatMessage message, IMessageFormatter formatter) {
-        // apply formatter
-        message.applyFormatter(formatter);
-
-        // get content
-        String content = message.getContent();
+        String format = formatter.format(message);
 
         // send message to player
-        Chat.getInstance().getPlatform().playerSendChatMessage(mojangId, content);
+        Chat.getInstance().getPlatform().playerSendChatMessage(mojangId, format);
     }
 
     public boolean requiresSave() {

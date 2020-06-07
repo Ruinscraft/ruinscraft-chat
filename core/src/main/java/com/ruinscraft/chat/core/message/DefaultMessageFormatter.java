@@ -1,26 +1,37 @@
 package com.ruinscraft.chat.core.message;
 
+import com.ruinscraft.chat.api.IChatMessage;
 import com.ruinscraft.chat.api.IMessageFormatter;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Function;
 
 public class DefaultMessageFormatter implements IMessageFormatter {
 
-    private Set<Function<String, String>> replacements;
+    /*
+     *  DISPLAYNAME > CONTENT
+     *
+     *  DISPLAYNAME should be setup on the platform to include things which are relevant
+     *  like a group prefix.
+     *
+     *  Ex:
+     *  [Sponsor] foobar > hello
+     *
+     *
+     *  "[Sponsor] foobar"  is the DISPLAYNAME
+     *  "hello"             is the CONTENT
+     */
 
-    public DefaultMessageFormatter() {
-        replacements = new HashSet<>();
-
-        replacements.add(message -> message.replace("%gamemode%", ""));
-        replacements.add(message -> message.replace("%sender%", ""));
-        replacements.add(message -> message.replace("%message%", ""));
+    @Override
+    public String getFormat() {
+        return "%displayname% > %content%";
     }
 
     @Override
-    public Set<Function<String, String>> getReplacements() {
-        return replacements;
+    public String format(IChatMessage input, Object... replacements) {
+        String format = getFormat();
+
+        format.replace("%displayname%", input.getSender().getDisplayName());
+        format.replace("%content%", input.getContent());
+
+        return format;
     }
 
 }

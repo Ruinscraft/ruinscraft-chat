@@ -2,37 +2,22 @@ package com.ruinscraft.chat.core.message;
 
 import com.ruinscraft.chat.api.IChatMessage;
 import com.ruinscraft.chat.api.IChatPlayer;
-import com.ruinscraft.chat.api.IMessageFormatter;
-
-import java.util.UUID;
 
 public class ChatMessage implements IChatMessage {
 
-    private long time;
-    private String sender;
-    private UUID senderId;
+    private IChatPlayer sender;
     private String content;
+    private long time;
 
-    private ChatMessage(long time, String sender, UUID senderId, String content) {
-        this.time = time;
+    private ChatMessage(IChatPlayer sender, String content, long time) {
         this.sender = sender;
-        this.senderId = senderId;
         this.content = content;
+        this.time = time;
     }
 
     @Override
-    public long getTime() {
-        return time;
-    }
-
-    @Override
-    public String getSender() {
+    public IChatPlayer getSender() {
         return sender;
-    }
-
-    @Override
-    public UUID getSenderId() {
-        return senderId;
     }
 
     @Override
@@ -41,22 +26,12 @@ public class ChatMessage implements IChatMessage {
     }
 
     @Override
-    public void applyFormatter(IMessageFormatter formatter) {
-        formatter.getReplacements().forEach(f -> content = f.apply(content));
+    public long getTime() {
+        return time;
     }
 
-    @Override
-    public String toString() {
-        return "ChatMessage{" +
-                "time=" + time +
-                ", sender='" + sender + '\'' +
-                ", senderId=" + senderId +
-                ", content='" + content + '\'' +
-                '}';
-    }
-
-    public static ChatMessage of(IChatPlayer sender, String message) {
-        return new ChatMessage(System.currentTimeMillis(), sender.getNickname(), sender.getMojangId(), message);
+    public static ChatMessage of(IChatPlayer sender, String content) {
+        return new ChatMessage(sender, content, System.currentTimeMillis());
     }
 
 }

@@ -6,6 +6,7 @@ import com.ruinscraft.chat.api.IChatMessage;
 import com.ruinscraft.chat.api.IChatPlayer;
 import com.ruinscraft.chat.bukkit.events.DummyAsyncPlayerChatEvent;
 import com.ruinscraft.chat.core.message.ChatMessage;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -28,11 +29,13 @@ public class PlayerChatListener implements Listener {
 
         if (event.isCancelled()) {
             return;
+        } else {
+            event.setCancelled(true);
         }
 
-        event.setCancelled(true);
-
-        UUID playerId = event.getPlayer().getUniqueId();
+        Player player = event.getPlayer();
+        UUID playerId = player.getUniqueId();
+        String displayname = player.getDisplayName();
 
         IChatPlayer sender = chat.getChatPlayer(playerId);
         IChatChannel channel = sender.getFocused();

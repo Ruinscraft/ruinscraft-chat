@@ -11,16 +11,14 @@ public interface IChatPlayer {
 
     void setNickname(String nickname);
 
-    Set<String> getIgnoring();
+    Set<IChatPlayer> getBlocked();
 
-    // can be username or uuid
-    void ignore(String user);
+    boolean block(IChatPlayer other);
 
-    // can be username or uuid
-    void unignore(String user);
+    boolean unblock(IChatPlayer other);
 
-    default boolean isIgnoring(String user) {
-        return getIgnoring().contains(user);
+    default boolean isBlocked(IChatPlayer other) {
+        return getBlocked().contains(other);
     }
 
     IChatChannel getFocused();
@@ -46,6 +44,8 @@ public interface IChatPlayer {
     default boolean isSpying(IChatChannel channel) {
         return getSpying().contains(channel);
     }
+
+    String getDisplayName();
 
     boolean hasPermission(String permission);
 
