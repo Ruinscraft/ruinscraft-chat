@@ -27,7 +27,6 @@ public class DefaultChatChannel extends ChatChannel {
     @Override
     public Set<IChatPlayer> getRecipients() {
         IChat chat = platform.getChat();
-
         return chat.getOnlinePlayers().getAll();
     }
 
