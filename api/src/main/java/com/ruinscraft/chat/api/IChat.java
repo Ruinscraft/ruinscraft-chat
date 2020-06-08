@@ -19,6 +19,8 @@ public interface IChat {
 
     Map<String, IMessageFilter> getFilters();
 
+    IChatChannel getChannel(String name);
+
     void start() throws Exception;
 
     void shutdown() throws Exception;
