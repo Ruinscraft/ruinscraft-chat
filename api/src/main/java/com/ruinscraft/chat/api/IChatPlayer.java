@@ -57,4 +57,8 @@ public interface IChatPlayer {
 
     void sendMessage(String content);
 
+    void openChatMenu();
+
+    void openChatSpyMenu();
+
 }
