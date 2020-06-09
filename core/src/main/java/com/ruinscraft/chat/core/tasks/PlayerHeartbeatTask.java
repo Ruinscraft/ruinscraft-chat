@@ -60,7 +60,7 @@ public class PlayerHeartbeatTask implements Runnable {
 
             if (matches == 0) {
                 // new player has joined which needs to be loaded
-                IChatPlayer chatPlayer = null; // TODO: implement
+                IChatPlayer chatPlayer = platform.createChatPlayer(id);
 
                 platform.getChat().getStorage().loadPlayer(chatPlayer);
             }
