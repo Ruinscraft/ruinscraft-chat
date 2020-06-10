@@ -5,10 +5,6 @@ import java.util.UUID;
 
 public interface IChatPlayer {
 
-    int getId();
-
-    void setId(int id);
-
     UUID getMojangId();
 
     /**
