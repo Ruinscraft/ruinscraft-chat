@@ -6,10 +6,12 @@ import java.util.UUID;
 
 public interface IOnlinePlayers {
 
-    Set<IChatPlayer> get(UUID nodeId);
+    Set<IChatPlayer> getForNode(UUID nodeId);
 
     Set<IChatPlayer> getAll();
 
     Optional<IChatPlayer> find(UUID playerId);
+
+    IChatPlayer get(UUID playerId);
 
 }

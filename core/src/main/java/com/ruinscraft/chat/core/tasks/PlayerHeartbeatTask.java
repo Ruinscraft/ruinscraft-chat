@@ -23,7 +23,7 @@ public class PlayerHeartbeatTask implements Runnable {
         UUID nodeId = chat.getNodeId();
 
         // collect information
-        Set<IChatPlayer> previouslyOnline = chat.getOnlinePlayers().get(nodeId);
+        Set<IChatPlayer> previouslyOnline = chat.getOnlinePlayers().getForNode(nodeId);
         Set<UUID> currentlyOnlineIds = platform.getOnlinePlayers();
 
         // first, purge offline players
@@ -55,12 +55,12 @@ public class PlayerHeartbeatTask implements Runnable {
         Set<UUID> toAdd = new HashSet<>();
 
         // check currently online ids versus previously online chat players
-        for (UUID id : currentlyOnlineIds) {
-            long matches = previouslyOnline.stream().filter(cp -> cp.getMojangId().equals(id)).count();
+        for (UUID mojangId : currentlyOnlineIds) {
+            long matches = previouslyOnline.stream().filter(cp -> cp.getMojangId().equals(mojangId)).count();
 
             if (matches == 0) {
                 // new player has joined which needs to be loaded
-                IChatPlayer chatPlayer = null; // TODO: implement
+                IChatPlayer chatPlayer = platform.createChatPlayer(mojangId);
 
                 platform.getChat().getStorage().loadPlayer(chatPlayer);
             }
@@ -73,7 +73,7 @@ public class PlayerHeartbeatTask implements Runnable {
         IChat chat = platform.getChat();
         UUID nodeId = chat.getNodeId();
 
-        chat.getOnlinePlayers().get(nodeId).forEach(icp -> {
+        chat.getOnlinePlayers().getForNode(nodeId).forEach(icp -> {
             if (icp instanceof ChatPlayer) {
                 ChatPlayer cp = (ChatPlayer) icp;
 

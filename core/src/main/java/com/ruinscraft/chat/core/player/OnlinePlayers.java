@@ -10,7 +10,7 @@ public class OnlinePlayers implements IOnlinePlayers {
     private Map<UUID, Set<IChatPlayer>> players;
 
     @Override
-    public Set<IChatPlayer> get(UUID nodeId) {
+    public Set<IChatPlayer> getForNode(UUID nodeId) {
         return players.get(nodeId);
     }
 
@@ -32,6 +32,11 @@ public class OnlinePlayers implements IOnlinePlayers {
                 .stream()
                 .filter(cp -> cp.getMojangId().equals(playerId))
                 .findFirst();
+    }
+
+    @Override
+    public IChatPlayer get(UUID playerId) {
+        return find(playerId).get(); // can return null
     }
 
 }

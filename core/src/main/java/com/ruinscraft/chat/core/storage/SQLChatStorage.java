@@ -4,16 +4,24 @@ import com.ruinscraft.chat.api.IChatMessage;
 import com.ruinscraft.chat.api.IChatPlayer;
 import com.ruinscraft.chat.api.IChatStorage;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class SQLChatStorage implements IChatStorage {
 
+    /*
+     *  Database Mojang UUID to player id mapping
+     *  Enables fast database queries/updates
+     */
+    private Map<UUID, Integer> playerId;
+
     public SQLChatStorage() {
+        playerId = new ConcurrentHashMap<>();
+
         try (Statement statement = getConnection().createStatement()) {
             /*
              *  Create players table
@@ -21,7 +29,7 @@ public abstract class SQLChatStorage implements IChatStorage {
             statement.addBatch("CREATE TABLE IF NOT EXISTS chat_players (" +
                     "id INT AUTO_INCREMENT NOT NULL, " +
                     "mojang_uuid VARCHAR (36) NOT NULL, " +
-                    "nickname VARCHAR (16) NOT NULL, " +
+                    "nickname VARCHAR (16) DEFAULT NULL, " +
                     "UNIQUE (mojang_uuid), " +
                     "PRIMARY KEY (id)" +
                     ");");
@@ -76,7 +84,12 @@ public abstract class SQLChatStorage implements IChatStorage {
             /*
              *  Create status table
              */
-            statement.addBatch("");
+            statement.addBatch("CREATE TABLE IF NOT EXISTS chat_player_status (" +
+                    "player_id INT NOT NULL, " +
+                    "node_id VARCHAR (36) NOT NULL, " +
+                    "timestamp TIMESTAMP NOT NULL, " +
+                    "UNIQUE (player_id, node_id)" +
+                    ");");
 
             statement.executeBatch();
         } catch (SQLException e) {
@@ -91,7 +104,38 @@ public abstract class SQLChatStorage implements IChatStorage {
     }
 
     private void loadPlayer(IChatPlayer player, Connection connection) throws SQLException {
-        try (PreparedStatement query = connection.prepareStatement("")) {
+        try (PreparedStatement queryPlayers = connection.prepareStatement(
+                "SELECT * FROM chat_players WHERE mojang_uuid = ?;")) {
+            queryPlayers.setString(1, player.getMojangId().toString());
+
+            try (ResultSet result = queryPlayers.executeQuery()) {
+                int id = result.getInt("id");
+                String nickname = result.getString("nickname");
+
+                player.setNickname(nickname);
+
+                // save the player id
+                playerId.put(player.getMojangId(), id);
+            }
+        }
+
+        try (PreparedStatement queryPlayerChannels = connection.prepareStatement("")) {
+
+
+        }
+
+        try (PreparedStatement queryPlayerBlocked = connection.prepareStatement("")) {
+
+
+        }
+
+        try (PreparedStatement queryPlayerMuted = connection.prepareStatement("")) {
+
+
+        }
+
+        try (PreparedStatement queryPlayerSpying = connection.prepareStatement("")) {
+
 
         }
     }

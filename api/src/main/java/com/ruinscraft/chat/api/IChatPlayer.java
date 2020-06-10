@@ -7,6 +7,13 @@ public interface IChatPlayer {
 
     UUID getMojangId();
 
+    /**
+     * Returns a nickname
+     *
+     * If a nickname has not been set by the user, it will default to their
+     * most recent Minecraft username
+     * @return
+     */
     String getNickname();
 
     void setNickname(String nickname);
@@ -45,6 +52,13 @@ public interface IChatPlayer {
         return getSpying().contains(channel);
     }
 
+    /**
+     * Should return something like:
+     * [Prefix] Username
+     *
+     * Typically, this would be automatically created by the platform such as org.bukkit.entity.Player#getDisplayName()
+     * @return
+     */
     String getDisplayName();
 
     boolean hasPermission(String permission);
