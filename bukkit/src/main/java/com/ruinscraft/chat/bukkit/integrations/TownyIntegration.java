@@ -1,13 +1,13 @@
 package com.ruinscraft.chat.bukkit.integrations;
 
-import com.ruinscraft.chat.api.IChat;
 import com.ruinscraft.chat.api.IChatChannel;
+import com.ruinscraft.chat.core.Chat;
 
 import java.util.Set;
 
 public class TownyIntegration extends BukkitPluginIntegration {
 
-    public TownyIntegration(IChat chat) {
+    public TownyIntegration(Chat chat) {
         super("Towny", chat);
     }
 
@@ -15,5 +15,5 @@ public class TownyIntegration extends BukkitPluginIntegration {
     public Set<IChatChannel> getChannels() {
         return null;
     }
-    
+
 }

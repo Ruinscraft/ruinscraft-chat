@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 public abstract class ChatPlayer implements IChatPlayer {
 
+    private int id;
     private final UUID mojangId;
 
     private String nickname;
@@ -25,6 +26,16 @@ public abstract class ChatPlayer implements IChatPlayer {
 
     public ChatPlayer(UUID mojangId) {
         this.mojangId = mojangId;
+    }
+
+    @Override
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
     }
 
     @Override

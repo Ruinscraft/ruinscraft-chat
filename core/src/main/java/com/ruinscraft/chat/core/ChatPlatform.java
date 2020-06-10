@@ -20,4 +20,12 @@ public interface ChatPlatform {
 
     ChatPlayer createChatPlayer(UUID id);
 
+    /**
+     * Returns a Mojang UUID for a username
+     * Will return null if player has never played before (temporarily)
+     * @param username
+     * @return the UUID for the username
+     */
+    UUID getPlayerId(String username);
+
 }

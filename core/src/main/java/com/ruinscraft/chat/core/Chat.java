@@ -77,6 +77,11 @@ public class Chat implements IChat {
         return filters;
     }
 
+    @Override
+    public IChatChannel getChannel(String name) {
+        return getChannels().get(name);
+    }
+
     public PlayerHeartbeatTask getHeartbeatTask() {
         return heartbeatTask;
     }

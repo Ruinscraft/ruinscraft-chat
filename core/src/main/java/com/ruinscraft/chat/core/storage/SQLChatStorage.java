@@ -35,15 +35,6 @@ public abstract class SQLChatStorage implements IChatStorage {
                     ");");
 
             /*
-             *  Create player channels table
-             */
-            statement.addBatch("CREATE TABLE IF NOT EXISTS chat_player_channels (" +
-                    "player_id INT NOT NULL, " +
-                    "channel VARCHAR (32) NOT NULL, " +
-                    "UNIQUE (player_id, channel)" +
-                    ");");
-
-            /*
              *  Create player blocked table
              */
             statement.addBatch("CREATE TABLE IF NOT EXISTS chat_player_blocked (" +
@@ -71,6 +62,16 @@ public abstract class SQLChatStorage implements IChatStorage {
                     ");");
 
             /*
+             *  Create player status table
+             */
+            statement.addBatch("CREATE TABLE IF NOT EXISTS chat_player_status (" +
+                    "player_id INT NOT NULL, " +
+                    "node_id VARCHAR (36) NOT NULL, " +
+                    "timestamp TIMESTAMP NOT NULL, " +
+                    "UNIQUE (player_id, node_id)" +
+                    ");");
+
+            /*
              *  Create logs table
              */
             statement.addBatch("CREATE TABLE IF NOT EXISTS chat_logs (" +
@@ -82,15 +83,8 @@ public abstract class SQLChatStorage implements IChatStorage {
                     ");");
 
             /*
-             *  Create status table
+             *  Execute batch to create tables
              */
-            statement.addBatch("CREATE TABLE IF NOT EXISTS chat_player_status (" +
-                    "player_id INT NOT NULL, " +
-                    "node_id VARCHAR (36) NOT NULL, " +
-                    "timestamp TIMESTAMP NOT NULL, " +
-                    "UNIQUE (player_id, node_id)" +
-                    ");");
-
             statement.executeBatch();
         } catch (SQLException e) {
             e.printStackTrace();

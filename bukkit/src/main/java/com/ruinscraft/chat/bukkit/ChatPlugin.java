@@ -7,6 +7,8 @@ import com.ruinscraft.chat.core.Chat;
 import com.ruinscraft.chat.core.ChatConfig;
 import com.ruinscraft.chat.core.ChatPlatform;
 import com.ruinscraft.chat.core.player.ChatPlayer;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -80,6 +82,17 @@ public class ChatPlugin extends JavaPlugin implements ChatPlatform {
     @Override
     public ChatPlayer createChatPlayer(UUID id) {
         return new BukkitChatPlayer(id);
+    }
+
+    @Override
+    public UUID getPlayerId(String username) {
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(username);
+
+        if (offlinePlayer.hasPlayedBefore()) {
+            return offlinePlayer.getUniqueId();
+        } else {
+            return null;
+        }
     }
 
     @Override

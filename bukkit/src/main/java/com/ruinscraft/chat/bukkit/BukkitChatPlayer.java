@@ -30,4 +30,14 @@ public class BukkitChatPlayer extends ChatPlayer {
         handle.sendMessage(content);
     }
 
+    @Override
+    public void openChatMenu() {
+        // TODO:
+    }
+
+    @Override
+    public void openChatSpyMenu() {
+        // TODO:
+    }
+
 }
