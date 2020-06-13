@@ -96,7 +96,7 @@ public class ChatPlugin extends JavaPlugin implements ChatPlatform {
     }
 
     @Override
-    public Logger getLogger() {
+    public Logger getJLogger() {
         return getLogger();
     }
 

@@ -91,12 +91,12 @@ public class Chat implements IChat {
         nodeId = UUID.randomUUID();
 
         // load config
-        platform.getLogger().info("Loading configuration");
+        platform.getJLogger().info("Loading configuration");
         config = new ChatConfig();
         platform.loadConfigFromDisk(config);
 
         // load storage
-        platform.getLogger().info("Loading storage");
+        platform.getJLogger().info("Loading storage");
         if (config.storageType.equals("mysql")) {
             String host = config.storageMySQLHost;
             int port = config.storageMySQLPort;
@@ -109,15 +109,15 @@ public class Chat implements IChat {
         }
 
         // setup chat channels
-        platform.getLogger().info("Loading channels");
+        platform.getJLogger().info("Loading channels");
         channels = new HashMap<>();
 
         // setup chat loggers
-        platform.getLogger().info("Loading loggers");
+        platform.getJLogger().info("Loading loggers");
         loggers = new HashMap<>();
 
         // setup chat filters
-        platform.getLogger().info("Loading filters");
+        platform.getJLogger().info("Loading filters");
         filters = new HashMap<>();
 
         // start player heartbeat task

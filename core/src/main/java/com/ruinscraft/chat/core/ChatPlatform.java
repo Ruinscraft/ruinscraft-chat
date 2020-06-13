@@ -10,7 +10,7 @@ public interface ChatPlatform {
 
     Chat getChat();
 
-    Logger getLogger();
+    Logger getJLogger();
 
     Set<UUID> getOnlinePlayers();
 
