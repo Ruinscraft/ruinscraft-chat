@@ -21,7 +21,9 @@ public abstract class SQLChatStorage implements IChatStorage {
 
     public SQLChatStorage() {
         playerId = new ConcurrentHashMap<>();
+    }
 
+    protected void createTables() {
         try (Statement statement = getConnection().createStatement()) {
             /*
              *  Create players table

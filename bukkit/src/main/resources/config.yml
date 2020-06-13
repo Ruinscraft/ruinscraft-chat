@@ -1,9 +1,9 @@
 storage:
   type: mysql
   mysql:
-    host: localhost
+    host: db
     port: 3306
-    database: ruinscraft-chat
+    database: chat
     username: root
     password: password
 

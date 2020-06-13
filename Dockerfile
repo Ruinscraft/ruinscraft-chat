@@ -12,6 +12,7 @@ RUN mkdir /ruinscraft-chat/server/plugins
 # Build the plugin
 WORKDIR /ruinscraft-chat/build
 COPY . .
+RUN mvn clean
 RUN mvn package
 RUN cp ./bukkit/target/ruinscraft-chat.jar /ruinscraft-chat/server/plugins
 

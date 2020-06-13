@@ -19,13 +19,16 @@ public class MySQLChatStorage extends SQLChatStorage {
         this.database = database;
         this.username = username;
         this.password = password;
+
+        createTables();
     }
 
     @Override
     public Connection getConnection() {
         try {
             if (connection == null || connection.isClosed()) {
-                connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
+                String jdbcUrl = "jdbc:mysql://" + host + ":" + port + "/" + database;
+                connection = DriverManager.getConnection(jdbcUrl, username, password);
             }
         } catch (SQLException e) {
             e.printStackTrace();

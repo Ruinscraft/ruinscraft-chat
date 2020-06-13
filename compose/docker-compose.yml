@@ -3,17 +3,18 @@ version: '3.1'
 services:
   db:
     image: mariadb
-    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: chat
   pubsub:
     image: redis
-    restart: always
-  townie_server:
+  ruinscraft_chat_server:
+    image: ruinscraft_chat_server
+    links:
+      - "db:db"
+      - "pubsub:pubsub"
     depends_on:
       - db
       - pubsub
-    image: ruinscraft_chat_server
     ports:
-      - 25565:25565
+      - "25565:25565"
