@@ -4,13 +4,23 @@ import com.ruinscraft.chat.api.IChatPlayer;
 import com.ruinscraft.chat.api.IOnlinePlayers;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class OnlinePlayers implements IOnlinePlayers {
 
     private Map<UUID, Set<IChatPlayer>> players;
 
+    public OnlinePlayers() {
+        players = new ConcurrentHashMap<>();
+    }
+
     @Override
     public Set<IChatPlayer> getForNode(UUID nodeId) {
+        // ensure there is always at least an empty set returned
+        if (!players.containsKey(nodeId)) {
+            players.put(nodeId, new HashSet<>());
+        }
+
         return players.get(nodeId);
     }
 

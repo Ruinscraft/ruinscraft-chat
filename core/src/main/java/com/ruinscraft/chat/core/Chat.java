@@ -1,6 +1,7 @@
 package com.ruinscraft.chat.core;
 
 import com.ruinscraft.chat.api.*;
+import com.ruinscraft.chat.core.player.OnlinePlayers;
 import com.ruinscraft.chat.core.storage.MySQLChatStorage;
 import com.ruinscraft.chat.core.tasks.PlayerHeartbeatTask;
 
@@ -119,6 +120,9 @@ public class Chat implements IChat {
         // setup chat filters
         platform.getJLogger().info("Loading filters");
         filters = new HashMap<>();
+
+        // create online players
+        onlinePlayers = new OnlinePlayers();
 
         // start player heartbeat task
         heartbeatTask = new PlayerHeartbeatTask(platform);
