@@ -23,8 +23,9 @@ public abstract class ChatPlayer implements IChatPlayer {
     private transient UUID nodeId;
     private transient boolean requiresSave;
 
-    public ChatPlayer(UUID mojangId) {
+    public ChatPlayer(UUID mojangId, UUID nodeId) {
         this.mojangId = mojangId;
+        this.nodeId = nodeId;
     }
 
     @Override
@@ -131,6 +132,14 @@ public abstract class ChatPlayer implements IChatPlayer {
     public void sendMessage(IChatMessage message, IMessageFormatter formatter) {
         String format = formatter.format(message);
         sendMessage(format);
+    }
+
+    public UUID getNodeId() {
+        return nodeId;
+    }
+
+    public void setNodeId(UUID nodeId) {
+        this.nodeId = nodeId;
     }
 
     public boolean requiresSave() {

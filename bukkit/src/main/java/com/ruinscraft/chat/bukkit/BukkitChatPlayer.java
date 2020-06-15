@@ -10,8 +10,8 @@ public class BukkitChatPlayer extends ChatPlayer {
 
     private final Player handle;
 
-    public BukkitChatPlayer(UUID mojangId) {
-        super(mojangId);
+    public BukkitChatPlayer(UUID mojangId, UUID nodeId) {
+        super(mojangId, nodeId);
         handle = Bukkit.getPlayer(mojangId);
     }
 

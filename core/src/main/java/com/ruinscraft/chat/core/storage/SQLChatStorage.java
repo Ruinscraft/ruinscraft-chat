@@ -105,13 +105,15 @@ public abstract class SQLChatStorage implements IChatStorage {
             queryPlayers.setString(1, player.getMojangId().toString());
 
             try (ResultSet result = queryPlayers.executeQuery()) {
-                int id = result.getInt("id");
-                String nickname = result.getString("nickname");
+                while (result.next()) {
+                    int id = result.getInt("id");
+                    String nickname = result.getString("nickname");
 
-                player.setNickname(nickname);
+                    player.setNickname(nickname);
 
-                // save the player id
-                playerId.put(player.getMojangId(), id);
+                    // save the player id
+                    playerId.put(player.getMojangId(), id);
+                }
             }
         }
 

@@ -29,9 +29,10 @@ public class PlayerChatListener implements Listener {
 
         if (event.isCancelled()) {
             return;
-        } else {
-            event.setCancelled(true);
         }
+
+        // prevent the Minecraft server from handling the chat message
+        event.setCancelled(true);
 
         Player player = event.getPlayer();
         UUID playerId = player.getUniqueId();

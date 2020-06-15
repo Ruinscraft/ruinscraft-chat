@@ -3,12 +3,17 @@ package com.ruinscraft.chat.core.player;
 import com.ruinscraft.chat.api.IChatPlayer;
 import com.ruinscraft.chat.api.IOnlinePlayers;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class OnlinePlayers implements IOnlinePlayers {
 
-    private Map<UUID, Set<IChatPlayer>> players;
+    // maps Mojang UUID to IChatPlayer (for quicker lookups)
+    private Map<UUID, ChatPlayer> players;
 
     public OnlinePlayers() {
         players = new ConcurrentHashMap<>();
@@ -16,37 +21,41 @@ public class OnlinePlayers implements IOnlinePlayers {
 
     @Override
     public Set<IChatPlayer> getForNode(UUID nodeId) {
-        // ensure there is always at least an empty set returned
-        if (!players.containsKey(nodeId)) {
-            players.put(nodeId, new HashSet<>());
-        }
+        Set<IChatPlayer> forNode = new HashSet<>();
 
-        return players.get(nodeId);
+        players.values().stream().forEach(player -> {
+            if (player.getNodeId().equals(nodeId)) {
+                forNode.add(player);
+            }
+        });
+
+        return forNode;
     }
 
     @Override
     public Set<IChatPlayer> getAll() {
-        // TODO: optimize?
-        Set<IChatPlayer> all = new HashSet<>();
-
-        for (UUID nodeId : players.keySet()) {
-            all.addAll(players.get(nodeId));
-        }
-
-        return all;
-    }
-
-    @Override
-    public Optional<IChatPlayer> find(UUID playerId) {
-        return getAll()
-                .stream()
-                .filter(cp -> cp.getMojangId().equals(playerId))
-                .findFirst();
+        return players.values().stream().collect(Collectors.toSet());
     }
 
     @Override
     public IChatPlayer get(UUID playerId) {
-        return find(playerId).get(); // can return null
+        return players.get(playerId);
+    }
+
+    @Override
+    public boolean unload(IChatPlayer player) {
+        return players.remove(player.getMojangId()) != null;
+    }
+
+    @Override
+    public boolean load(IChatPlayer player) {
+        if (player instanceof ChatPlayer) {
+            ChatPlayer cp = (ChatPlayer) player;
+
+            return players.put(player.getMojangId(), cp) == null;
+        } else {
+            throw new RuntimeException("IChatPlayer must be an instance of ChatPlayer");
+        }
     }
 
 }

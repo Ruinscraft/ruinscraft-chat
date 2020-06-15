@@ -60,7 +60,7 @@ public class Chat implements IChat {
 
     @Override
     public IChatPlayer getChatPlayer(UUID playerId) {
-        return onlinePlayers.find(playerId).get(); // may be null
+        return onlinePlayers.get(playerId);
     }
 
     @Override
@@ -126,7 +126,7 @@ public class Chat implements IChat {
 
         // start player heartbeat task
         heartbeatTask = new PlayerHeartbeatTask(platform);
-        platform.runTaskTimerAsync(heartbeatTask, 0L, 1000L); // period of 1 second
+        platform.runTaskTimerAsync(heartbeatTask, 0L, 20L);
     }
 
     @Override

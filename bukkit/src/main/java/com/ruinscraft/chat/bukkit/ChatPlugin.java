@@ -1,5 +1,6 @@
 package com.ruinscraft.chat.bukkit;
 
+import com.ruinscraft.chat.bukkit.commands.ListCommandExecutor;
 import com.ruinscraft.chat.bukkit.integrations.PlotSquared4Integration;
 import com.ruinscraft.chat.bukkit.integrations.TownyIntegration;
 import com.ruinscraft.chat.bukkit.listeners.PlayerChatListener;
@@ -39,6 +40,7 @@ public class ChatPlugin extends JavaPlugin implements ChatPlatform {
         new TownyIntegration(chat);
 
         // register bukkit commands
+        getCommand("list").setExecutor(new ListCommandExecutor(chat));
 
         // register bukkit listeners
         getServer().getPluginManager().registerEvents(new PlayerChatListener(chat), this);
@@ -75,13 +77,13 @@ public class ChatPlugin extends JavaPlugin implements ChatPlatform {
     }
 
     @Override
-    public void runTaskTimerAsync(Runnable task, long delay, long period) {
-        getServer().getScheduler().runTaskTimerAsynchronously(this, task, delay, period);
+    public void runTaskTimerAsync(Runnable task, long delayTicks, long periodTicks) {
+        getServer().getScheduler().runTaskTimerAsynchronously(this, task, delayTicks, periodTicks);
     }
 
     @Override
     public ChatPlayer createChatPlayer(UUID id) {
-        return new BukkitChatPlayer(id);
+        return new BukkitChatPlayer(id, chat.getNodeId());
     }
 
     @Override
@@ -101,7 +103,7 @@ public class ChatPlugin extends JavaPlugin implements ChatPlatform {
     }
 
     @Override
-    public Set<UUID> getOnlinePlayers() {
+    public Set<UUID> getOnlineIds() {
         return getServer().getOnlinePlayers().stream().map(Player::getUniqueId).collect(Collectors.toSet());
     }
 
