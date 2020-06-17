@@ -1,6 +1,9 @@
 package com.ruinscraft.chat.core;
 
 import com.ruinscraft.chat.api.*;
+import com.ruinscraft.chat.api.messagebroker.IMessageBroker;
+import com.ruinscraft.chat.core.channel.DefaultChatChannel;
+import com.ruinscraft.chat.core.messagebroker.RedisJsonMessageBroker;
 import com.ruinscraft.chat.core.player.OnlinePlayers;
 import com.ruinscraft.chat.core.storage.MySQLChatStorage;
 import com.ruinscraft.chat.core.tasks.PlayerHeartbeatTask;
@@ -23,6 +26,7 @@ public class Chat implements IChat {
 
     private ChatConfig config;
     private IChatStorage storage;
+    private IMessageBroker messageBroker;
     private IOnlinePlayers onlinePlayers;
 
     private Map<String, IChatChannel> channels;
@@ -51,6 +55,11 @@ public class Chat implements IChat {
     @Override
     public IChatStorage getStorage() {
         return storage;
+    }
+
+    @Override
+    public IMessageBroker getMessageBroker() {
+        return messageBroker;
     }
 
     @Override
@@ -83,6 +92,11 @@ public class Chat implements IChat {
         return getChannels().get(name);
     }
 
+    @Override
+    public IChatChannel getDefaultChannel() {
+        return channels.get("default");
+    }
+
     public PlayerHeartbeatTask getHeartbeatTask() {
         return heartbeatTask;
     }
@@ -104,14 +118,27 @@ public class Chat implements IChat {
             String db = config.storageMySQLDatabase;
             String user = config.storageMySQLUsername;
             String pass = config.storageMySQLPassword;
+
             storage = new MySQLChatStorage(host, port, db, user, pass);
         } else {
             throw new Exception("Could not setup storage. No valid storage type defined.");
         }
 
+        // load message broker
+        platform.getJLogger().info("Loading message broker");
+        if (config.messageBrokerType.equals("redis")) {
+            String host = config.messageBrokerRedisHost;
+            int port = config.messageBrokerRedisPort;
+
+            messageBroker = new RedisJsonMessageBroker(host, port);
+        } else {
+            throw new Exception("Could not set up message broker. No valid message broker type defined.");
+        }
+
         // setup chat channels
         platform.getJLogger().info("Loading channels");
         channels = new HashMap<>();
+        channels.put("default", new DefaultChatChannel(platform));
 
         // setup chat loggers
         platform.getJLogger().info("Loading loggers");

@@ -1,5 +1,6 @@
 package com.ruinscraft.chat.bukkit;
 
+import com.ruinscraft.chat.core.Chat;
 import com.ruinscraft.chat.core.player.ChatPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -10,8 +11,8 @@ public class BukkitChatPlayer extends ChatPlayer {
 
     private final Player handle;
 
-    public BukkitChatPlayer(UUID mojangId, UUID nodeId) {
-        super(mojangId, nodeId);
+    public BukkitChatPlayer(UUID mojangId, UUID nodeId, Chat chat) {
+        super(mojangId, nodeId, chat);
         handle = Bukkit.getPlayer(mojangId);
     }
 

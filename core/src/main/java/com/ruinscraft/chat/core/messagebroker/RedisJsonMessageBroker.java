@@ -8,7 +8,6 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
 
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class RedisJsonMessageBroker extends JsonMessageBroker {
@@ -50,11 +49,9 @@ public class RedisJsonMessageBroker extends JsonMessageBroker {
         public void onMessage(String channel, String message) {
             try {
                 JsonObject json = parser.parse(message).getAsJsonObject();
-                UUID id = UUID.fromString(json.get("id").getAsString());
-                long time = json.get("time").getAsLong();
                 MessageType type = MessageType.valueOf(json.get("type").getAsString());
                 JsonObject payload = json.get("payload").getAsJsonObject();
-                JsonMessage jsonMessage = new JsonMessage(id, time, type, payload);
+                JsonMessage jsonMessage = new JsonMessage(type, payload);
 
                 consume(jsonMessage);
             } catch (Exception e) {

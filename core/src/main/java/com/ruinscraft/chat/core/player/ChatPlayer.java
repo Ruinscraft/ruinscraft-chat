@@ -1,9 +1,6 @@
 package com.ruinscraft.chat.core.player;
 
-import com.ruinscraft.chat.api.IChatChannel;
-import com.ruinscraft.chat.api.IChatMessage;
-import com.ruinscraft.chat.api.IChatPlayer;
-import com.ruinscraft.chat.api.IMessageFormatter;
+import com.ruinscraft.chat.api.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,10 +19,12 @@ public abstract class ChatPlayer implements IChatPlayer {
 
     private transient UUID nodeId;
     private transient boolean requiresSave;
+    private IChat chat;
 
-    public ChatPlayer(UUID mojangId, UUID nodeId) {
+    public ChatPlayer(UUID mojangId, UUID nodeId, IChat chat) {
         this.mojangId = mojangId;
         this.nodeId = nodeId;
+        this.chat = chat;
     }
 
     @Override
@@ -46,7 +45,7 @@ public abstract class ChatPlayer implements IChatPlayer {
     @Override
     public IChatChannel getFocused() {
         if (focused == null || !hasPermission(focused.getPermission())) {
-            // set focused to default chat channel?
+            focused = chat.getDefaultChannel();
         }
 
         return focused;

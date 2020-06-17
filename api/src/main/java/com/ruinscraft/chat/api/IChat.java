@@ -1,13 +1,17 @@
 package com.ruinscraft.chat.api;
 
+import com.ruinscraft.chat.api.messagebroker.IMessageBroker;
+
 import java.util.Map;
 import java.util.UUID;
 
 public interface IChat {
 
-    UUID getNodeId();
+    UUID getNodeId(); // TODO: would this be more implementation specific, ie Core?
 
     IChatStorage getStorage();
+
+    IMessageBroker getMessageBroker();
 
     IOnlinePlayers getOnlinePlayers();
 
@@ -20,6 +24,8 @@ public interface IChat {
     Map<String, IMessageFilter> getFilters();
 
     IChatChannel getChannel(String name);
+
+    IChatChannel getDefaultChannel();
 
     void start() throws Exception;
 

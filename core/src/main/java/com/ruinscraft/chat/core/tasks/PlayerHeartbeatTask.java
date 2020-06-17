@@ -19,8 +19,6 @@ public class PlayerHeartbeatTask implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("Running heartbeat task");
-
         IChat chat = platform.getChat();
         UUID nodeId = chat.getNodeId();
 

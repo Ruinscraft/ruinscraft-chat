@@ -83,7 +83,7 @@ public class ChatPlugin extends JavaPlugin implements ChatPlatform {
 
     @Override
     public ChatPlayer createChatPlayer(UUID id) {
-        return new BukkitChatPlayer(id, chat.getNodeId());
+        return new BukkitChatPlayer(id, chat.getNodeId(), chat);
     }
 
     @Override
