@@ -14,10 +14,12 @@ public interface IChatChannel<CMTYPE extends IChatMessage> {
 
     boolean isFiltered();
 
-    void send(CMTYPE chatMessage);
-
     IMessageFormatter getFormatter();
 
     Set<IChatPlayer> getRecipients();
+
+    void publish(CMTYPE chatMessage);
+
+    void sendToChat(CMTYPE chatMessage);
 
 }

@@ -1,9 +1,8 @@
 package com.ruinscraft.chat.core;
 
 import com.ruinscraft.chat.api.*;
-import com.ruinscraft.chat.api.messagebroker.IMessageBroker;
 import com.ruinscraft.chat.core.channel.DefaultChatChannel;
-import com.ruinscraft.chat.core.messagebroker.RedisJsonMessageBroker;
+import com.ruinscraft.chat.core.messagebroker.RedisMessageBroker;
 import com.ruinscraft.chat.core.player.OnlinePlayers;
 import com.ruinscraft.chat.core.storage.MySQLChatStorage;
 import com.ruinscraft.chat.core.tasks.PlayerHeartbeatTask;
@@ -130,7 +129,7 @@ public class Chat implements IChat {
             String host = config.messageBrokerRedisHost;
             int port = config.messageBrokerRedisPort;
 
-            messageBroker = new RedisJsonMessageBroker(host, port);
+            messageBroker = new RedisMessageBroker(host, port);
         } else {
             throw new Exception("Could not set up message broker. No valid message broker type defined.");
         }

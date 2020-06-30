@@ -1,7 +1,5 @@
 package com.ruinscraft.chat.api;
 
-import com.ruinscraft.chat.api.messagebroker.IMessageBroker;
-
 import java.util.Map;
 import java.util.UUID;
 

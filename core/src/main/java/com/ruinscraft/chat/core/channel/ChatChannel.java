@@ -1,11 +1,6 @@
 package com.ruinscraft.chat.core.channel;
 
-import com.ruinscraft.chat.api.IChat;
-import com.ruinscraft.chat.api.IChatChannel;
-import com.ruinscraft.chat.api.IChatMessage;
-import com.ruinscraft.chat.api.messagebroker.IMessage;
-import com.ruinscraft.chat.api.messagebroker.IMessageBroker;
-import com.ruinscraft.chat.core.messagebroker.JsonMessage;
+import com.ruinscraft.chat.api.*;
 
 public abstract class ChatChannel<CMTYPE extends IChatMessage> implements IChatChannel<CMTYPE> {
 
@@ -50,11 +45,33 @@ public abstract class ChatChannel<CMTYPE extends IChatMessage> implements IChatC
         return filtered;
     }
 
-    public void send(CMTYPE chatMessage) {
+    public void publish(CMTYPE chatMessage) {
         IMessageBroker messageBroker = chat.getMessageBroker();
-        IMessage message = JsonMessage.createFromChatMessage(chatMessage); // TODO: this is dumb
+        messageBroker.pushChatMessage(chatMessage, this);
+    }
 
-        messageBroker.publish(message);
+    @Override
+    public void sendToChat(CMTYPE chatMessage) {
+        for (IChatPlayer recipient : getRecipients()) {
+            recipient.getServerPlayer().ifPresent(serverPlayer -> {
+                // player has muted the channel
+                if (recipient.isMuted(this)) {
+                    return;
+                }
+
+                // message sender is blocked by player
+                if (recipient.isBlocked(chatMessage.getSender())) {
+                    return;
+                }
+
+                // no permission to view channel messages
+                if (!serverPlayer.hasPermission(getPermission())) {
+                    return;
+                }
+
+                serverPlayer.sendMessage(chatMessage, getFormatter());
+            });
+        }
     }
 
 }

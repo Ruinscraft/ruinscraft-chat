@@ -14,7 +14,7 @@ public class DefaultChatChannel extends ChatChannel {
     private IMessageFormatter formatter;
 
     public DefaultChatChannel(ChatPlatform platform) {
-        super("default");
+        super("default", platform.getChat());
         this.platform = platform;
         formatter = new DefaultMessageFormatter();
     }
