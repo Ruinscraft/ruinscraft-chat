@@ -1,4 +1,0 @@
-#!/bin/sh
-docker build -t ruinscraft_chat_server .
-cd compose
-docker-compose up
