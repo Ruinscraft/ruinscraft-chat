@@ -28,6 +28,8 @@ public class RedisMessageManager implements MessageManager {
         int port = redisConfig.getInt("port");
 
         JedisPoolConfig config = new JedisPoolConfig();
+        config.setMaxTotal(64);
+        config.setMaxIdle(32);
 
         pool = new JedisPool(config, address, port == 0 ? Protocol.DEFAULT_PORT : port);
         subscriber = pool.getResource();

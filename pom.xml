@@ -67,10 +67,11 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.intellectualsites.plotsquared</groupId>
-            <artifactId>PlotSquared-API</artifactId>
-            <version>latest</version>
-            <scope>provided</scope>
+            <groupId>PlotSquared</groupId>
+            <artifactId>PlotSquared</artifactId>
+            <version>unknown</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/libs/PlotSquared.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>mcMMO</groupId>
