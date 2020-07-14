@@ -14,6 +14,7 @@ player-storage:
 
 channels:
   disable: false
+  enable-global: true
   local:
     type: default
   private-message:

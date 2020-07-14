@@ -2,6 +2,7 @@ package com.ruinscraft.chat.players;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
+import com.ruinscraft.chat.channel.types.GlobalChatChannel;
 import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.message.GenericChatMessage;
 
@@ -53,6 +54,10 @@ public class ChatPlayer {
     }
 
     public ChatChannel<GenericChatMessage> getFocused() {
+        if (focused instanceof GlobalChatChannel && !ChatPlugin.getInstance().getConfig().getBoolean("channels.enable-global")) {
+            return ChatPlugin.getInstance().getChatChannelManager().getDefaultChatChannel();
+        }
+
         return focused == null ? focused = ChatPlugin.getInstance().getChatChannelManager().getDefaultChatChannel() : focused;
     }
 

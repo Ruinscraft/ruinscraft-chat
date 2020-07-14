@@ -39,6 +39,12 @@ public interface MessageConsumer {
                 if (ChatPlugin.getInstance().getConfig().getBoolean("channels.disable") && intendedChannel instanceof GlobalChatChannel) {
                     return;
                 }
+
+                // if global disabled and channel is global
+                if (!ChatPlugin.getInstance().getConfig().getBoolean("channels.enable-global") && intendedChannel instanceof GlobalChatChannel) {
+                    return;
+                }
+
                 intendedChannel.sendToChat(genericChatMessage);
             }
         }

@@ -40,7 +40,6 @@ public class RedisMessageManager implements MessageManager {
         Tasks.async(() -> {
             while (true) {
                 subscriber.subscribe(consumer, REDIS_CHAT_CHANNEL);
-                ChatPlugin.info("RedisMessageManager subscriber lost connection or was closed.");
             }
         });
     }

@@ -19,8 +19,9 @@ public class ChatChannelManager {
         channels = new HashSet<>();
 
         if (!ChatPlugin.getInstance().getConfig().getBoolean("channels.disable")) {
-            // add global channel
-            channels.add(new GlobalChatChannel());
+            if (ChatPlugin.getInstance().getConfig().getBoolean("channels.enable-global")) {
+                channels.add(new GlobalChatChannel());
+            }
 
             // add local channel
             switch (channelSection.getString("local.type")) {
@@ -29,6 +30,11 @@ public class ChatChannelManager {
                     break;
                 case "plot": // requires PlotSquared
                     channels.add(new PlotLocalChatChannel());
+                    break;
+                case "hub":
+                    channels.add(new HubLocalChatChannel());
+                    break;
+                case "none":
                     break;
             }
         }
@@ -56,7 +62,17 @@ public class ChatChannelManager {
     }
 
     public ChatChannel<GenericChatMessage> getDefaultChatChannel() {
-        return getByName("global");
+        if (ChatPlugin.getInstance().getConfig().getBoolean("channels.enable-global")) {
+            if (getByName("global") != null) {
+                return getByName("global");
+            }
+        }
+
+        if (getByName("local") != null) {
+            return getByName("local");
+        }
+
+        return null;
     }
 
     public Set<ChatChannel<?>> getChatChannels() {
