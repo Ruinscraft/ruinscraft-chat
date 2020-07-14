@@ -82,7 +82,9 @@ public abstract class ChatChannel<T extends ChatMessage> {
                 ChatFilterManager chatFilterManager = ChatPlugin.getInstance().getChatFilterManager();
 
                 for (ChatFilter filter : chatFilterManager.getChatFilters()) {
-                    chatMessage.setPayload(filter.filter(chatMessage.getPayload()));
+                    String uncolorized = ChatColor.stripColor(chatMessage.getPayload());
+
+                    chatMessage.setPayload(filter.filter(uncolorized));
                 }
 
                 return null;

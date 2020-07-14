@@ -5,6 +5,7 @@ import com.ruinscraft.chat.Constants;
 import com.ruinscraft.chat.filters.ChatFilter;
 import com.ruinscraft.chat.filters.NotSendableException;
 import com.ruinscraft.chat.players.ChatPlayer;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -58,7 +59,8 @@ public class NicknameCommand implements CommandExecutor {
 
             for (ChatFilter chatFilter : ChatPlugin.getInstance().getChatFilterManager().getChatFilters()) {
                 try {
-                    desiredNickname = chatFilter.filter(desiredNickname);
+                    String uncoloried = ChatColor.stripColor(desiredNickname);
+                    desiredNickname = chatFilter.filter(uncoloried);
                 } catch (NotSendableException e) {
                     player.sendMessage(Constants.COLOR_ERROR + e.getMessage());
                     return;

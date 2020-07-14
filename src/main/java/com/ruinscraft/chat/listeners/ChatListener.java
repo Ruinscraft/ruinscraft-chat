@@ -41,7 +41,8 @@ public class ChatListener implements Listener {
             final ChatFilterManager chatFilterManager = ChatPlugin.getInstance().getChatFilterManager();
             for (final ChatFilter filter : chatFilterManager.getChatFilters()) {
                 try {
-                    event.setMessage(filter.filter(event.getMessage()));
+                    String uncolorized = ChatColor.stripColor(event.getMessage());
+                    event.setMessage(filter.filter(uncolorized));
                 } catch (NotSendableException e) {
                     player.sendMessage(ChatColor.RED + e.getMessage());
                     event.setCancelled(true);
