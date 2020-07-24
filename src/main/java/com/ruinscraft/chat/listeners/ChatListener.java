@@ -30,6 +30,11 @@ public class ChatListener implements Listener {
             return;
         }
 
+        if (!event.isAsynchronous()) {
+            System.out.println("Chat event was not async (ruinscraft-chat)");
+            return;
+        }
+
         Player player = event.getPlayer();
         String payload = event.getMessage();
 
