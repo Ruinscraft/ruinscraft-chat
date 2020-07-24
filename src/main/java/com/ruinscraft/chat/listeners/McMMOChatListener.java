@@ -14,6 +14,10 @@ public class McMMOChatListener implements Listener {
     public void onMcMMOChatEvent(McMMOChatEvent event) {
         Player player = Bukkit.getPlayer(event.getSender());
 
+        if (event == null || event.isCancelled()) {
+            return;
+        }
+
         AsyncPlayerChatEvent dummyEvent = new FullAsyncPlayerChatEvent(event.isAsynchronous(), player, event.getMessage());
 
         Bukkit.getServer().getPluginManager().callEvent(dummyEvent);
