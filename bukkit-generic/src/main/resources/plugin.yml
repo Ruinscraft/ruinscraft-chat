@@ -1,0 +1,13 @@
+main: ${mainClass}
+name: ${name}
+version: ${version}
+api-version: 1.13
+author: royalkingkb
+depend: [Vault]
+commands:
+  pm:
+    description: Private message someone
+    aliases: [dm, msg, m, t, tell, whisper, w, emsg, etell]
+  reply:
+    description: Reply to a private message
+    aliases: [ereply, r]

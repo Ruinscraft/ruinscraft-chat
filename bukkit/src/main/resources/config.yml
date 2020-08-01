@@ -1,0 +1,15 @@
+# This is used for generating the online players list and other things
+gamemode: default
+
+storage:
+  mysql:
+    host: localhost
+    port: 3306
+    database: chat
+    username: root
+    password: password
+
+messaging:
+  redis:
+    host: localhost
+    port: 6379
