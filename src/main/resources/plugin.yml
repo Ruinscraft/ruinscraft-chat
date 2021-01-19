@@ -1,28 +1,10 @@
+main: ${mainClass}
 name: ${name}
 version: ${version}
-main: ${mainClass}
-
-api-version: 1.13
-
-depend: [ruinscraft-player-status, Vault]
-softdepend: [Towny, mcMMO, PlotSquared]
-
+api-version: 1.16
+author: royalkingkb
+depend: [ Vault ]
+softdepend: [ PlotSquared, Towny ]
 commands:
-  ignore:
-    description: Ignore or unignore a player
-  clearchat:
-    description: Clear the chat
-    permission: ruinscraft.command.clearchat
-  nickname:
-    description: Set your nickname (seen in local chat)
-    aliases: [rpname, nick]
-  nicknamereset:
-    description: Reset your nickname
-    aliases: [rpnamereset, nickreset]
-  chat:
-    description: Manage chat settings
-  chatspy:
-    description: Manage chat spy settings
-    permission: ruinscraft.command.chatspy
-  me:
-    description: Do something as yourself
+  list:
+  seen:

@@ -1,0 +1,248 @@
+package com.ruinscraft.chat.storage.impl;
+
+import com.ruinscraft.chat.ChatMessage;
+import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.channel.ChatChannel;
+import com.ruinscraft.chat.player.ChatPlayer;
+import com.ruinscraft.chat.player.OnlineChatPlayer;
+import com.ruinscraft.chat.storage.ChatMessageQuery;
+import com.ruinscraft.chat.storage.ChatPlayerQuery;
+import com.ruinscraft.chat.storage.ChatStorage;
+import com.ruinscraft.chat.storage.OnlineChatPlayerQuery;
+
+import java.sql.*;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
+public abstract class SQLChatStorage extends ChatStorage {
+
+    private ChatPlugin chatPlugin;
+
+    public SQLChatStorage(ChatPlugin chatPlugin) {
+        this.chatPlugin = chatPlugin;
+    }
+
+    private final class Table {
+        public static final String CHAT_PLAYERS = "chat_players";
+        public static final String ONLINE_CHAT_PLAYERS = "online_chat_players";
+        public static final String CHAT_MESSAGES = "chat_messages";
+        public static final String CHAT_MAIL = "chat_mail";
+        public static final String CHAT_FRIENDS = "chat_friends";
+    }
+
+    protected void createTables() {
+        try (Connection connection = createConnection()) {
+            try (Statement statement = connection.createStatement()) {
+                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.CHAT_PLAYERS + " (id VARCHAR(36), username VARCHAR(16), first_seen BIGINT, last_seen BIGINT, focused VARCHAR(16), PRIMARY KEY (id));");
+                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.ONLINE_CHAT_PLAYERS + " (id VARCHAR(36), updated_at BIGINT, server_name VARCHAR(32), group_name VARCHAR(32), vanished BOOL, PRIMARY KEY (id), FOREIGN KEY (id) REFERENCES " + Table.CHAT_PLAYERS + "(id));");
+                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.CHAT_MESSAGES + " (id VARCHAR(36), server_id VARCHAR(36), channel VARCHAR(16), time BIGINT, sender_id VARCHAR(36), content VARCHAR(255), PRIMARY KEY (id));");
+//                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.CHAT_MAIL + " ();");
+//                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.CHAT_FRIENDS + " ();");
+                statement.executeBatch();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public CompletableFuture<Void> saveChatPlayer(ChatPlayer chatPlayer) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement update = connection.prepareStatement(
+                        "INSERT INTO " + Table.CHAT_PLAYERS + " (id, username, first_seen, last_seen, focused) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE username = ?, last_seen = ?, focused = ?;")) {
+                    update.setString(1, chatPlayer.getMojangId().toString());
+                    update.setString(2, chatPlayer.getMinecraftUsername());
+                    update.setLong(3, chatPlayer.getFirstSeen());
+                    update.setLong(4, chatPlayer.getLastSeen());
+                    update.setString(5, chatPlayer.getFocused().getName());
+                    update.setString(6, chatPlayer.getMinecraftUsername());
+                    update.setLong(7, chatPlayer.getLastSeen());
+                    update.setString(8, chatPlayer.getFocused().getName());
+                    update.execute();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<ChatPlayerQuery> queryChatPlayer(UUID mojangId) {
+        return CompletableFuture.supplyAsync(() -> {
+            ChatPlayerQuery chatPlayerQuery = new ChatPlayerQuery();
+
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.CHAT_PLAYERS + " WHERE id = ?;")) {
+                    query.setString(1, mojangId.toString());
+
+                    try (ResultSet resultSet = query.executeQuery()) {
+                        while (resultSet.next()) {
+                            String username = resultSet.getString("username");
+                            long firstSeen = resultSet.getLong("first_seen");
+                            long lastSeen = resultSet.getLong("last_seen");
+                            String focusedName = resultSet.getString("focused");
+                            ChatChannel focused = chatPlugin.getChatChannelManager().getChannel(focusedName);
+                            ChatPlayer chatPlayer = new ChatPlayer(mojangId, username, firstSeen, lastSeen, focused);
+                            chatPlayerQuery.addResult(chatPlayer);
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            return chatPlayerQuery;
+        });
+    }
+
+    @Override
+    public CompletableFuture<ChatPlayerQuery> queryChatPlayer(String username) {
+        return CompletableFuture.supplyAsync(() -> {
+            ChatPlayerQuery chatPlayerQuery = new ChatPlayerQuery();
+
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.CHAT_PLAYERS + " WHERE username = ?;")) {
+                    query.setString(1, username);
+
+                    try (ResultSet resultSet = query.executeQuery()) {
+                        while (resultSet.next()) {
+                            UUID mojangId = UUID.fromString(resultSet.getString("id"));
+                            long firstSeen = resultSet.getLong("first_seen");
+                            long lastSeen = resultSet.getLong("last_seen");
+                            String focusedName = resultSet.getString("focused");
+                            ChatChannel focused = chatPlugin.getChatChannelManager().getChannel(focusedName);
+                            ChatPlayer chatPlayer = new ChatPlayer(mojangId, username, firstSeen, lastSeen, focused);
+                            chatPlayerQuery.addResult(chatPlayer);
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            return chatPlayerQuery;
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> saveChatMessage(ChatMessage chatMessage) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement insert = connection.prepareStatement(
+                        "INSERT INTO " + Table.CHAT_MESSAGES + " (id, server_id, channel, time, sender_id, content) VALUES (?, ?, ?, ?, ?, ?);")) {
+                    insert.setString(1, chatMessage.getId().toString());
+                    insert.setString(2, chatMessage.getOriginServerId().toString());
+                    insert.setString(3, chatMessage.getChannel().getName());
+                    insert.setLong(4, chatMessage.getTime());
+                    insert.setString(5, chatMessage.getSender().getMojangId().toString());
+                    insert.setString(6, chatMessage.getContent());
+                    insert.execute();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<ChatMessageQuery> queryChatMessage(UUID chatMessageId) {
+        return CompletableFuture.supplyAsync(() -> {
+            ChatMessageQuery chatMessageQuery = new ChatMessageQuery();
+
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.CHAT_MESSAGES + " WHERE id = ?;")) {
+                    query.setString(1, chatMessageId.toString());
+
+                    try (ResultSet resultSet = query.executeQuery()) {
+                        while (resultSet.next()) {
+                            UUID serverId = UUID.fromString(resultSet.getString("server_id"));
+                            String channelName = resultSet.getString("channel");
+                            ChatChannel channel = chatPlugin.getChatChannelManager().getChannel(channelName);
+                            long time = resultSet.getLong("time");
+                            UUID senderId = UUID.fromString(resultSet.getString("sender_id"));
+                            String content = resultSet.getString("content");
+                            ChatPlayer sender = chatPlugin.getChatPlayerManager().getOrLoad(senderId).join();
+                            ChatMessage chatMessage = new ChatMessage(chatMessageId, serverId, channel, time, sender, content);
+                            chatMessageQuery.addResult(chatMessage);
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            return chatMessageQuery;
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> saveOnlineChatPlayer(OnlineChatPlayer chatPlayer) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement upsert = connection.prepareStatement("INSERT INTO " + Table.ONLINE_CHAT_PLAYERS + " (id, updated_at, server_name, group_name, vanished) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE updated_at = ?, group_name = ?, vanished = ?;")) {
+                    upsert.setString(1, chatPlayer.getMojangId().toString());
+                    upsert.setLong(2, chatPlayer.getUpdatedAt());
+                    upsert.setString(3, chatPlayer.getServerName());
+                    upsert.setString(4, chatPlayer.getGroupName());
+                    upsert.setBoolean(5, chatPlayer.isVanished());
+                    upsert.setLong(6, chatPlayer.getUpdatedAt());
+                    upsert.setString(7, chatPlayer.getGroupName());
+                    upsert.setBoolean(8, chatPlayer.isVanished());
+                    upsert.execute();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<OnlineChatPlayerQuery> queryOnlineChatPlayers() {
+        return CompletableFuture.supplyAsync(() -> {
+            OnlineChatPlayerQuery onlineChatPlayerQuery = new OnlineChatPlayerQuery();
+
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.ONLINE_CHAT_PLAYERS + ";")) {
+                    try (ResultSet resultSet = query.executeQuery()) {
+                        while (resultSet.next()) {
+                            UUID mojangId = UUID.fromString(resultSet.getString("id"));
+                            long updated = resultSet.getLong("updated_at");
+                            String serverName = resultSet.getString("server_name");
+                            String groupName = resultSet.getString("group_name");
+                            boolean vanished = resultSet.getBoolean("vanished");
+                            ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().getOrLoad(mojangId).join();
+                            OnlineChatPlayer onlineChatPlayer = new OnlineChatPlayer(chatPlayer, updated, serverName, groupName, vanished);
+                            onlineChatPlayerQuery.addResult(onlineChatPlayer);
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            return onlineChatPlayerQuery;
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> deleteOfflineChatPlayers() {
+        // 30 seconds old
+        long thresholdTime = System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(10);
+
+        return CompletableFuture.runAsync(() -> {
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement delete = connection.prepareStatement("DELETE FROM " + Table.ONLINE_CHAT_PLAYERS + " WHERE updated_at < ?;")) {
+                    delete.setLong(1, thresholdTime);
+                    delete.execute();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public abstract Connection createConnection() throws SQLException;
+
+}

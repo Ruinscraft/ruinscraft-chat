@@ -1,40 +1,7 @@
-messaging:
-  redis:
-    use: true
-    address: localhost
-
-player-storage:
+storage:
   mysql:
-    use: true
-    address: localhost
+    host: localhost
     port: 3306
-    database: minecraft
+    database: chat
     username: root
     password: password
-
-channels:
-  disable: false
-  enable-global: true
-  local:
-    type: default
-  private-message:
-    storage:
-      redis:
-        use: true
-        address: localhost
-
-chat-filters:
-  profanity:
-    webpurify-key: abc123
-
-logging:
-  console:
-    use: true
-  mysql:
-    use: true
-    address: localhost
-    port: 3306
-    database: minecraft
-    username: root
-    password: password
-    
