@@ -6,6 +6,8 @@ import java.util.UUID;
 
 public class OnlineChatPlayer extends ChatPlayer {
 
+    public static final int SECONDS_UNTIL_OFFLINE = 5;
+
     private long updatedAt;
     private String serverName;
     private String groupName;

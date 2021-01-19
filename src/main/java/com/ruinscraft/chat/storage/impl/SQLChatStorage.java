@@ -2,13 +2,11 @@ package com.ruinscraft.chat.storage.impl;
 
 import com.ruinscraft.chat.ChatMessage;
 import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.MailMessage;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
-import com.ruinscraft.chat.storage.ChatMessageQuery;
-import com.ruinscraft.chat.storage.ChatPlayerQuery;
-import com.ruinscraft.chat.storage.ChatStorage;
-import com.ruinscraft.chat.storage.OnlineChatPlayerQuery;
+import com.ruinscraft.chat.storage.*;
 
 import java.sql.*;
 import java.util.UUID;
@@ -27,7 +25,7 @@ public abstract class SQLChatStorage extends ChatStorage {
         public static final String CHAT_PLAYERS = "chat_players";
         public static final String ONLINE_CHAT_PLAYERS = "online_chat_players";
         public static final String CHAT_MESSAGES = "chat_messages";
-        public static final String CHAT_MAIL = "chat_mail";
+        public static final String MAIL_MESSAGES = "mail_messages";
         public static final String CHAT_FRIENDS = "chat_friends";
     }
 
@@ -37,7 +35,7 @@ public abstract class SQLChatStorage extends ChatStorage {
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.CHAT_PLAYERS + " (id VARCHAR(36), username VARCHAR(16), first_seen BIGINT, last_seen BIGINT, focused VARCHAR(16), PRIMARY KEY (id));");
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.ONLINE_CHAT_PLAYERS + " (id VARCHAR(36), updated_at BIGINT, server_name VARCHAR(32), group_name VARCHAR(32), vanished BOOL, PRIMARY KEY (id), FOREIGN KEY (id) REFERENCES " + Table.CHAT_PLAYERS + "(id));");
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.CHAT_MESSAGES + " (id VARCHAR(36), server_id VARCHAR(36), channel VARCHAR(16), time BIGINT, sender_id VARCHAR(36), content VARCHAR(255), PRIMARY KEY (id));");
-//                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.CHAT_MAIL + " ();");
+                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.MAIL_MESSAGES + " (id VARCHAR(36), sender_id VARCHAR(36), recipient_id VARCHAR(36), time BIGINT, read BOOL, content VARCHAR(255), PRIMARY KEY (id), FOREIGN KEY (sender_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), FOREIGN KEY (recipient_id) REFERENCES " + Table.CHAT_PLAYERS + "(id));");
 //                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.CHAT_FRIENDS + " ();");
                 statement.executeBatch();
             }
@@ -228,8 +226,7 @@ public abstract class SQLChatStorage extends ChatStorage {
 
     @Override
     public CompletableFuture<Void> deleteOfflineChatPlayers() {
-        // 30 seconds old
-        long thresholdTime = System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(10);
+        long thresholdTime = System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(OnlineChatPlayer.SECONDS_UNTIL_OFFLINE);
 
         return CompletableFuture.runAsync(() -> {
             try (Connection connection = createConnection()) {
@@ -240,6 +237,42 @@ public abstract class SQLChatStorage extends ChatStorage {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> saveMailMessage(MailMessage mailMessage) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement insert = connection.prepareStatement("INSERT INTO " + Table.MAIL_MESSAGES + " (id, sender_id, recipient_id, time, read, content) VALUES (?, ?, ?, ?, ?, ?);")) {
+                    insert.setString(1, mailMessage.getId().toString());
+                    insert.setString(2, mailMessage.getSenderId().toString());
+                    insert.setString(3, mailMessage.getRecipientId().toString());
+                    insert.setLong(4, mailMessage.getTime());
+                    insert.setBoolean(5, mailMessage.isRead());
+                    insert.setString(6, mailMessage.getContent());
+                    insert.execute();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<MailMessageQuery> queryMailMessages(UUID recipient) {
+        return CompletableFuture.supplyAsync(() -> {
+            MailMessageQuery mailMessageQuery = new MailMessageQuery();
+
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement query = connection.prepareStatement("")) {
+                    
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            return mailMessageQuery;
         });
     }
 

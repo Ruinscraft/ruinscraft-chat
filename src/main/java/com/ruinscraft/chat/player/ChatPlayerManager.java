@@ -59,13 +59,23 @@ public class ChatPlayerManager {
         return get(player.getUniqueId());
     }
 
+    public ChatPlayer get(String username) {
+        for (ChatPlayer chatPlayer : cache.values()) {
+            if (chatPlayer.getMinecraftUsername().equalsIgnoreCase(username)) {
+                return chatPlayer;
+            }
+        }
+        return null;
+    }
+
     public void put(UUID mojangId, ChatPlayer chatPlayer) {
         cache.put(mojangId, chatPlayer);
     }
 
     public void purgeOfflinePlayers() {
         for (OnlineChatPlayer onlineChatPlayer : getOnlineChatPlayers()) {
-            long thresholdTime = System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(10);
+            long thresholdTime = System.currentTimeMillis()
+                    - TimeUnit.SECONDS.toMillis(OnlineChatPlayer.SECONDS_UNTIL_OFFLINE);
 
             if (onlineChatPlayer.getUpdatedAt() < thresholdTime) {
                 cache.remove(onlineChatPlayer.getMojangId());

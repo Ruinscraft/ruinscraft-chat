@@ -1,6 +1,7 @@
 package com.ruinscraft.chat.storage;
 
 import com.ruinscraft.chat.ChatMessage;
+import com.ruinscraft.chat.MailMessage;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
 
@@ -24,5 +25,9 @@ public abstract class ChatStorage {
     public abstract CompletableFuture<OnlineChatPlayerQuery> queryOnlineChatPlayers();
 
     public abstract CompletableFuture<Void> deleteOfflineChatPlayers();
+
+    public abstract CompletableFuture<Void> saveMailMessage(MailMessage mailMessage);
+
+    public abstract CompletableFuture<MailMessageQuery> queryMailMessages(UUID recipient);
 
 }
