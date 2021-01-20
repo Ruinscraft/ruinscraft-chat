@@ -55,8 +55,8 @@ public class ChatPlayerManager {
         return cache.get(mojangId);
     }
 
-    public ChatPlayer get(Player player) {
-        return get(player.getUniqueId());
+    public OnlineChatPlayer get(Player player) {
+        return (OnlineChatPlayer) get(player.getUniqueId());
     }
 
     public ChatPlayer get(String username) {

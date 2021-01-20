@@ -63,31 +63,23 @@ public class MailCommand implements CommandExecutor {
     }
 
     private void readMail(Player player) {
-        ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(player);
+        OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
-        if (chatPlayer instanceof OnlineChatPlayer) {
-            OnlineChatPlayer onlineChatPlayer = (OnlineChatPlayer) chatPlayer;
-
-            if (onlineChatPlayer.hasMail()) {
-                for (MailMessage mailMessage : onlineChatPlayer.getMailMessages()) {
-                    mailMessage.show(player);
-                }
-            } else {
-                player.sendMessage(ChatColor.GOLD + "You have no unread mail.");
+        if (onlineChatPlayer.hasMail()) {
+            for (MailMessage mailMessage : onlineChatPlayer.getMailMessages()) {
+                mailMessage.show(player);
             }
+        } else {
+            player.sendMessage(ChatColor.GOLD + "You have no unread mail.");
         }
     }
 
     private void clearMail(Player player) {
-        ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(player);
+        OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
-        if (chatPlayer instanceof OnlineChatPlayer) {
-            OnlineChatPlayer onlineChatPlayer = (OnlineChatPlayer) chatPlayer;
-
-            for (MailMessage mailMessage : onlineChatPlayer.getMailMessages()) {
-                mailMessage.setRead(true);
-                chatPlugin.getChatStorage().saveMailMessage(mailMessage);
-            }
+        for (MailMessage mailMessage : onlineChatPlayer.getMailMessages()) {
+            mailMessage.setRead(true);
+            chatPlugin.getChatStorage().saveMailMessage(mailMessage);
         }
 
         player.sendMessage(ChatColor.GOLD + "Cleared mail.");

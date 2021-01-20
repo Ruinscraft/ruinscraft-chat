@@ -1,7 +1,6 @@
 package com.ruinscraft.chat.task;
 
 import com.ruinscraft.chat.ChatPlugin;
-import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -17,21 +16,17 @@ public class FetchMailTask implements Runnable {
     @Override
     public void run() {
         for (Player player : chatPlugin.getServer().getOnlinePlayers()) {
-            ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(player);
+            OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
-            if (chatPlayer instanceof OnlineChatPlayer) {
-                OnlineChatPlayer onlineChatPlayer = (OnlineChatPlayer) chatPlayer;
+            chatPlugin.getChatStorage().queryMailMessages(onlineChatPlayer).thenAccept(mailMessageQuery -> {
+                boolean newMailMessages = onlineChatPlayer.setMailMessages(mailMessageQuery.getResults());
 
-                chatPlugin.getChatStorage().queryMailMessages(onlineChatPlayer).thenAccept(mailMessageQuery -> {
-                    boolean newMailMessages = onlineChatPlayer.setMailMessages(mailMessageQuery.getResults());
-
-                    if (newMailMessages) {
-                        if (player.isOnline()) {
-                            player.sendMessage(ChatColor.GOLD + "You have unread mail! Type /mail to read it.");
-                        }
+                if (newMailMessages) {
+                    if (player.isOnline()) {
+                        player.sendMessage(ChatColor.GOLD + "You have unread mail! Type /mail to read it.");
                     }
-                });
-            }
+                }
+            });
         }
     }
 
