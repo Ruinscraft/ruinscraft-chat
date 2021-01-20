@@ -15,7 +15,7 @@ public class ChatPlayer {
     private ChatChannel focused;
     private Set<ChatChannel> mutedChannels;
     private Set<ChatPlayer> mutedPlayers;
-    private Set<FriendRequest> friends;
+    private List<FriendRequest> friends;
     private List<MailMessage> mail;
 
     public ChatPlayer(UUID mojangId, String minecraftUsername, long firstSeen, long lastSeen, ChatChannel focused) {
@@ -26,7 +26,7 @@ public class ChatPlayer {
         this.focused = focused;
         mutedChannels = new HashSet<>();
         mutedPlayers = new HashSet<>();
-        friends = new HashSet<>();
+        friends = new ArrayList<>();
         mail = new ArrayList<>();
     }
 
@@ -66,12 +66,18 @@ public class ChatPlayer {
         return mutedPlayers.contains(chatPlayer);
     }
 
-    public Set<FriendRequest> getFriends() {
+    public List<FriendRequest> getFriends() {
         return friends;
     }
 
-    public Set<FriendRequest> getAcceptedFriends() {
-        Set<FriendRequest> accepted = new HashSet<>();
+    public boolean setFriends(List<FriendRequest> friends) {
+        boolean newFriend = friends.size() > this.friends.size();
+        this.friends = friends;
+        return newFriend;
+    }
+
+    public List<FriendRequest> getAcceptedFriends() {
+        List<FriendRequest> accepted = new ArrayList<>();
 
         for (FriendRequest friendRequest : friends) {
             if (friendRequest.isAccepted()) {
@@ -80,6 +86,18 @@ public class ChatPlayer {
         }
 
         return accepted;
+    }
+
+    public List<FriendRequest> getUnacceptedFriends() {
+        List<FriendRequest> unaccepted = new ArrayList<>();
+
+        for (FriendRequest friendRequest : friends) {
+            if (!friendRequest.isAccepted()) {
+                unaccepted.add(friendRequest);
+            }
+        }
+
+        return unaccepted;
     }
 
     public boolean isFriend(ChatPlayer chatPlayer) {
@@ -111,18 +129,6 @@ public class ChatPlayer {
         boolean newMail = mail.size() > this.mail.size();
         this.mail = mail;
         return newMail;
-    }
-
-    public List<MailMessage> getUnreadMail() {
-        List<MailMessage> unread = new ArrayList<>();
-
-        for (MailMessage mailMessage : mail) {
-            if (!mailMessage.isRead()) {
-                unread.add(mailMessage);
-            }
-        }
-
-        return unread;
     }
 
     public void markMailRead() {

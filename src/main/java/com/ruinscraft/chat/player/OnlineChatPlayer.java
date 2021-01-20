@@ -23,6 +23,8 @@ public class OnlineChatPlayer extends ChatPlayer {
 
     public OnlineChatPlayer(ChatPlayer chatPlayer, long updatedAt, String serverName, String groupName, boolean vanished) {
         this(chatPlayer.getMojangId(), chatPlayer.getMinecraftUsername(), chatPlayer.getFirstSeen(), chatPlayer.getLastSeen(), chatPlayer.getFocused(), updatedAt, serverName, groupName, vanished);
+        setFriends(chatPlayer.getFriends());
+        setMail(chatPlayer.getMail());
     }
 
     public long getUpdatedAt() {

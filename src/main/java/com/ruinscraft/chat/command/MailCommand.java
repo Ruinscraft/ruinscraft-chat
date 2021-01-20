@@ -65,13 +65,12 @@ public class MailCommand implements CommandExecutor {
 
     private void readMail(Player player) {
         ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(player);
-        List<MailMessage> unread = chatPlayer.getUnreadMail();
 
-        if (unread.isEmpty()) {
+        if (chatPlayer.getMail().isEmpty()) {
             player.sendMessage(ChatColor.GOLD + "You have no unread mail.");
         } else {
             CompletableFuture.runAsync(() -> {
-                for (MailMessage mailMessage : unread) {
+                for (MailMessage mailMessage : chatPlayer.getMail()) {
                     mailMessage.show(chatPlugin, player).join();
                 }
             });

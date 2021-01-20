@@ -12,6 +12,7 @@ import com.ruinscraft.chat.listener.PlayerJoinListener;
 import com.ruinscraft.chat.player.ChatPlayerManager;
 import com.ruinscraft.chat.storage.ChatStorage;
 import com.ruinscraft.chat.storage.impl.MySQLChatStorage;
+import com.ruinscraft.chat.task.FetchFriendRequestTask;
 import com.ruinscraft.chat.task.FetchMailTask;
 import com.ruinscraft.chat.task.FetchServerNameTask;
 import com.ruinscraft.chat.task.UpdateOnlinePlayersTask;
@@ -65,6 +66,7 @@ public class ChatPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
         getServer().getScheduler().runTaskTimer(this, new UpdateOnlinePlayersTask(this), 20L, 20L);
         getServer().getScheduler().runTaskTimer(this, new FetchServerNameTask(this), 20L, 20L);
+        getServer().getScheduler().runTaskTimer(this, new FetchFriendRequestTask(this), 20L, 20L);
         getServer().getScheduler().runTaskTimer(this, new FetchMailTask(this), 20L, 20L);
 
         getCommand("list").setExecutor(new ListCommand(this));

@@ -68,17 +68,17 @@ public abstract class SQLChatStorage extends ChatStorage {
         });
     }
 
-    @Override
-    public CompletableFuture<ChatPlayerQuery> queryChatPlayer(UUID mojangId) {
+    private CompletableFuture<ChatPlayerQuery> queryChatPlayer(String conditional, String data) {
         return CompletableFuture.supplyAsync(() -> {
             ChatPlayerQuery chatPlayerQuery = new ChatPlayerQuery();
 
             try (Connection connection = createConnection()) {
-                try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.CHAT_PLAYERS + " WHERE id = ?;")) {
-                    query.setString(1, mojangId.toString());
+                try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.CHAT_PLAYERS + " WHERE " + conditional + " = ?;")) {
+                    query.setString(1, data);
 
                     try (ResultSet resultSet = query.executeQuery()) {
                         while (resultSet.next()) {
+                            UUID mojangId = UUID.fromString(resultSet.getString("id"));
                             String username = resultSet.getString("username");
                             long firstSeen = resultSet.getLong("first_seen");
                             long lastSeen = resultSet.getLong("last_seen");
@@ -98,32 +98,13 @@ public abstract class SQLChatStorage extends ChatStorage {
     }
 
     @Override
+    public CompletableFuture<ChatPlayerQuery> queryChatPlayer(UUID mojangId) {
+        return queryChatPlayer("id", mojangId.toString());
+    }
+
+    @Override
     public CompletableFuture<ChatPlayerQuery> queryChatPlayer(String username) {
-        return CompletableFuture.supplyAsync(() -> {
-            ChatPlayerQuery chatPlayerQuery = new ChatPlayerQuery();
-
-            try (Connection connection = createConnection()) {
-                try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.CHAT_PLAYERS + " WHERE username = ?;")) {
-                    query.setString(1, username);
-
-                    try (ResultSet resultSet = query.executeQuery()) {
-                        while (resultSet.next()) {
-                            UUID mojangId = UUID.fromString(resultSet.getString("id"));
-                            long firstSeen = resultSet.getLong("first_seen");
-                            long lastSeen = resultSet.getLong("last_seen");
-                            String focusedName = resultSet.getString("focused");
-                            ChatChannel focused = chatPlugin.getChatChannelManager().getChannel(focusedName);
-                            ChatPlayer chatPlayer = new ChatPlayer(mojangId, username, firstSeen, lastSeen, focused);
-                            chatPlayerQuery.addResult(chatPlayer);
-                        }
-                    }
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
-            return chatPlayerQuery;
-        });
+        return queryChatPlayer("username", username);
     }
 
     @Override
@@ -337,8 +318,9 @@ public abstract class SQLChatStorage extends ChatStorage {
             MailMessageQuery mailMessageQuery = new MailMessageQuery();
 
             try (Connection connection = createConnection()) {
-                try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.MAIL_MESSAGES + " WHERE recipient_id = ?;")) {
+                try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.MAIL_MESSAGES + " WHERE recipient_id = ? AND is_read = ?;")) {
                     query.setString(1, recipient.toString());
+                    query.setBoolean(2, false);
 
                     try (ResultSet resultSet = query.executeQuery()) {
                         while (resultSet.next()) {
