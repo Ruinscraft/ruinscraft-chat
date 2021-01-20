@@ -1,26 +1,24 @@
 package com.ruinscraft.chat.message;
 
-import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.player.ChatPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 public class MailMessage implements Message {
 
     private UUID id;
-    private UUID senderId;
-    private UUID recipientId;
+    private ChatPlayer sender;
+    private ChatPlayer recipient;
     private long time;
     private boolean read;
     private String content;
 
-    public MailMessage(UUID id, UUID senderId, UUID recipientId, long time, boolean read, String content) {
+    public MailMessage(UUID id, ChatPlayer sender, ChatPlayer recipient, long time, boolean read, String content) {
         this.id = id;
-        this.senderId = senderId;
-        this.recipientId = recipientId;
+        this.sender = sender;
+        this.recipient = recipient;
         this.time = time;
         this.read = read;
         this.content = content;
@@ -30,12 +28,12 @@ public class MailMessage implements Message {
         return id;
     }
 
-    public UUID getSenderId() {
-        return senderId;
+    public ChatPlayer getSender() {
+        return sender;
     }
 
-    public UUID getRecipientId() {
-        return recipientId;
+    public ChatPlayer getRecipient() {
+        return recipient;
     }
 
     public long getTime() {
@@ -54,20 +52,9 @@ public class MailMessage implements Message {
         return content;
     }
 
-    public CompletableFuture<Void> show(ChatPlugin chatPlugin, Player player) {
-        return chatPlugin.getChatStorage().queryChatPlayer(senderId).thenAccept(chatPlayerQuery -> {
-            if (chatPlayerQuery.hasResults()) {
-                ChatPlayer chatPlayerSender = chatPlayerQuery.getFirst();
-                String senderUsername = chatPlayerSender.getMinecraftUsername();
-
-                if (player.isOnline()) {
-                    player.sendMessage(ChatColor.GOLD + "========");
-                    player.sendMessage(ChatColor.GOLD + "Message from: " + senderUsername);
-                    player.sendMessage(content);
-                    player.sendMessage(ChatColor.GOLD + "========");
-                }
-            }
-        });
+    public void show(Player player) {
+        player.sendMessage(ChatColor.GOLD + "Message from: " + sender.getMinecraftUsername());
+        player.sendMessage(ChatColor.GRAY + content);
     }
 
 }

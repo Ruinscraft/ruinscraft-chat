@@ -3,6 +3,7 @@ package com.ruinscraft.chat.command;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.message.MailMessage;
 import com.ruinscraft.chat.player.ChatPlayer;
+import com.ruinscraft.chat.player.OnlineChatPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -10,9 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 public class MailCommand implements CommandExecutor {
 
@@ -66,33 +65,37 @@ public class MailCommand implements CommandExecutor {
     private void readMail(Player player) {
         ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
-        if (chatPlayer.getMail().isEmpty()) {
-            player.sendMessage(ChatColor.GOLD + "You have no unread mail.");
-        } else {
-            CompletableFuture.runAsync(() -> {
-                for (MailMessage mailMessage : chatPlayer.getMail()) {
-                    mailMessage.show(chatPlugin, player).join();
+        if (chatPlayer instanceof OnlineChatPlayer) {
+            OnlineChatPlayer onlineChatPlayer = (OnlineChatPlayer) chatPlayer;
+
+            if (onlineChatPlayer.hasMail()) {
+                for (MailMessage mailMessage : onlineChatPlayer.getMailMessages()) {
+                    mailMessage.show(player);
                 }
-            });
+            } else {
+                player.sendMessage(ChatColor.GOLD + "You have no unread mail.");
+            }
         }
     }
 
     private void clearMail(Player player) {
         ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(player);
-        chatPlayer.markMailRead();
 
-        CompletableFuture.runAsync(() -> {
-            for (MailMessage mailMessage : chatPlayer.getMail()) {
-                chatPlugin.getChatStorage().saveMailMessage(mailMessage).join();
-            }
+        if (chatPlayer instanceof OnlineChatPlayer) {
+            OnlineChatPlayer onlineChatPlayer = (OnlineChatPlayer) chatPlayer;
 
-            if (player.isOnline()) {
-                player.sendMessage(ChatColor.GOLD + "Mail has been cleared.");
+            for (MailMessage mailMessage : onlineChatPlayer.getMailMessages()) {
+                mailMessage.setRead(true);
+                chatPlugin.getChatStorage().saveMailMessage(mailMessage);
             }
-        });
+        }
+
+        player.sendMessage(ChatColor.GOLD + "Cleared mail.");
     }
 
     public void sendMail(Player player, String target, String message) {
+        ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(player);
+
         chatPlugin.getChatStorage().queryChatPlayer(target).thenAccept(chatPlayerQuery -> {
             if (!chatPlayerQuery.hasResults()) {
                 if (player.isOnline()) {
@@ -100,7 +103,8 @@ public class MailCommand implements CommandExecutor {
                 }
             } else {
                 ChatPlayer chatPlayerTarget = chatPlayerQuery.getFirst();
-                MailMessage mailMessage = new MailMessage(UUID.randomUUID(), player.getUniqueId(), chatPlayerTarget.getMojangId(), System.currentTimeMillis(), false, message);
+                MailMessage mailMessage = new MailMessage(UUID.randomUUID(), chatPlayer, chatPlayerTarget, System.currentTimeMillis(), false, message);
+
                 chatPlugin.getChatStorage().saveMailMessage(mailMessage).thenRun(() -> {
                     if (player.isOnline()) {
                         player.sendMessage(ChatColor.GOLD + "Mail sent!");

@@ -1,9 +1,9 @@
 package com.ruinscraft.chat.storage;
 
-import com.ruinscraft.chat.friend.FriendRequest;
 import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.message.MailMessage;
 import com.ruinscraft.chat.player.ChatPlayer;
+import com.ruinscraft.chat.player.FriendRequest;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
 import com.ruinscraft.chat.storage.query.*;
 
@@ -30,12 +30,12 @@ public abstract class ChatStorage {
 
     public abstract CompletableFuture<Void> deleteFriendRequest(FriendRequest friendRequest);
 
-    public abstract CompletableFuture<FriendRequestQuery> queryFriendRequests(UUID mojangId);
+    public abstract CompletableFuture<FriendRequestQuery> queryFriendRequests(OnlineChatPlayer onlineChatPlayer);
 
     public abstract CompletableFuture<Void> deleteOfflineChatPlayers();
 
     public abstract CompletableFuture<Void> saveMailMessage(MailMessage mailMessage);
 
-    public abstract CompletableFuture<MailMessageQuery> queryMailMessages(UUID mojangId);
+    public abstract CompletableFuture<MailMessageQuery> queryMailMessages(OnlineChatPlayer onlineChatPlayer);
 
 }

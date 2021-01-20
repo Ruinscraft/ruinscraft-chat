@@ -20,6 +20,8 @@ public class FriendsCompleter implements TabCompleter {
     public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] strings) {
         List<String> friendNames = new ArrayList<>();
 
+        // TODO:
+
         return friendNames;
     }
 

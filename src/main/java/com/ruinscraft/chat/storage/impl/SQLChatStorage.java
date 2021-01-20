@@ -2,7 +2,7 @@ package com.ruinscraft.chat.storage.impl;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
-import com.ruinscraft.chat.friend.FriendRequest;
+import com.ruinscraft.chat.player.FriendRequest;
 import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.message.MailMessage;
 import com.ruinscraft.chat.player.ChatPlayer;
@@ -219,8 +219,8 @@ public abstract class SQLChatStorage extends ChatStorage {
         return CompletableFuture.runAsync(() -> {
             try (Connection connection = createConnection()) {
                 try (PreparedStatement upsert = connection.prepareStatement("INSERT INTO " + Table.FRIEND_REQUESTS + " (requester_id, target_id, time, accepted) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE accepted = ?;")) {
-                    upsert.setString(1, friendRequest.getRequester().toString());
-                    upsert.setString(2, friendRequest.getTarget().toString());
+                    upsert.setString(1, friendRequest.getRequester().getMojangId().toString());
+                    upsert.setString(2, friendRequest.getTarget().getMojangId().toString());
                     upsert.setLong(3, friendRequest.getTime());
                     upsert.setBoolean(4, friendRequest.isAccepted());
                     upsert.setBoolean(5, friendRequest.isAccepted());
@@ -248,14 +248,14 @@ public abstract class SQLChatStorage extends ChatStorage {
     }
 
     @Override
-    public CompletableFuture<FriendRequestQuery> queryFriendRequests(UUID mojangId) {
+    public CompletableFuture<FriendRequestQuery> queryFriendRequests(OnlineChatPlayer onlineChatPlayer) {
         return CompletableFuture.supplyAsync(() -> {
             FriendRequestQuery friendRequestQuery = new FriendRequestQuery();
 
             try (Connection connection = createConnection()) {
                 try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.FRIEND_REQUESTS + " WHERE requester_id = ? OR target_id = ?;")) {
-                    query.setString(1, mojangId.toString());
-                    query.setString(2, mojangId.toString());
+                    query.setString(1, onlineChatPlayer.getMojangId().toString());
+                    query.setString(2, onlineChatPlayer.getMojangId().toString());
 
                     try (ResultSet resultSet = query.executeQuery()) {
                         while (resultSet.next()) {
@@ -263,7 +263,9 @@ public abstract class SQLChatStorage extends ChatStorage {
                             UUID targetId = UUID.fromString(resultSet.getString("target_id"));
                             long time = resultSet.getLong("time");
                             boolean accepted = resultSet.getBoolean("accepted");
-                            FriendRequest friendRequest = new FriendRequest(requesterId, targetId, time, accepted);
+                            ChatPlayer requester = chatPlugin.getChatPlayerManager().getOrLoad(requesterId).join();
+                            ChatPlayer target = chatPlugin.getChatPlayerManager().getOrLoad(targetId).join();
+                            FriendRequest friendRequest = new FriendRequest(requester, target, time, accepted);
                             friendRequestQuery.addResult(friendRequest);
                         }
                     }
@@ -298,8 +300,8 @@ public abstract class SQLChatStorage extends ChatStorage {
             try (Connection connection = createConnection()) {
                 try (PreparedStatement insert = connection.prepareStatement("INSERT INTO " + Table.MAIL_MESSAGES + " (id, sender_id, recipient_id, time, is_read, content) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE is_read = ?;")) {
                     insert.setString(1, mailMessage.getId().toString());
-                    insert.setString(2, mailMessage.getSenderId().toString());
-                    insert.setString(3, mailMessage.getRecipientId().toString());
+                    insert.setString(2, mailMessage.getSender().getMojangId().toString());
+                    insert.setString(3, mailMessage.getRecipient().getMojangId().toString());
                     insert.setLong(4, mailMessage.getTime());
                     insert.setBoolean(5, mailMessage.isRead());
                     insert.setString(6, mailMessage.getContent());
@@ -313,24 +315,24 @@ public abstract class SQLChatStorage extends ChatStorage {
     }
 
     @Override
-    public CompletableFuture<MailMessageQuery> queryMailMessages(UUID recipient) {
+    public CompletableFuture<MailMessageQuery> queryMailMessages(OnlineChatPlayer onlineChatPlayer) {
         return CompletableFuture.supplyAsync(() -> {
             MailMessageQuery mailMessageQuery = new MailMessageQuery();
 
             try (Connection connection = createConnection()) {
                 try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.MAIL_MESSAGES + " WHERE recipient_id = ? AND is_read = ?;")) {
-                    query.setString(1, recipient.toString());
+                    query.setString(1, onlineChatPlayer.getMojangId().toString());
                     query.setBoolean(2, false);
 
                     try (ResultSet resultSet = query.executeQuery()) {
                         while (resultSet.next()) {
                             UUID id = UUID.fromString(resultSet.getString("id"));
                             UUID senderId = UUID.fromString(resultSet.getString("sender_id"));
-                            UUID recipientId = UUID.fromString(resultSet.getString("recipient_id"));
                             long time = resultSet.getLong("time");
                             boolean read = resultSet.getBoolean("is_read");
                             String content = resultSet.getString("content");
-                            MailMessage mailMessage = new MailMessage(id, senderId, recipientId, time, read, content);
+                            ChatPlayer sender = chatPlugin.getChatPlayerManager().getOrLoad(senderId).join();
+                            MailMessage mailMessage = new MailMessage(id, sender, onlineChatPlayer, time, read, content);
                             mailMessageQuery.addResult(mailMessage);
                         }
                     }

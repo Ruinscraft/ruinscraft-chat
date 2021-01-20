@@ -1,19 +1,14 @@
 package com.ruinscraft.chat.command;
 
 import com.ruinscraft.chat.ChatPlugin;
-import com.ruinscraft.chat.friend.FriendRequest;
 import com.ruinscraft.chat.player.ChatPlayer;
-import com.ruinscraft.chat.storage.query.ChatPlayerQuery;
+import com.ruinscraft.chat.player.FriendRequest;
+import com.ruinscraft.chat.player.OnlineChatPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 public class FriendCommand implements CommandExecutor {
 
@@ -66,94 +61,61 @@ public class FriendCommand implements CommandExecutor {
         player.sendMessage(ChatColor.RED + "/" + label + " <list, add, remove, accept, deny> [username]");
     }
 
-    private CompletableFuture<Void> listFriends(Player player) {
+    private void listFriends(Player player) {
         ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
-        return CompletableFuture.runAsync(() -> {
-            List<ChatPlayer> friends = new ArrayList<>();
+        if (chatPlayer instanceof OnlineChatPlayer) {
+            OnlineChatPlayer onlineChatPlayer = (OnlineChatPlayer) chatPlayer;
 
-            for (FriendRequest friendRequest : chatPlayer.getAcceptedFriends()) {
-                friends.add(friendRequest.getFriend(chatPlugin, player.getUniqueId()).join());
-            }
+            boolean empty = true;
 
-            if (friends.isEmpty()) {
-                if (player.isOnline()) {
-                    player.sendMessage(ChatColor.GOLD + "You have no friends added.");
-                }
-                return;
-            }
-
-            for (ChatPlayer friend : friends) {
-                if (player.isOnline()) {
-                    player.sendMessage(friend.getMinecraftUsername() + " is your friend");
+            for (FriendRequest friendRequest : onlineChatPlayer.getFriendRequests()) {
+                if (friendRequest.isAccepted()) {
+                    empty = false;
+                    player.sendMessage(ChatColor.GOLD + friendRequest.getOther(chatPlayer).getMinecraftUsername());
                 }
             }
-        });
+
+            if (empty) {
+                player.sendMessage(ChatColor.GOLD + "You have no friends added.");
+            }
+        }
     }
 
-    private CompletableFuture<Void> addFriend(Player player, String target) {
+    private void addFriend(Player player, String target) {
         ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
-        return CompletableFuture.runAsync(() -> {
-            ChatPlayerQuery chatPlayerQuery = chatPlugin.getChatStorage().queryChatPlayer(target).join();
+        if (chatPlayer instanceof OnlineChatPlayer) {
+            OnlineChatPlayer onlineChatPlayer = (OnlineChatPlayer) chatPlayer;
 
-            if (!chatPlayerQuery.hasResults()) {
-                if (player.isOnline()) {
-                    player.sendMessage(ChatColor.RED + target + " has never joined before.");
-                }
-            } else {
-                ChatPlayer targetChatPlayer = chatPlayerQuery.getFirst();
+            chatPlugin.getChatStorage().queryChatPlayer(target).thenAccept(chatPlayerQuery -> {
+                if (chatPlayerQuery.hasResults()) {
+                    ChatPlayer targetChatPlayer = chatPlayerQuery.getFirst();
 
-                if (chatPlayer.isFriend(targetChatPlayer)) {
-                    if (player.isOnline()) {
-                        player.sendMessage(ChatColor.RED + targetChatPlayer.getMinecraftUsername() + " is already your friend.");
+                    if (onlineChatPlayer.isFriend(targetChatPlayer)) {
+                        if (player.isOnline()) {
+                            player.sendMessage(ChatColor.RED + targetChatPlayer.getMinecraftUsername() + " is already your friend.");
+                        }
+                    } else {
+                        FriendRequest friendRequest = new FriendRequest(onlineChatPlayer, targetChatPlayer, System.currentTimeMillis(), false);
+
+                        chatPlugin.getChatStorage().saveFriendRequest(friendRequest).thenRun(() -> {
+                            if (player.isOnline()) {
+                                player.sendMessage(ChatColor.GOLD + "Friend request sent to: " + targetChatPlayer.getMinecraftUsername());
+                            }
+                        });
                     }
-                    return;
-                }
-
-                UUID requesterId = player.getUniqueId();
-                UUID targetId = targetChatPlayer.getMojangId();
-                long time = System.currentTimeMillis();
-                boolean accepted = false;
-                FriendRequest friendRequest = new FriendRequest(requesterId, targetId, time, accepted);
-                chatPlugin.getChatStorage().saveFriendRequest(friendRequest).thenRun(() -> {
+                } else {
                     if (player.isOnline()) {
-                        player.sendMessage(ChatColor.GOLD + targetChatPlayer.getMinecraftUsername() + " has been sent a friend request.");
+                        player.sendMessage(ChatColor.RED + target + " has never joined before.");
                     }
-                });
-            }
-        });
+                }
+            });
+        }
     }
 
-    private CompletableFuture<Void> removeFriend(Player player, String target) {
-        ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(player);
+    public void removeFriend(Player player, String target) {
 
-        return CompletableFuture.runAsync(() -> {
-            ChatPlayerQuery chatPlayerQuery = chatPlugin.getChatStorage().queryChatPlayer(target).join();
-
-            if (!chatPlayerQuery.hasResults()) {
-                if (player.isOnline()) {
-                    player.sendMessage(ChatColor.RED + target + " has never joined before.");
-                }
-            } else {
-                ChatPlayer targetChatPlayer = chatPlayerQuery.getFirst();
-
-                if (!chatPlayer.isFriend(targetChatPlayer)) {
-                    if (player.isOnline()) {
-                        player.sendMessage(ChatColor.RED + targetChatPlayer.getMinecraftUsername() + " is not your friend.");
-                    }
-                    return;
-                }
-
-                FriendRequest friendRequest = chatPlayer.getFriendRequest(targetChatPlayer);
-
-                chatPlugin.getChatStorage().deleteFriendRequest(friendRequest).thenRun(() -> {
-                    if (player.isOnline()) {
-                        player.sendMessage(ChatColor.GOLD + targetChatPlayer.getMinecraftUsername() + " is no longer your friend.");
-                    }
-                });
-            }
-        });
     }
 
     private void acceptFriend(Player player, String target) {

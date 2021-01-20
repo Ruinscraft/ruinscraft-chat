@@ -1,8 +1,9 @@
 package com.ruinscraft.chat.task;
 
 import com.ruinscraft.chat.ChatPlugin;
-import com.ruinscraft.chat.friend.FriendRequest;
 import com.ruinscraft.chat.player.ChatPlayer;
+import com.ruinscraft.chat.player.FriendRequest;
+import com.ruinscraft.chat.player.OnlineChatPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -22,24 +23,27 @@ public class FetchFriendRequestTask implements Runnable {
         for (Player player : chatPlugin.getServer().getOnlinePlayers()) {
             ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
-            chatPlugin.getChatStorage().queryFriendRequests(player.getUniqueId()).thenAcceptAsync(friendRequestQuery -> {
-                boolean newFriend = chatPlayer.setFriends(friendRequestQuery.getResults());
+            if (chatPlayer instanceof OnlineChatPlayer) {
+                OnlineChatPlayer onlineChatPlayer = (OnlineChatPlayer) chatPlayer;
 
-                if (newFriend) {
-                    List<FriendRequest> unacceptedFriends = chatPlayer.getUnacceptedFriends();
-                    List<String> unacceptedUsernames = new ArrayList<>();
+                chatPlugin.getChatStorage().queryFriendRequests(onlineChatPlayer).thenAccept(friendRequestQuery -> {
+                    boolean newFriendRequests = onlineChatPlayer.setFriendRequests(friendRequestQuery.getResults());
 
-                    for (FriendRequest unacceptedFriend : unacceptedFriends) {
-                        ChatPlayer friendChatPlayer = unacceptedFriend.getFriend(chatPlugin, player.getUniqueId()).join();
-                        unacceptedUsernames.add(friendChatPlayer.getMinecraftUsername());
+                    if (newFriendRequests) {
+                        List<String> friendRequestUsernames = new ArrayList<>();
+
+                        for (FriendRequest friendRequest : onlineChatPlayer.getFriendRequests()) {
+                            friendRequestUsernames.add(friendRequest.getOther(chatPlayer).getMinecraftUsername());
+                        }
+
+                        if (player.isOnline()) {
+                            player.sendMessage(ChatColor.GOLD + "You have new friend requests from: "
+                                    + ChatColor.AQUA + String.join(", ", friendRequestUsernames));
+                            player.sendMessage(ChatColor.GOLD + "Use " + ChatColor.AQUA + "/friend <accept/deny> <username>");
+                        }
                     }
-
-                    if (player.isOnline()) {
-                        player.sendMessage(ChatColor.GOLD + "You have unaccepted friend requests from: " + String.join(", ", unacceptedUsernames));
-                        player.sendMessage(ChatColor.GOLD + "Use /friend <accept/deny> <username>");
-                    }
-                }
-            });
+                });
+            }
         }
     }
 

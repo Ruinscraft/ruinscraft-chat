@@ -75,13 +75,14 @@ public class ChatMessage implements Message {
         for (Player player : channel.getRecipients(this)) {
             ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
-            if (chatPlayer.isMuted(channel)) {
-                continue;
-            }
-
-            if (chatPlayer.isMuted(sender)) {
-                continue;
-            }
+            // TODO:
+//            if (chatPlayer.isMuted(channel)) {
+//                continue;
+//            }
+//
+//            if (chatPlayer.isMuted(sender)) {
+//                continue;
+//            }
 
             String message = channel.format(this);
 
