@@ -8,7 +8,9 @@ import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
 import org.bukkit.entity.Player;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class UpdateOnlinePlayersTask implements Runnable {
 
@@ -38,6 +40,17 @@ public class UpdateOnlinePlayersTask implements Runnable {
                 onlineChatPlayer.setVanished(vanished);
             } else {
                 onlineChatPlayer = new OnlineChatPlayer(chatPlayer, now, serverName, group, vanished);
+
+                chatPlugin.getChatPlayerManager().put(player.getUniqueId(), onlineChatPlayer);
+                chatPlugin.getChatStorage().queryBlocked(onlineChatPlayer).thenAccept(chatPlayerQuery -> {
+                    Set<ChatPlayer> blockedChatPlayers = new HashSet<>();
+
+                    for (ChatPlayer blockedChatPlayer : chatPlayerQuery.getResults()) {
+                        blockedChatPlayers.add(blockedChatPlayer);
+                    }
+
+                    onlineChatPlayer.setBlocked(blockedChatPlayers);
+                });
             }
 
             chatPlugin.getChatStorage().saveOnlineChatPlayer(onlineChatPlayer);
@@ -54,9 +67,9 @@ public class UpdateOnlinePlayersTask implements Runnable {
                         ChatPlayerLoginEvent event = new ChatPlayerLoginEvent(currentlyOnline);
                         chatPlugin.getServer().getPluginManager().callEvent(event);
                     });
-                }
 
-                chatPlugin.getChatPlayerManager().put(currentlyOnline.getMojangId(), currentlyOnline);
+                    chatPlugin.getChatPlayerManager().put(currentlyOnline.getMojangId(), currentlyOnline);
+                }
             }
         }).thenRun(() -> {
             // Delete players who have been offline for too long

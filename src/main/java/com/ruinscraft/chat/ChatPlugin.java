@@ -1,10 +1,8 @@
 package com.ruinscraft.chat;
 
 import com.ruinscraft.chat.channel.ChatChannelManager;
-import com.ruinscraft.chat.command.FriendCommand;
-import com.ruinscraft.chat.command.ListCommand;
-import com.ruinscraft.chat.command.MailCommand;
-import com.ruinscraft.chat.command.SeenCommand;
+import com.ruinscraft.chat.command.*;
+import com.ruinscraft.chat.command.completers.BlockedPlayersTabCompleter;
 import com.ruinscraft.chat.command.completers.ChatPlayersTabCompleter;
 import com.ruinscraft.chat.listener.ChatListener;
 import com.ruinscraft.chat.listener.ChatPlayerListener;
@@ -76,6 +74,9 @@ public class ChatPlugin extends JavaPlugin {
         getCommand("friend").setExecutor(new FriendCommand(this));
         getCommand("mail").setExecutor(new MailCommand(this));
         getCommand("mail").setTabCompleter(new ChatPlayersTabCompleter(this));
+        getCommand("block").setExecutor(new BlockCommand(this));
+        getCommand("unblock").setExecutor(new UnblockCommand(this));
+        getCommand("unblock").setTabCompleter(new BlockedPlayersTabCompleter(this));
 
         VaultUtil.init();
         NetworkUtil.register(this);

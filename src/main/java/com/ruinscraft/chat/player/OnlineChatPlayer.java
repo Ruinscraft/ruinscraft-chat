@@ -5,9 +5,7 @@ import com.ruinscraft.chat.message.MailMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class OnlineChatPlayer extends ChatPlayer {
 
@@ -19,6 +17,7 @@ public class OnlineChatPlayer extends ChatPlayer {
     private boolean vanished;
     private List<FriendRequest> friendRequests;
     private List<MailMessage> mailMessages;
+    private Set<ChatPlayer> blocked;
 
     public OnlineChatPlayer(UUID mojangId, String minecraftUsername, long firstSeen, long lastSeen, ChatChannel focused, long updatedAt, String serverName, String groupName, boolean vanished) {
         super(mojangId, minecraftUsername, firstSeen, lastSeen, focused);
@@ -28,6 +27,7 @@ public class OnlineChatPlayer extends ChatPlayer {
         this.vanished = vanished;
         friendRequests = new ArrayList<>();
         mailMessages = new ArrayList<>();
+        blocked = new HashSet<>();
     }
 
     public OnlineChatPlayer(ChatPlayer chatPlayer, long updatedAt, String serverName, String groupName, boolean vanished) {
@@ -96,16 +96,6 @@ public class OnlineChatPlayer extends ChatPlayer {
         }
     }
 
-    public boolean isFriendRequestPending(ChatPlayer chatPlayer) {
-        FriendRequest friendRequest = getFriendRequest(chatPlayer);
-
-        if (friendRequest != null && !friendRequest.isAccepted()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     public List<MailMessage> getMailMessages() {
         return mailMessages;
     }
@@ -118,6 +108,26 @@ public class OnlineChatPlayer extends ChatPlayer {
         boolean newMailMessages = this.mailMessages.size() < mailMessages.size();
         this.mailMessages = mailMessages;
         return newMailMessages;
+    }
+
+    public Set<ChatPlayer> getBlocked() {
+        return blocked;
+    }
+
+    public void setBlocked(Set<ChatPlayer> blocked) {
+        this.blocked = blocked;
+    }
+
+    public boolean isBlocked(ChatPlayer chatPlayer) {
+        return blocked.contains(chatPlayer);
+    }
+
+    public void addBlocked(ChatPlayer chatPlayer) {
+        blocked.add(chatPlayer);
+    }
+
+    public void removeBlocked(ChatPlayer chatPlayer) {
+        blocked.remove(chatPlayer);
     }
 
     public void sendMessage(String message) {

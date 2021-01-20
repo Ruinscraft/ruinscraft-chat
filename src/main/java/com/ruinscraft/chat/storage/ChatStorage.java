@@ -38,4 +38,10 @@ public abstract class ChatStorage {
 
     public abstract CompletableFuture<MailMessageQuery> queryMailMessages(OnlineChatPlayer onlineChatPlayer);
 
+    public abstract CompletableFuture<ChatPlayerQuery> queryBlocked(ChatPlayer chatPlayer);
+
+    public abstract CompletableFuture<Void> insertBlock(ChatPlayer blocker, ChatPlayer blocked);
+
+    public abstract CompletableFuture<Void> deleteBlock(ChatPlayer blocker, ChatPlayer blocked);
+
 }

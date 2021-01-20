@@ -111,19 +111,21 @@ public class FriendCommand implements CommandExecutor {
         chatPlugin.getChatStorage().queryChatPlayer(target).thenAccept(chatPlayerQuery -> {
             if (chatPlayerQuery.hasResults()) {
                 ChatPlayer targetChatPlayer = chatPlayerQuery.getFirst();
+                FriendRequest friendRequest = onlineChatPlayer.getFriendRequest(targetChatPlayer);
 
-                if (onlineChatPlayer.isFriendRequestPending(targetChatPlayer)) {
-                    FriendRequest friendRequest = onlineChatPlayer.getFriendRequest(targetChatPlayer);
-                    friendRequest.setAccepted(true);
-
-                    chatPlugin.getChatStorage().saveFriendRequest(friendRequest).thenRun(() -> {
-                        onlineChatPlayer.sendMessage(ChatColor.GOLD + "You are now friends with " + targetChatPlayer.getMinecraftUsername() + "!");
-                    });
+                if (friendRequest == null) {
+                    onlineChatPlayer.sendMessage(ChatColor.GOLD + "You do not have a friend request from " + targetChatPlayer.getMinecraftUsername());
                 } else {
-                    onlineChatPlayer.sendMessage(ChatColor.RED
-                            + "You do not have a pending friend request from " + targetChatPlayer.getMinecraftUsername());
-                }
+                    if (friendRequest.isAccepted()) {
+                        onlineChatPlayer.sendMessage(ChatColor.GOLD + friendRequest.getOther(onlineChatPlayer).getMinecraftUsername() + " is already your friend.");
+                    } else {
+                        friendRequest.setAccepted(true);
 
+                        chatPlugin.getChatStorage().saveFriendRequest(friendRequest).thenRun(() -> {
+                            onlineChatPlayer.sendMessage(ChatColor.GOLD + "You are now friends with " + targetChatPlayer.getMinecraftUsername() + "!");
+                        });
+                    }
+                }
             } else {
                 onlineChatPlayer.sendMessage(ChatColor.RED + target + " has never joined before.");
             }

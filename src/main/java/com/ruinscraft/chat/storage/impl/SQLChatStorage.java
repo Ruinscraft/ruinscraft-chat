@@ -2,10 +2,10 @@ package com.ruinscraft.chat.storage.impl;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
-import com.ruinscraft.chat.player.FriendRequest;
 import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.message.MailMessage;
 import com.ruinscraft.chat.player.ChatPlayer;
+import com.ruinscraft.chat.player.FriendRequest;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
 import com.ruinscraft.chat.storage.ChatStorage;
 import com.ruinscraft.chat.storage.query.*;
@@ -29,6 +29,7 @@ public abstract class SQLChatStorage extends ChatStorage {
         public static final String CHAT_MESSAGES = "chat_messages";
         public static final String FRIEND_REQUESTS = "friend_requests";
         public static final String MAIL_MESSAGES = "mail_messages";
+        public static final String BLOCKED_PLAYERS = "blocked_players";
     }
 
     protected void createTables() {
@@ -39,6 +40,7 @@ public abstract class SQLChatStorage extends ChatStorage {
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.CHAT_MESSAGES + " (id VARCHAR(36), server_id VARCHAR(36), channel VARCHAR(16), time BIGINT, sender_id VARCHAR(36), content VARCHAR(255), PRIMARY KEY (id));");
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.FRIEND_REQUESTS + " (requester_id VARCHAR(36), target_id VARCHAR(36), time BIGINT, accepted BOOL, FOREIGN KEY (requester_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), FOREIGN KEY (target_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), UNIQUE KEY friend (requester_id, target_id));");
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.MAIL_MESSAGES + " (id VARCHAR(36), sender_id VARCHAR(36), recipient_id VARCHAR(36), time BIGINT, is_read BOOL, content VARCHAR(255), PRIMARY KEY (id), FOREIGN KEY (sender_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), FOREIGN KEY (recipient_id) REFERENCES " + Table.CHAT_PLAYERS + "(id));");
+                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.BLOCKED_PLAYERS + "(blocker_id VARCHAR(36), blocked_id VARCHAR(36), FOREIGN KEY (blocker_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), FOREIGN KEY (blocked_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), UNIQUE KEY block (blocker_id, blocked_id));");
                 statement.executeBatch();
             }
         } catch (SQLException e) {
@@ -342,6 +344,61 @@ public abstract class SQLChatStorage extends ChatStorage {
             }
 
             return mailMessageQuery;
+        });
+    }
+
+    @Override
+    public CompletableFuture<ChatPlayerQuery> queryBlocked(ChatPlayer chatPlayer) {
+        return CompletableFuture.supplyAsync(() -> {
+            ChatPlayerQuery chatPlayerQuery = new ChatPlayerQuery();
+
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.BLOCKED_PLAYERS + " WHERE blocker_id = ?;")) {
+                    query.setString(1, chatPlayer.getMojangId().toString());
+
+                    try (ResultSet resultSet = query.executeQuery()) {
+                        while (resultSet.next()) {
+                            UUID blockedId = UUID.fromString(resultSet.getString("blocked_id"));
+                            ChatPlayer blockedChatPlayer = chatPlugin.getChatPlayerManager().getOrLoad(blockedId).join();
+                            chatPlayerQuery.addResult(blockedChatPlayer);
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            return chatPlayerQuery;
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> insertBlock(ChatPlayer blocker, ChatPlayer blocked) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement insert = connection.prepareStatement("INSERT INTO " + Table.BLOCKED_PLAYERS + " (blocker_id, blocked_id) VALUES (?, ?);")) {
+                    insert.setString(1, blocker.getMojangId().toString());
+                    insert.setString(2, blocked.getMojangId().toString());
+                    insert.execute();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> deleteBlock(ChatPlayer blocker, ChatPlayer blocked) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement delete = connection.prepareStatement("DELETE FROM " + Table.BLOCKED_PLAYERS + " WHERE blocked_id = ? AND blocker_id = ?;")) {
+                    delete.setString(1, blocker.getMojangId().toString());
+                    delete.setString(2, blocked.getMojangId().toString());
+                    delete.execute();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         });
     }
 
