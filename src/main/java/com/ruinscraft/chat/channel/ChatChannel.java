@@ -1,6 +1,6 @@
 package com.ruinscraft.chat.channel;
 
-import com.ruinscraft.chat.ChatMessage;
+import com.ruinscraft.chat.message.ChatMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

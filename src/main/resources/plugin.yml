@@ -8,3 +8,5 @@ softdepend: [ PlotSquared, Towny ]
 commands:
   list:
   seen:
+  friend:
+  mail:

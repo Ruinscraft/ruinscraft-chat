@@ -29,16 +29,32 @@ public class OnlineChatPlayer extends ChatPlayer {
         return updatedAt;
     }
 
+    public void setUpdatedAt(long updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public String getServerName() {
         return serverName;
+    }
+
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
     }
 
     public String getGroupName() {
         return groupName;
     }
 
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
+
     public boolean isVanished() {
         return vanished;
+    }
+
+    public void setVanished(boolean vanished) {
+        this.vanished = vanished;
     }
 
 }

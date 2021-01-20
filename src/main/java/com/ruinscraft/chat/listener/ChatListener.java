@@ -1,6 +1,6 @@
 package com.ruinscraft.chat.listener;
 
-import com.ruinscraft.chat.ChatMessage;
+import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.NetworkUtil;
 import org.bukkit.entity.Player;

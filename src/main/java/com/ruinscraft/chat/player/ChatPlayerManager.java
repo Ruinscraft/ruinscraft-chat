@@ -2,7 +2,7 @@ package com.ruinscraft.chat.player;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
-import com.ruinscraft.chat.storage.ChatPlayerQuery;
+import com.ruinscraft.chat.storage.query.ChatPlayerQuery;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;

@@ -1,12 +1,13 @@
-package com.ruinscraft.chat;
+package com.ruinscraft.chat.message;
 
+import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.player.ChatPlayer;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-public class ChatMessage {
+public class ChatMessage implements Message {
 
     private UUID id;
     private UUID originServerId;

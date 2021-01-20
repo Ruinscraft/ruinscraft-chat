@@ -1,4 +1,4 @@
-package com.ruinscraft.chat.storage;
+package com.ruinscraft.chat.storage.query;
 
 import com.ruinscraft.chat.player.ChatPlayer;
 

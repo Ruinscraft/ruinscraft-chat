@@ -1,12 +1,14 @@
 package com.ruinscraft.chat.storage.impl;
 
-import com.ruinscraft.chat.ChatMessage;
 import com.ruinscraft.chat.ChatPlugin;
-import com.ruinscraft.chat.MailMessage;
 import com.ruinscraft.chat.channel.ChatChannel;
+import com.ruinscraft.chat.friend.FriendRequest;
+import com.ruinscraft.chat.message.ChatMessage;
+import com.ruinscraft.chat.message.MailMessage;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
-import com.ruinscraft.chat.storage.*;
+import com.ruinscraft.chat.storage.ChatStorage;
+import com.ruinscraft.chat.storage.query.*;
 
 import java.sql.*;
 import java.util.UUID;
@@ -25,8 +27,8 @@ public abstract class SQLChatStorage extends ChatStorage {
         public static final String CHAT_PLAYERS = "chat_players";
         public static final String ONLINE_CHAT_PLAYERS = "online_chat_players";
         public static final String CHAT_MESSAGES = "chat_messages";
+        public static final String FRIEND_REQUESTS = "friend_requests";
         public static final String MAIL_MESSAGES = "mail_messages";
-        public static final String CHAT_FRIENDS = "chat_friends";
     }
 
     protected void createTables() {
@@ -35,8 +37,8 @@ public abstract class SQLChatStorage extends ChatStorage {
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.CHAT_PLAYERS + " (id VARCHAR(36), username VARCHAR(16), first_seen BIGINT, last_seen BIGINT, focused VARCHAR(16), PRIMARY KEY (id));");
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.ONLINE_CHAT_PLAYERS + " (id VARCHAR(36), updated_at BIGINT, server_name VARCHAR(32), group_name VARCHAR(32), vanished BOOL, PRIMARY KEY (id), FOREIGN KEY (id) REFERENCES " + Table.CHAT_PLAYERS + "(id));");
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.CHAT_MESSAGES + " (id VARCHAR(36), server_id VARCHAR(36), channel VARCHAR(16), time BIGINT, sender_id VARCHAR(36), content VARCHAR(255), PRIMARY KEY (id));");
-                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.MAIL_MESSAGES + " (id VARCHAR(36), sender_id VARCHAR(36), recipient_id VARCHAR(36), time BIGINT, read BOOL, content VARCHAR(255), PRIMARY KEY (id), FOREIGN KEY (sender_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), FOREIGN KEY (recipient_id) REFERENCES " + Table.CHAT_PLAYERS + "(id));");
-//                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.CHAT_FRIENDS + " ();");
+                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.FRIEND_REQUESTS + " (requester_id VARCHAR(36), target_id VARCHAR(36), time BIGINT, accepted BOOL, FOREIGN KEY (requester_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), FOREIGN KEY (target_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), UNIQUE KEY friend (requester_id, target_id));");
+                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.MAIL_MESSAGES + " (id VARCHAR(36), sender_id VARCHAR(36), recipient_id VARCHAR(36), time BIGINT, is_read BOOL, content VARCHAR(255), PRIMARY KEY (id), FOREIGN KEY (sender_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), FOREIGN KEY (recipient_id) REFERENCES " + Table.CHAT_PLAYERS + "(id));");
                 statement.executeBatch();
             }
         } catch (SQLException e) {
@@ -211,7 +213,14 @@ public abstract class SQLChatStorage extends ChatStorage {
                             String groupName = resultSet.getString("group_name");
                             boolean vanished = resultSet.getBoolean("vanished");
                             ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().getOrLoad(mojangId).join();
-                            OnlineChatPlayer onlineChatPlayer = new OnlineChatPlayer(chatPlayer, updated, serverName, groupName, vanished);
+                            final OnlineChatPlayer onlineChatPlayer;
+
+                            if (chatPlayer instanceof OnlineChatPlayer) {
+                                onlineChatPlayer = (OnlineChatPlayer) chatPlayer;
+                            } else {
+                                onlineChatPlayer = new OnlineChatPlayer(chatPlayer, updated, serverName, groupName, vanished);
+                            }
+
                             onlineChatPlayerQuery.addResult(onlineChatPlayer);
                         }
                     }
@@ -221,6 +230,68 @@ public abstract class SQLChatStorage extends ChatStorage {
             }
 
             return onlineChatPlayerQuery;
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> saveFriendRequest(FriendRequest friendRequest) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement upsert = connection.prepareStatement("INSERT INTO " + Table.FRIEND_REQUESTS + " (requester_id, target_id, time, accepted) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE accepted = ?;")) {
+                    upsert.setString(1, friendRequest.getRequester().toString());
+                    upsert.setString(2, friendRequest.getTarget().toString());
+                    upsert.setLong(3, friendRequest.getTime());
+                    upsert.setBoolean(4, friendRequest.isAccepted());
+                    upsert.setBoolean(5, friendRequest.isAccepted());
+                    upsert.execute();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> deleteFriendRequest(FriendRequest friendRequest) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement delete = connection.prepareStatement("DELETE FROM " + Table.FRIEND_REQUESTS + " WHERE requester_id = ? AND target_id = ?;")) {
+                    delete.setString(1, friendRequest.getRequester().toString());
+                    delete.setString(2, friendRequest.getTarget().toString());
+                    delete.execute();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<FriendRequestQuery> queryFriendRequests(UUID mojangId) {
+        return CompletableFuture.supplyAsync(() -> {
+            FriendRequestQuery friendRequestQuery = new FriendRequestQuery();
+
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.FRIEND_REQUESTS + " WHERE requester_id = ? OR target_id = ?;")) {
+                    query.setString(1, mojangId.toString());
+                    query.setString(2, mojangId.toString());
+
+                    try (ResultSet resultSet = query.executeQuery()) {
+                        while (resultSet.next()) {
+                            UUID requesterId = UUID.fromString(resultSet.getString("requester_id"));
+                            UUID targetId = UUID.fromString(resultSet.getString("target_id"));
+                            long time = resultSet.getLong("time");
+                            boolean accepted = resultSet.getBoolean("accepted");
+                            FriendRequest friendRequest = new FriendRequest(requesterId, targetId, time, accepted);
+                            friendRequestQuery.addResult(friendRequest);
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            return friendRequestQuery;
         });
     }
 
@@ -244,13 +315,14 @@ public abstract class SQLChatStorage extends ChatStorage {
     public CompletableFuture<Void> saveMailMessage(MailMessage mailMessage) {
         return CompletableFuture.runAsync(() -> {
             try (Connection connection = createConnection()) {
-                try (PreparedStatement insert = connection.prepareStatement("INSERT INTO " + Table.MAIL_MESSAGES + " (id, sender_id, recipient_id, time, read, content) VALUES (?, ?, ?, ?, ?, ?);")) {
+                try (PreparedStatement insert = connection.prepareStatement("INSERT INTO " + Table.MAIL_MESSAGES + " (id, sender_id, recipient_id, time, is_read, content) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE is_read = ?;")) {
                     insert.setString(1, mailMessage.getId().toString());
                     insert.setString(2, mailMessage.getSenderId().toString());
                     insert.setString(3, mailMessage.getRecipientId().toString());
                     insert.setLong(4, mailMessage.getTime());
                     insert.setBoolean(5, mailMessage.isRead());
                     insert.setString(6, mailMessage.getContent());
+                    insert.setBoolean(7, mailMessage.isRead());
                     insert.execute();
                 }
             } catch (SQLException e) {
@@ -265,8 +337,21 @@ public abstract class SQLChatStorage extends ChatStorage {
             MailMessageQuery mailMessageQuery = new MailMessageQuery();
 
             try (Connection connection = createConnection()) {
-                try (PreparedStatement query = connection.prepareStatement("")) {
-                    
+                try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.MAIL_MESSAGES + " WHERE recipient_id = ?;")) {
+                    query.setString(1, recipient.toString());
+
+                    try (ResultSet resultSet = query.executeQuery()) {
+                        while (resultSet.next()) {
+                            UUID id = UUID.fromString(resultSet.getString("id"));
+                            UUID senderId = UUID.fromString(resultSet.getString("sender_id"));
+                            UUID recipientId = UUID.fromString(resultSet.getString("recipient_id"));
+                            long time = resultSet.getLong("time");
+                            boolean read = resultSet.getBoolean("is_read");
+                            String content = resultSet.getString("content");
+                            MailMessage mailMessage = new MailMessage(id, senderId, recipientId, time, read, content);
+                            mailMessageQuery.addResult(mailMessage);
+                        }
+                    }
                 }
             } catch (SQLException e) {
                 e.printStackTrace();

@@ -1,4 +1,4 @@
-package com.ruinscraft.chat.command;
+package com.ruinscraft.chat.command.completers;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.player.OnlineChatPlayer;

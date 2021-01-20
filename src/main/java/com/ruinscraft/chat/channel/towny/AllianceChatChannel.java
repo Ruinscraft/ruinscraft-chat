@@ -5,7 +5,7 @@ import com.palmergames.bukkit.towny.TownyUniverse;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
-import com.ruinscraft.chat.ChatMessage;
+import com.ruinscraft.chat.message.ChatMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
