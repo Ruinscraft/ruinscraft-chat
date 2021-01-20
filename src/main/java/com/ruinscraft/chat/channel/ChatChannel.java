@@ -95,7 +95,7 @@ public abstract class ChatChannel {
                     });
                 } else {
                     // Send message to channel without switching focused
-                    String message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+                    String message = String.join(" ", Arrays.copyOfRange(args, 0, args.length));
                     ChatMessage chatMessage = new ChatMessage(chatPlugin, onlineChatPlayer, ChatChannel.this, message);
 
                     chatPlugin.getChatStorage().saveChatMessage(chatMessage)

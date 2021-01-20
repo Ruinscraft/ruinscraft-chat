@@ -75,6 +75,7 @@ public class ChatPlugin extends JavaPlugin {
         getCommand("mail").setExecutor(new MailCommand(this));
         getCommand("mail").setTabCompleter(new ChatPlayersTabCompleter(this));
         getCommand("block").setExecutor(new BlockCommand(this));
+        getCommand("block").setTabCompleter(new ChatPlayersTabCompleter(this));
         getCommand("unblock").setExecutor(new UnblockCommand(this));
         getCommand("unblock").setTabCompleter(new BlockedPlayersTabCompleter(this));
 

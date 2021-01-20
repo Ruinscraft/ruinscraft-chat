@@ -3,7 +3,6 @@ package com.ruinscraft.chat.channel;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.cinema.TheaterChatChannel;
 import com.ruinscraft.chat.channel.plotsquared.PlotChatChannel;
-import com.ruinscraft.chat.channel.towny.AllianceChatChannel;
 import com.ruinscraft.chat.channel.towny.NationChatChannel;
 import com.ruinscraft.chat.channel.towny.TownChatChannel;
 import com.ruinscraft.chat.channel.towny.TownyGlobalChatChannel;
@@ -36,7 +35,6 @@ public class ChatChannelManager {
         if (towny) {
             channels.add(new TownChatChannel());
             channels.add(new NationChatChannel());
-            channels.add(new AllianceChatChannel());
             defaultChannel = new TownyGlobalChatChannel();
         }
 
