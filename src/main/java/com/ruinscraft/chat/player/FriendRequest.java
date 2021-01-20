@@ -30,6 +30,10 @@ public class FriendRequest {
         return accepted;
     }
 
+    public void setAccepted(boolean accepted) {
+        this.accepted = accepted;
+    }
+
     public ChatPlayer getOther(ChatPlayer chatPlayer) {
         if (requester.equals(chatPlayer)) {
             return target;

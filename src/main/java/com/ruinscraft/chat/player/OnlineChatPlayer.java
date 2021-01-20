@@ -2,6 +2,8 @@ package com.ruinscraft.chat.player;
 
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.MailMessage;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,16 +76,34 @@ public class OnlineChatPlayer extends ChatPlayer {
         return newFriendRequests;
     }
 
-    public boolean isFriend(ChatPlayer chatPlayer) {
+    public FriendRequest getFriendRequest(ChatPlayer chatPlayer) {
         for (FriendRequest friendRequest : friendRequests) {
             if (friendRequest.getOther(this).equals(chatPlayer)) {
-                if (friendRequest.isAccepted()) {
-                    return true;
-                }
+                return friendRequest;
             }
         }
 
-        return false;
+        return null;
+    }
+
+    public boolean isFriend(ChatPlayer chatPlayer) {
+        FriendRequest friendRequest = getFriendRequest(chatPlayer);
+
+        if (friendRequest != null && friendRequest.isAccepted()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isFriendRequestPending(ChatPlayer chatPlayer) {
+        FriendRequest friendRequest = getFriendRequest(chatPlayer);
+
+        if (friendRequest != null && !friendRequest.isAccepted()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public List<MailMessage> getMailMessages() {
@@ -98,6 +118,14 @@ public class OnlineChatPlayer extends ChatPlayer {
         boolean newMailMessages = this.mailMessages.size() < mailMessages.size();
         this.mailMessages = mailMessages;
         return newMailMessages;
+    }
+
+    public void sendMessage(String message) {
+        Player player = Bukkit.getPlayer(getMojangId());
+
+        if (player != null && player.isOnline()) {
+            player.sendMessage(message);
+        }
     }
 
 }

@@ -86,21 +86,18 @@ public class MailCommand implements CommandExecutor {
     }
 
     public void sendMail(Player player, String target, String message) {
-        ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(player);
+        OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
         chatPlugin.getChatStorage().queryChatPlayer(target).thenAccept(chatPlayerQuery -> {
             if (!chatPlayerQuery.hasResults()) {
-                if (player.isOnline()) {
-                    player.sendMessage(ChatColor.RED + target + " has never played before.");
-                }
+                onlineChatPlayer.sendMessage(ChatColor.RED + target + " has never played before.");
             } else {
                 ChatPlayer chatPlayerTarget = chatPlayerQuery.getFirst();
-                MailMessage mailMessage = new MailMessage(UUID.randomUUID(), chatPlayer, chatPlayerTarget, System.currentTimeMillis(), false, message);
+                MailMessage mailMessage = new MailMessage(UUID.randomUUID(),
+                        onlineChatPlayer, chatPlayerTarget, System.currentTimeMillis(), false, message);
 
                 chatPlugin.getChatStorage().saveMailMessage(mailMessage).thenRun(() -> {
-                    if (player.isOnline()) {
-                        player.sendMessage(ChatColor.GOLD + "Mail sent!");
-                    }
+                    onlineChatPlayer.sendMessage(ChatColor.GOLD + "Mail sent!");
                 });
             }
         });

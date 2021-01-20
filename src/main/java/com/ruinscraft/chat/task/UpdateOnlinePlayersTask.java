@@ -22,7 +22,7 @@ public class UpdateOnlinePlayersTask implements Runnable {
     public void run() {
         // Find online players who aren't currently marked as online
         for (Player player : chatPlugin.getServer().getOnlinePlayers()) {
-            ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(player);
+            ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(player.getUniqueId());
             final OnlineChatPlayer onlineChatPlayer;
 
             long now = System.currentTimeMillis();
