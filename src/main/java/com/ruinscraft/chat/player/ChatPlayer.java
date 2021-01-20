@@ -2,6 +2,7 @@ package com.ruinscraft.chat.player;
 
 import com.ruinscraft.chat.channel.ChatChannel;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class ChatPlayer {
@@ -38,6 +39,19 @@ public class ChatPlayer {
 
     public ChatChannel getFocused() {
         return focused;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChatPlayer that = (ChatPlayer) o;
+        return Objects.equals(mojangId, that.mojangId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mojangId);
     }
 
 }

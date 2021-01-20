@@ -2,9 +2,13 @@ package com.ruinscraft.chat.task;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.VaultUtil;
+import com.ruinscraft.chat.event.ChatPlayerLoginEvent;
+import com.ruinscraft.chat.event.ChatPlayerLogoutEvent;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
 import org.bukkit.entity.Player;
+
+import java.util.List;
 
 public class UpdateOnlinePlayersTask implements Runnable {
 
@@ -40,14 +44,32 @@ public class UpdateOnlinePlayersTask implements Runnable {
         }
 
         chatPlugin.getChatStorage().queryOnlineChatPlayers().thenAccept(onlineChatPlayerQuery -> {
+            List<OnlineChatPlayer> previouslyOnline = chatPlugin.getChatPlayerManager().getOnlineChatPlayers();
+
             // Find online players from other servers
             for (OnlineChatPlayer currentlyOnline : onlineChatPlayerQuery.getResults()) {
+                if (!previouslyOnline.contains(currentlyOnline)) {
+                    // Player has joined
+                    chatPlugin.getServer().getScheduler().runTask(chatPlugin, () -> {
+                        ChatPlayerLoginEvent event = new ChatPlayerLoginEvent(currentlyOnline);
+                        chatPlugin.getServer().getPluginManager().callEvent(event);
+                    });
+                }
+
                 chatPlugin.getChatPlayerManager().put(currentlyOnline.getMojangId(), currentlyOnline);
             }
         }).thenRun(() -> {
             // Delete players who have been offline for too long
             chatPlugin.getChatStorage().deleteOfflineChatPlayers().thenRun(() -> {
-                chatPlugin.getChatPlayerManager().purgeOfflinePlayers();
+                List<OnlineChatPlayer> loggedOut = chatPlugin.getChatPlayerManager().purgeOfflinePlayers();
+
+                for (OnlineChatPlayer onlineChatPlayer : loggedOut) {
+                    chatPlugin.getServer().getScheduler().runTask(chatPlugin, () -> {
+                        // Player has left
+                        ChatPlayerLogoutEvent event = new ChatPlayerLogoutEvent(onlineChatPlayer);
+                        chatPlugin.getServer().getPluginManager().callEvent(event);
+                    });
+                }
             });
         });
     }

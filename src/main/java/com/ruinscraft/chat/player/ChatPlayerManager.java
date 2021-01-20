@@ -72,15 +72,20 @@ public class ChatPlayerManager {
         cache.put(mojangId, chatPlayer);
     }
 
-    public void purgeOfflinePlayers() {
+    public List<OnlineChatPlayer> purgeOfflinePlayers() {
+        List<OnlineChatPlayer> loggedOut = new ArrayList<>();
+
         for (OnlineChatPlayer onlineChatPlayer : getOnlineChatPlayers()) {
             long thresholdTime = System.currentTimeMillis()
                     - TimeUnit.SECONDS.toMillis(OnlineChatPlayer.SECONDS_UNTIL_OFFLINE);
 
             if (onlineChatPlayer.getUpdatedAt() < thresholdTime) {
                 cache.remove(onlineChatPlayer.getMojangId());
+                loggedOut.add(onlineChatPlayer);
             }
         }
+
+        return loggedOut;
     }
 
     public List<OnlineChatPlayer> getOnlineChatPlayers() {

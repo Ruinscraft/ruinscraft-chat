@@ -76,7 +76,7 @@ public class OnlineChatPlayer extends ChatPlayer {
 
     public boolean isFriend(ChatPlayer chatPlayer) {
         for (FriendRequest friendRequest : friendRequests) {
-            if (friendRequest.getOther(this).getMojangId().equals(chatPlayer.getMojangId())) {
+            if (friendRequest.getOther(this).equals(chatPlayer)) {
                 if (friendRequest.isAccepted()) {
                     return true;
                 }

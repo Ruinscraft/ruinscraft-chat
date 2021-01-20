@@ -31,7 +31,7 @@ public class FriendRequest {
     }
 
     public ChatPlayer getOther(ChatPlayer chatPlayer) {
-        if (requester.getMojangId().equals(chatPlayer.getMojangId())) {
+        if (requester.equals(chatPlayer)) {
             return target;
         } else {
             return requester;
