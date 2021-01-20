@@ -30,17 +30,19 @@ public abstract class SQLChatStorage extends ChatStorage {
         public static final String FRIEND_REQUESTS = "friend_requests";
         public static final String MAIL_MESSAGES = "mail_messages";
         public static final String BLOCKED_PLAYERS = "blocked_players";
+        public static final String FOCUSED_CHANNELS = "focused_channels";
     }
 
     protected void createTables() {
         try (Connection connection = createConnection()) {
             try (Statement statement = connection.createStatement()) {
-                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.CHAT_PLAYERS + " (id VARCHAR(36), username VARCHAR(16), first_seen BIGINT, last_seen BIGINT, focused VARCHAR(16), PRIMARY KEY (id));");
+                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.CHAT_PLAYERS + " (id VARCHAR(36), username VARCHAR(16), first_seen BIGINT, last_seen BIGINT, PRIMARY KEY (id));");
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.ONLINE_CHAT_PLAYERS + " (id VARCHAR(36), updated_at BIGINT, server_name VARCHAR(32), group_name VARCHAR(32), vanished BOOL, PRIMARY KEY (id), FOREIGN KEY (id) REFERENCES " + Table.CHAT_PLAYERS + "(id));");
-                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.CHAT_MESSAGES + " (id VARCHAR(36), server_id VARCHAR(36), channel VARCHAR(16), time BIGINT, sender_id VARCHAR(36), content VARCHAR(255), PRIMARY KEY (id));");
+                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.CHAT_MESSAGES + " (id VARCHAR(36), server_id VARCHAR(36), channel VARCHAR(64), time BIGINT, sender_id VARCHAR(36), content VARCHAR(255), PRIMARY KEY (id));");
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.FRIEND_REQUESTS + " (requester_id VARCHAR(36), target_id VARCHAR(36), time BIGINT, accepted BOOL, FOREIGN KEY (requester_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), FOREIGN KEY (target_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), UNIQUE KEY friend (requester_id, target_id));");
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.MAIL_MESSAGES + " (id VARCHAR(36), sender_id VARCHAR(36), recipient_id VARCHAR(36), time BIGINT, is_read BOOL, content VARCHAR(255), PRIMARY KEY (id), FOREIGN KEY (sender_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), FOREIGN KEY (recipient_id) REFERENCES " + Table.CHAT_PLAYERS + "(id));");
-                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.BLOCKED_PLAYERS + "(blocker_id VARCHAR(36), blocked_id VARCHAR(36), FOREIGN KEY (blocker_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), FOREIGN KEY (blocked_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), UNIQUE KEY block (blocker_id, blocked_id));");
+                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.BLOCKED_PLAYERS + " (blocker_id VARCHAR(36), blocked_id VARCHAR(36), FOREIGN KEY (blocker_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), FOREIGN KEY (blocked_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), UNIQUE KEY block (blocker_id, blocked_id));");
+                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.FOCUSED_CHANNELS + " (id VARCHAR(36), plugin_name VARCHAR(32), channel_name VARCHAR(32), FOREIGN KEY (id) REFERENCES " + Table.CHAT_PLAYERS + "(id), UNIQUE KEY focused (id, plugin_name));");
                 statement.executeBatch();
             }
         } catch (SQLException e) {
@@ -53,15 +55,13 @@ public abstract class SQLChatStorage extends ChatStorage {
         return CompletableFuture.runAsync(() -> {
             try (Connection connection = createConnection()) {
                 try (PreparedStatement update = connection.prepareStatement(
-                        "INSERT INTO " + Table.CHAT_PLAYERS + " (id, username, first_seen, last_seen, focused) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE username = ?, last_seen = ?, focused = ?;")) {
+                        "INSERT INTO " + Table.CHAT_PLAYERS + " (id, username, first_seen, last_seen) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE username = ?, last_seen = ?;")) {
                     update.setString(1, chatPlayer.getMojangId().toString());
                     update.setString(2, chatPlayer.getMinecraftUsername());
                     update.setLong(3, chatPlayer.getFirstSeen());
                     update.setLong(4, chatPlayer.getLastSeen());
-                    update.setString(5, chatPlayer.getFocused().getName());
-                    update.setString(6, chatPlayer.getMinecraftUsername());
-                    update.setLong(7, chatPlayer.getLastSeen());
-                    update.setString(8, chatPlayer.getFocused().getName());
+                    update.setString(5, chatPlayer.getMinecraftUsername());
+                    update.setLong(6, chatPlayer.getLastSeen());
                     update.execute();
                 }
             } catch (SQLException e) {
@@ -84,9 +84,7 @@ public abstract class SQLChatStorage extends ChatStorage {
                             String username = resultSet.getString("username");
                             long firstSeen = resultSet.getLong("first_seen");
                             long lastSeen = resultSet.getLong("last_seen");
-                            String focusedName = resultSet.getString("focused");
-                            ChatChannel focused = chatPlugin.getChatChannelManager().getChannel(focusedName);
-                            ChatPlayer chatPlayer = new ChatPlayer(mojangId, username, firstSeen, lastSeen, focused);
+                            ChatPlayer chatPlayer = new ChatPlayer(mojangId, username, firstSeen, lastSeen);
                             chatPlayerQuery.addResult(chatPlayer);
                         }
                     }
@@ -117,7 +115,7 @@ public abstract class SQLChatStorage extends ChatStorage {
                         "INSERT INTO " + Table.CHAT_MESSAGES + " (id, server_id, channel, time, sender_id, content) VALUES (?, ?, ?, ?, ?, ?);")) {
                     insert.setString(1, chatMessage.getId().toString());
                     insert.setString(2, chatMessage.getOriginServerId().toString());
-                    insert.setString(3, chatMessage.getChannel().getName());
+                    insert.setString(3, chatMessage.getChannel().getDatabaseName());
                     insert.setLong(4, chatMessage.getTime());
                     insert.setString(5, chatMessage.getSender().getMojangId().toString());
                     insert.setString(6, chatMessage.getContent());
@@ -141,8 +139,10 @@ public abstract class SQLChatStorage extends ChatStorage {
                     try (ResultSet resultSet = query.executeQuery()) {
                         while (resultSet.next()) {
                             UUID serverId = UUID.fromString(resultSet.getString("server_id"));
-                            String channelName = resultSet.getString("channel");
-                            ChatChannel channel = chatPlugin.getChatChannelManager().getChannel(channelName);
+                            String channelDbName = resultSet.getString("channel");
+                            String pluginName = channelDbName.split(":")[0];
+                            String channelName = channelDbName.split(":")[1];
+                            ChatChannel channel = chatPlugin.getChatChannelManager().getChannel(pluginName, channelName);
                             long time = resultSet.getLong("time");
                             UUID senderId = UUID.fromString(resultSet.getString("sender_id"));
                             String content = resultSet.getString("content");
@@ -399,6 +399,65 @@ public abstract class SQLChatStorage extends ChatStorage {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> insertActiveChannel(ChatPlayer chatPlayer, ChatChannel channel) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement insert = connection.prepareStatement("INSERT INTO " + Table.FOCUSED_CHANNELS + " (id, plugin_name, channel_name) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE channel_name = ?;")) {
+                    insert.setString(1, chatPlayer.getMojangId().toString());
+                    insert.setString(2, channel.getPluginName());
+                    insert.setString(3, channel.getName());
+                    insert.setString(4, channel.getName());
+                    insert.execute();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> deleteActiveChannel(ChatPlayer chatPlayer, ChatChannel channel) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement delete = connection.prepareStatement("DELETE FROM " + Table.FOCUSED_CHANNELS + " WHERE id = ? AND plugin_name = ? AND channel_name = ?;")) {
+                    delete.setString(1, chatPlayer.getMojangId().toString());
+                    delete.setString(2, channel.getPluginName());
+                    delete.setString(3, channel.getName());
+                    delete.execute();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<FocusedChatChannelNameQuery> queryFocusedChannels(ChatPlayer chatPlayer) {
+        return CompletableFuture.supplyAsync(() -> {
+            FocusedChatChannelNameQuery focusedChatChannelNameQuery = new FocusedChatChannelNameQuery();
+
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.FOCUSED_CHANNELS + " WHERE id = ?;")) {
+                    query.setString(1, chatPlayer.getMojangId().toString());
+
+                    try (ResultSet resultSet = query.executeQuery()) {
+                        while (resultSet.next()) {
+                            String pluginName = resultSet.getString("plugin_name");
+                            String channelName = resultSet.getString("channel_name");
+                            String channelDbName = pluginName + ":" + channelName;
+                            focusedChatChannelNameQuery.addResult(channelDbName);
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            return focusedChatChannelNameQuery;
         });
     }
 

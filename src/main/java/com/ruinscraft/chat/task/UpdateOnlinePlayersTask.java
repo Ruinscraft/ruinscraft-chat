@@ -2,6 +2,8 @@ package com.ruinscraft.chat.task;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.VaultUtil;
+import com.ruinscraft.chat.channel.ChatChannel;
+import com.ruinscraft.chat.channel.GlobalChatChannel;
 import com.ruinscraft.chat.event.ChatPlayerLoginEvent;
 import com.ruinscraft.chat.event.ChatPlayerLogoutEvent;
 import com.ruinscraft.chat.player.ChatPlayer;
@@ -44,15 +46,24 @@ public class UpdateOnlinePlayersTask implements Runnable {
                 chatPlugin.getChatPlayerManager().put(player.getUniqueId(), onlineChatPlayer);
                 chatPlugin.getChatStorage().queryBlocked(onlineChatPlayer).thenAccept(chatPlayerQuery -> {
                     Set<ChatPlayer> blockedChatPlayers = new HashSet<>();
-
                     for (ChatPlayer blockedChatPlayer : chatPlayerQuery.getResults()) {
                         blockedChatPlayers.add(blockedChatPlayer);
                     }
-
                     onlineChatPlayer.setBlocked(blockedChatPlayers);
+                });
+                chatPlugin.getChatStorage().queryFocusedChannels(onlineChatPlayer).thenAccept(focusedChatChannelNameQuery -> {
+                    for (String chatChannelDbName : focusedChatChannelNameQuery.getResults()) {
+                        String pluginName = chatChannelDbName.split(":")[0];
+                        String channelName = chatChannelDbName.split(":")[1];
+                        ChatChannel channel = chatPlugin.getChatChannelManager().getChannel(pluginName, channelName);
+                        if (!(channel instanceof GlobalChatChannel)) {
+                            onlineChatPlayer.setFocused(channel);
+                        }
+                    }
                 });
             }
 
+            chatPlugin.getChatStorage().saveChatPlayer(chatPlayer);
             chatPlugin.getChatStorage().saveOnlineChatPlayer(onlineChatPlayer);
         }
 

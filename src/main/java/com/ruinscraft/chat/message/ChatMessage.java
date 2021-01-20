@@ -16,29 +16,20 @@ public class ChatMessage implements Message {
     private ChatPlayer sender;
     private String content;
 
-    public ChatMessage(ChatPlugin chatPlugin, Player sender, String content) {
-        id = UUID.randomUUID();
-        originServerId = chatPlugin.getServerId();
-        time = System.currentTimeMillis();
-        this.sender = chatPlugin.getChatPlayerManager().get(sender);
-        this.channel = this.sender.getFocused();
-        this.content = content;
-    }
-
-    public ChatMessage(ChatPlugin chatPlugin, ChatChannel channel, Player sender, String content) {
-        id = UUID.randomUUID();
-        originServerId = chatPlugin.getServerId();
-        this.channel = channel;
-        time = System.currentTimeMillis();
-        this.sender = chatPlugin.getChatPlayerManager().get(sender);
-        this.content = content;
-    }
-
     public ChatMessage(UUID id, UUID originServerId, ChatChannel channel, long time, ChatPlayer sender, String content) {
         this.id = id;
         this.originServerId = originServerId;
         this.channel = channel;
         this.time = time;
+        this.sender = sender;
+        this.content = content;
+    }
+
+    public ChatMessage(ChatPlugin chatPlugin, ChatPlayer sender, ChatChannel channel, String content) {
+        id = UUID.randomUUID();
+        originServerId = chatPlugin.getServerId();
+        this.channel = channel;
+        time = System.currentTimeMillis();
         this.sender = sender;
         this.content = content;
     }
@@ -68,10 +59,6 @@ public class ChatMessage implements Message {
     }
 
     public void showToChat(ChatPlugin chatPlugin) {
-        if (!chatPlugin.getChatChannelManager().hasChannel(channel.getName())) {
-            return;
-        }
-
         for (Player player : channel.getRecipients(this)) {
             ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(player);
 

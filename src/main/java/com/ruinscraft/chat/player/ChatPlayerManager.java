@@ -1,7 +1,6 @@
 package com.ruinscraft.chat.player;
 
 import com.ruinscraft.chat.ChatPlugin;
-import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.storage.query.ChatPlayerQuery;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -40,8 +39,7 @@ public class ChatPlayerManager {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(mojangId);
                 String username = offlinePlayer.getName();
                 long now = System.currentTimeMillis();
-                ChatChannel focused = chatPlugin.getChatChannelManager().getDefaultChannel();
-                chatPlayer = new ChatPlayer(mojangId, username, now, now, focused);
+                chatPlayer = new ChatPlayer(mojangId, username, now, now);
                 chatPlugin.getChatStorage().saveChatPlayer(chatPlayer);
             }
 

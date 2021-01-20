@@ -5,7 +5,7 @@ import com.ruinscraft.chat.channel.ChatChannel;
 public class TheaterChatChannel extends ChatChannel {
 
     public TheaterChatChannel() {
-        super("theater", "[T]", false);
+        super("cinemadisplays", "theater", "[T]", false);
     }
 
     // TODO:

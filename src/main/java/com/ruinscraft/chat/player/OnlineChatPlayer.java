@@ -1,5 +1,6 @@
 package com.ruinscraft.chat.player;
 
+import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.MailMessage;
 import org.bukkit.Bukkit;
@@ -18,9 +19,10 @@ public class OnlineChatPlayer extends ChatPlayer {
     private List<FriendRequest> friendRequests;
     private List<MailMessage> mailMessages;
     private Set<ChatPlayer> blocked;
+    private ChatChannel focused;
 
-    public OnlineChatPlayer(UUID mojangId, String minecraftUsername, long firstSeen, long lastSeen, ChatChannel focused, long updatedAt, String serverName, String groupName, boolean vanished) {
-        super(mojangId, minecraftUsername, firstSeen, lastSeen, focused);
+    public OnlineChatPlayer(UUID mojangId, String minecraftUsername, long firstSeen, long lastSeen, long updatedAt, String serverName, String groupName, boolean vanished) {
+        super(mojangId, minecraftUsername, firstSeen, lastSeen);
         this.updatedAt = updatedAt;
         this.serverName = serverName;
         this.groupName = groupName;
@@ -31,7 +33,7 @@ public class OnlineChatPlayer extends ChatPlayer {
     }
 
     public OnlineChatPlayer(ChatPlayer chatPlayer, long updatedAt, String serverName, String groupName, boolean vanished) {
-        this(chatPlayer.getMojangId(), chatPlayer.getMinecraftUsername(), chatPlayer.getFirstSeen(), chatPlayer.getLastSeen(), chatPlayer.getFocused(), updatedAt, serverName, groupName, vanished);
+        this(chatPlayer.getMojangId(), chatPlayer.getMinecraftUsername(), chatPlayer.getFirstSeen(), chatPlayer.getLastSeen(), updatedAt, serverName, groupName, vanished);
     }
 
     public long getUpdatedAt() {
@@ -134,6 +136,18 @@ public class OnlineChatPlayer extends ChatPlayer {
 
     public void removeBlocked(ChatPlayer chatPlayer) {
         blocked.remove(chatPlayer);
+    }
+
+    public ChatChannel getFocused(ChatPlugin chatPlugin) {
+        if (focused == null) {
+            focused = chatPlugin.getChatChannelManager().getDefaultChannel();
+        }
+
+        return focused;
+    }
+
+    public void setFocused(ChatChannel focused) {
+        this.focused = focused;
     }
 
     public void sendMessage(String message) {

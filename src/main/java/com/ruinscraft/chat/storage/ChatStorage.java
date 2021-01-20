@@ -1,5 +1,6 @@
 package com.ruinscraft.chat.storage;
 
+import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.message.MailMessage;
 import com.ruinscraft.chat.player.ChatPlayer;
@@ -43,5 +44,11 @@ public abstract class ChatStorage {
     public abstract CompletableFuture<Void> insertBlock(ChatPlayer blocker, ChatPlayer blocked);
 
     public abstract CompletableFuture<Void> deleteBlock(ChatPlayer blocker, ChatPlayer blocked);
+
+    public abstract CompletableFuture<Void> insertActiveChannel(ChatPlayer chatPlayer, ChatChannel channel);
+
+    public abstract CompletableFuture<Void> deleteActiveChannel(ChatPlayer chatPlayer, ChatChannel channel);
+
+    public abstract CompletableFuture<FocusedChatChannelNameQuery> queryFocusedChannels(ChatPlayer chatPlayer);
 
 }

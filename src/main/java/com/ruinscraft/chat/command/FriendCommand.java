@@ -117,7 +117,7 @@ public class FriendCommand implements CommandExecutor {
                     FriendRequest friendRequest = new FriendRequest(onlineChatPlayer, targetChatPlayer, System.currentTimeMillis(), false);
 
                     chatPlugin.getChatStorage().saveFriendRequest(friendRequest).thenRun(() -> {
-                        onlineChatPlayer.sendMessage(ChatColor.GOLD + "Friend request sent to: " + targetChatPlayer.getMinecraftUsername());
+                        onlineChatPlayer.sendMessage(ChatColor.GOLD + "Friend request sent to " + targetChatPlayer.getMinecraftUsername());
                     });
                 }
             } else {
