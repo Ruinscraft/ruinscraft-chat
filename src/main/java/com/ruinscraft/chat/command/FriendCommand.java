@@ -10,6 +10,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.StringJoiner;
+
 public class FriendCommand implements CommandExecutor {
 
     private ChatPlugin chatPlugin;
@@ -43,11 +45,13 @@ public class FriendCommand implements CommandExecutor {
                     addFriend(player, args[1]);
                     break;
                 case "remove":
+                    removeFriend(player, args[1]);
                     break;
                 case "accept":
                     acceptFriend(player, args[1]);
                     break;
                 case "deny":
+                    denyFriend(player, args[1]);
                     break;
                 default:
                     showHelp(player, label);
@@ -67,10 +71,26 @@ public class FriendCommand implements CommandExecutor {
 
         boolean empty = true;
 
+        onlineChatPlayer.sendMessage(ChatColor.GOLD + "====== Your Friends ======");
+
         for (FriendRequest friendRequest : onlineChatPlayer.getFriendRequests()) {
             if (friendRequest.isAccepted()) {
                 empty = false;
-                player.sendMessage(ChatColor.GOLD + friendRequest.getOther(onlineChatPlayer).getMinecraftUsername());
+
+                StringJoiner stringJoiner = new StringJoiner(" ");
+                ChatPlayer friend = friendRequest.getOther(onlineChatPlayer);
+
+                if (friend instanceof OnlineChatPlayer) {
+                    OnlineChatPlayer onlineFriend = (OnlineChatPlayer) friend;
+                    stringJoiner.add(ChatColor.GREEN + onlineFriend.getMinecraftUsername());
+                    stringJoiner.add(ChatColor.YELLOW + "is currently online playing " + onlineFriend.getServerName() + "!");
+                } else {
+                    stringJoiner.add(ChatColor.GRAY + friend.getMinecraftUsername());
+                    stringJoiner.add(ChatColor.YELLOW + "was last online");
+                    stringJoiner.add("ago");
+                }
+
+                onlineChatPlayer.sendMessage(stringJoiner.toString());
             }
         }
 
@@ -80,6 +100,11 @@ public class FriendCommand implements CommandExecutor {
     }
 
     private void addFriend(Player player, String target) {
+        if (player.getName().equalsIgnoreCase(target)) {
+            player.sendMessage(ChatColor.RED + "You can't add yourself as a friend. Sorry.");
+            return;
+        }
+
         OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
         chatPlugin.getChatStorage().queryChatPlayer(target).thenAccept(chatPlayerQuery -> {
@@ -102,7 +127,25 @@ public class FriendCommand implements CommandExecutor {
     }
 
     public void removeFriend(Player player, String target) {
+        OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
+        chatPlugin.getChatStorage().queryChatPlayer(target).thenAccept(chatPlayerQuery -> {
+            if (chatPlayerQuery.hasResults()) {
+                ChatPlayer targetChatPlayer = chatPlayerQuery.getFirst();
+
+                if (onlineChatPlayer.isFriend(targetChatPlayer)) {
+                    FriendRequest friendRequest = onlineChatPlayer.removeFriendRequest(targetChatPlayer);
+
+                    chatPlugin.getChatStorage().deleteFriendRequest(friendRequest).thenRun(() -> {
+                        onlineChatPlayer.sendMessage(ChatColor.GOLD + targetChatPlayer.getMinecraftUsername() + " has been removed from your friends list.");
+                    });
+                } else {
+                    onlineChatPlayer.sendMessage(ChatColor.RED + targetChatPlayer.getMinecraftUsername() + " is not your friend.");
+                }
+            } else {
+                onlineChatPlayer.sendMessage(ChatColor.RED + target + " has never joined before.");
+            }
+        });
     }
 
     private void acceptFriend(Player player, String target) {
@@ -133,7 +176,26 @@ public class FriendCommand implements CommandExecutor {
     }
 
     private void denyFriend(Player player, String target) {
+        OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
+        chatPlugin.getChatStorage().queryChatPlayer(target).thenAccept(chatPlayerQuery -> {
+            if (chatPlayerQuery.hasResults()) {
+                ChatPlayer targetChatPlayer = chatPlayerQuery.getFirst();
+                FriendRequest friendRequest = onlineChatPlayer.getFriendRequest(targetChatPlayer);
+
+                if (friendRequest == null || !friendRequest.isAccepted()) {
+                    onlineChatPlayer.sendMessage(ChatColor.RED + "You do not have a friend request from " + targetChatPlayer.getMinecraftUsername());
+                } else {
+                    onlineChatPlayer.removeFriendRequest(targetChatPlayer);
+
+                    chatPlugin.getChatStorage().deleteFriendRequest(friendRequest).thenRun(() -> {
+                        onlineChatPlayer.sendMessage(ChatColor.GOLD + "You've denied " + targetChatPlayer.getMinecraftUsername() + "'s friend request. They will not be notified.");
+                    });
+                }
+            } else {
+                onlineChatPlayer.sendMessage(ChatColor.RED + target + " has never joined before.");
+            }
+        });
     }
 
 }

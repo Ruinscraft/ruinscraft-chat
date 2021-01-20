@@ -42,14 +42,4 @@ public class FriendRequest {
         }
     }
 
-    @Override
-    public String toString() {
-        return "FriendRequest{" +
-                "requester=" + requester +
-                ", target=" + target +
-                ", time=" + time +
-                ", accepted=" + accepted +
-                '}';
-    }
-
 }

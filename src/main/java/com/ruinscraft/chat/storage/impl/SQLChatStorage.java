@@ -239,8 +239,8 @@ public abstract class SQLChatStorage extends ChatStorage {
         return CompletableFuture.runAsync(() -> {
             try (Connection connection = createConnection()) {
                 try (PreparedStatement delete = connection.prepareStatement("DELETE FROM " + Table.FRIEND_REQUESTS + " WHERE requester_id = ? AND target_id = ?;")) {
-                    delete.setString(1, friendRequest.getRequester().toString());
-                    delete.setString(2, friendRequest.getTarget().toString());
+                    delete.setString(1, friendRequest.getRequester().getMojangId().toString());
+                    delete.setString(2, friendRequest.getTarget().getMojangId().toString());
                     delete.execute();
                 }
             } catch (SQLException e) {

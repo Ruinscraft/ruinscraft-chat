@@ -86,6 +86,12 @@ public class OnlineChatPlayer extends ChatPlayer {
         return null;
     }
 
+    public FriendRequest removeFriendRequest(ChatPlayer chatPlayer) {
+        FriendRequest friendRequest = getFriendRequest(chatPlayer);
+        friendRequests.remove(friendRequest);
+        return friendRequest;
+    }
+
     public boolean isFriend(ChatPlayer chatPlayer) {
         FriendRequest friendRequest = getFriendRequest(chatPlayer);
 
