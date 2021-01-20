@@ -87,6 +87,7 @@ public class FriendCommand implements CommandExecutor {
                 } else {
                     stringJoiner.add(ChatColor.GRAY + friend.getMinecraftUsername());
                     stringJoiner.add(ChatColor.YELLOW + "was last online");
+                    stringJoiner.add(friend.getLastSeenDurationWords());
                     stringJoiner.add("ago");
                 }
 

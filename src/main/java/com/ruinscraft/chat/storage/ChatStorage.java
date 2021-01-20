@@ -6,6 +6,7 @@ import com.ruinscraft.chat.message.MailMessage;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.FriendRequest;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
+import com.ruinscraft.chat.player.PersonalizationSettings;
 import com.ruinscraft.chat.storage.query.*;
 
 import java.util.UUID;
@@ -50,5 +51,9 @@ public abstract class ChatStorage {
     public abstract CompletableFuture<Void> deleteActiveChannel(ChatPlayer chatPlayer, ChatChannel channel);
 
     public abstract CompletableFuture<FocusedChatChannelNameQuery> queryFocusedChannels(ChatPlayer chatPlayer);
+
+    public abstract CompletableFuture<Void> savePersonalizationSettings(ChatPlayer chatPlayer, PersonalizationSettings personalizationSettings);
+
+    public abstract CompletableFuture<PersonalizationSettingsQuery> queryPersonalizationSettings(ChatPlayer chatPlayer);
 
 }

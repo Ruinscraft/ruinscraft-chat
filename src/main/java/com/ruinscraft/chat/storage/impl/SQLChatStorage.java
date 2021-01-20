@@ -6,9 +6,11 @@ import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.message.MailMessage;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.FriendRequest;
+import com.ruinscraft.chat.player.PersonalizationSettings;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
 import com.ruinscraft.chat.storage.ChatStorage;
 import com.ruinscraft.chat.storage.query.*;
+import org.bukkit.ChatColor;
 
 import java.sql.*;
 import java.util.UUID;
@@ -31,6 +33,7 @@ public abstract class SQLChatStorage extends ChatStorage {
         public static final String MAIL_MESSAGES = "mail_messages";
         public static final String BLOCKED_PLAYERS = "blocked_players";
         public static final String FOCUSED_CHANNELS = "focused_channels";
+        public static final String PERSONALIZATION_SETTINGS = "personalization_settings";
     }
 
     protected void createTables() {
@@ -43,6 +46,7 @@ public abstract class SQLChatStorage extends ChatStorage {
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.MAIL_MESSAGES + " (id VARCHAR(36), sender_id VARCHAR(36), recipient_id VARCHAR(36), time BIGINT, is_read BOOL, content VARCHAR(255), PRIMARY KEY (id), FOREIGN KEY (sender_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), FOREIGN KEY (recipient_id) REFERENCES " + Table.CHAT_PLAYERS + "(id));");
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.BLOCKED_PLAYERS + " (blocker_id VARCHAR(36), blocked_id VARCHAR(36), FOREIGN KEY (blocker_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), FOREIGN KEY (blocked_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), UNIQUE KEY block (blocker_id, blocked_id));");
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.FOCUSED_CHANNELS + " (id VARCHAR(36), plugin_name VARCHAR(32), channel_name VARCHAR(32), FOREIGN KEY (id) REFERENCES " + Table.CHAT_PLAYERS + "(id), UNIQUE KEY focused (id, plugin_name));");
+                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.PERSONALIZATION_SETTINGS + " (id VARCHAR(36), name_color VARCHAR(16), nickname VARCHAR(64), PRIMARY KEY (id), FOREIGN KEY (id) REFERENCES " + Table.CHAT_PLAYERS + "(id));");
                 statement.executeBatch();
             }
         } catch (SQLException e) {
@@ -458,6 +462,50 @@ public abstract class SQLChatStorage extends ChatStorage {
             }
 
             return focusedChatChannelNameQuery;
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> savePersonalizationSettings(ChatPlayer chatPlayer, PersonalizationSettings personalizationSettings) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement upsert = connection.prepareStatement("INSERT INTO " + Table.PERSONALIZATION_SETTINGS + " (id, name_color, nickname) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE name_color = ?, nickname = ?;")) {
+                    upsert.setString(1, chatPlayer.getMojangId().toString());
+                    upsert.setString(2, personalizationSettings.getNameColor().name());
+                    upsert.setString(3, personalizationSettings.getNickname());
+                    upsert.setString(4, personalizationSettings.getNameColor().name());
+                    upsert.setString(5, personalizationSettings.getNickname());
+                    upsert.execute();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<PersonalizationSettingsQuery> queryPersonalizationSettings(ChatPlayer chatPlayer) {
+        return CompletableFuture.supplyAsync(() -> {
+            PersonalizationSettingsQuery personalizationSettingsQuery = new PersonalizationSettingsQuery();
+
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.PERSONALIZATION_SETTINGS + " WHERE id = ?;")) {
+                    query.setString(1, chatPlayer.getMojangId().toString());
+
+                    try (ResultSet resultSet = query.executeQuery()) {
+                        while (resultSet.next()) {
+                            ChatColor nameColor = ChatColor.valueOf(resultSet.getString("name_color"));
+                            String nickname = resultSet.getString("nickname");
+                            PersonalizationSettings personalizationSettings = new PersonalizationSettings(nameColor, nickname);
+                            personalizationSettingsQuery.addResult(personalizationSettings);
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            return personalizationSettingsQuery;
         });
     }
 

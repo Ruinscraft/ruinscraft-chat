@@ -8,6 +8,7 @@ import com.ruinscraft.chat.event.ChatPlayerLoginEvent;
 import com.ruinscraft.chat.event.ChatPlayerLogoutEvent;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
+import com.ruinscraft.chat.player.PersonalizationSettings;
 import org.bukkit.entity.Player;
 
 import java.util.HashSet;
@@ -61,7 +62,15 @@ public class UpdateOnlinePlayersTask implements Runnable {
                         }
                     }
                 });
+                chatPlugin.getChatStorage().queryPersonalizationSettings(onlineChatPlayer).thenAccept(personalizationSettingsQuery -> {
+                    if (personalizationSettingsQuery.hasResults()) {
+                        PersonalizationSettings personalizationSettings = personalizationSettingsQuery.getFirst();
+                        onlineChatPlayer.setPersonalizationSettings(personalizationSettings);
+                    }
+                });
             }
+
+            chatPlayer.setLastSeen(System.currentTimeMillis());
 
             chatPlugin.getChatStorage().saveChatPlayer(chatPlayer);
             chatPlugin.getChatStorage().saveOnlineChatPlayer(onlineChatPlayer);

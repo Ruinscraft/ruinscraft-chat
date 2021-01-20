@@ -29,7 +29,7 @@ public class ChatChannelManager {
         boolean cinemaDisplays = chatPlugin.getServer().getPluginManager().isPluginEnabled("CinemaDisplays");
 
         if (plotSquared) {
-            channels.add(new PlotChatChannel());
+            channels.add(new PlotChatChannel(chatPlugin));
         }
 
         if (towny) {

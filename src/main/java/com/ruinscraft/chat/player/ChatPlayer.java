@@ -1,5 +1,7 @@
 package com.ruinscraft.chat.player;
 
+import org.apache.commons.lang.time.DurationFormatUtils;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -35,6 +37,15 @@ public class ChatPlayer {
 
     public long getLastSeen() {
         return lastSeen;
+    }
+
+    public void setLastSeen(long lastSeen) {
+        this.lastSeen = lastSeen;
+    }
+
+    public String getLastSeenDurationWords() {
+        long duration = System.currentTimeMillis() - lastSeen;
+        return DurationFormatUtils.formatDurationWords(duration, true, true);
     }
 
     @Override

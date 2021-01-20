@@ -24,16 +24,20 @@ public class SeenCommand implements CommandExecutor {
         }
 
         String username = args[0];
-
         ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(username);
 
         if (chatPlayer != null) {
-            showInfo(sender, chatPlayer);
+            showInfo(sender, chatPlayer, false);
         } else {
             chatPlugin.getChatStorage().queryChatPlayer(username).thenAccept(chatPlayerQuery -> {
                 if (chatPlayerQuery.hasResults()) {
-                    for (ChatPlayer query : chatPlayerQuery.getResults()) {
-                        showInfo(sender, query);
+                    if (chatPlayerQuery.getResults().size() > 1) {
+                        for (ChatPlayer query : chatPlayerQuery.getResults()) {
+                            showInfo(sender, query, true);
+                        }
+                    } else {
+                        ChatPlayer found = chatPlayerQuery.getFirst();
+                        showInfo(sender, found, false);
                     }
                 } else {
                     if (sender != null) {
@@ -46,14 +50,20 @@ public class SeenCommand implements CommandExecutor {
         return true;
     }
 
-    private void showInfo(CommandSender sender, ChatPlayer chatPlayer) {
+    private void showInfo(CommandSender sender, ChatPlayer chatPlayer, boolean showId) {
         if (chatPlayer instanceof OnlineChatPlayer &&
                 !((OnlineChatPlayer) chatPlayer).isVanished()) {
             OnlineChatPlayer onlineChatPlayer = (OnlineChatPlayer) chatPlayer;
             sender.sendMessage(ChatColor.GOLD + chatPlayer.getMinecraftUsername() + " is" + ChatColor.GREEN + " online!");
             sender.sendMessage(ChatColor.GOLD + "They are currently on: " + ChatColor.LIGHT_PURPLE + onlineChatPlayer.getServerName());
         } else {
-            sender.sendMessage(ChatColor.GOLD + chatPlayer.getMinecraftUsername() + " (" + chatPlayer.getMojangId().toString() + ") was last seen ... ago");
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(ChatColor.GOLD + chatPlayer.getMinecraftUsername() + " ");
+            if (showId) {
+                stringBuilder.append("(" + chatPlayer.getMojangId().toString() + ") ");
+            }
+            stringBuilder.append("was last seen " + chatPlayer.getLastSeenDurationWords() + " ago.");
+            sender.sendMessage(stringBuilder.toString());
         }
     }
 

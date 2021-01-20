@@ -4,6 +4,7 @@ import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.MailMessage;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -20,6 +21,7 @@ public class OnlineChatPlayer extends ChatPlayer {
     private List<MailMessage> mailMessages;
     private Set<ChatPlayer> blocked;
     private ChatChannel focused;
+    private PersonalizationSettings personalizationSettings;
 
     public OnlineChatPlayer(UUID mojangId, String minecraftUsername, long firstSeen, long lastSeen, long updatedAt, String serverName, String groupName, boolean vanished) {
         super(mojangId, minecraftUsername, firstSeen, lastSeen);
@@ -30,6 +32,7 @@ public class OnlineChatPlayer extends ChatPlayer {
         friendRequests = new ArrayList<>();
         mailMessages = new ArrayList<>();
         blocked = new HashSet<>();
+        personalizationSettings = new PersonalizationSettings(ChatColor.GRAY, "");
     }
 
     public OnlineChatPlayer(ChatPlayer chatPlayer, long updatedAt, String serverName, String groupName, boolean vanished) {
@@ -162,6 +165,14 @@ public class OnlineChatPlayer extends ChatPlayer {
         if (player != null && player.isOnline()) {
             player.sendMessage(message);
         }
+    }
+
+    public PersonalizationSettings getPersonalizationSettings() {
+        return personalizationSettings;
+    }
+
+    public void setPersonalizationSettings(PersonalizationSettings personalizationSettings) {
+        this.personalizationSettings = personalizationSettings;
     }
 
 }
