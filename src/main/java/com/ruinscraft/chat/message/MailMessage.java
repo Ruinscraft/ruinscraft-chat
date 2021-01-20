@@ -4,6 +4,7 @@ import com.ruinscraft.chat.player.ChatPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class MailMessage implements Message {
@@ -55,6 +56,17 @@ public class MailMessage implements Message {
     public void show(Player player) {
         player.sendMessage(ChatColor.GOLD + "Message from: " + sender.getMinecraftUsername());
         player.sendMessage(ChatColor.GRAY + content);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        MailMessage that = (MailMessage) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
 }

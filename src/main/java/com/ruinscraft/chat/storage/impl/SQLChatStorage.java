@@ -391,7 +391,7 @@ public abstract class SQLChatStorage extends ChatStorage {
     public CompletableFuture<Void> deleteBlock(ChatPlayer blocker, ChatPlayer blocked) {
         return CompletableFuture.runAsync(() -> {
             try (Connection connection = createConnection()) {
-                try (PreparedStatement delete = connection.prepareStatement("DELETE FROM " + Table.BLOCKED_PLAYERS + " WHERE blocked_id = ? AND blocker_id = ?;")) {
+                try (PreparedStatement delete = connection.prepareStatement("DELETE FROM " + Table.BLOCKED_PLAYERS + " WHERE blocker_id = ? AND blocked_id = ?;")) {
                     delete.setString(1, blocker.getMojangId().toString());
                     delete.setString(2, blocked.getMojangId().toString());
                     delete.execute();

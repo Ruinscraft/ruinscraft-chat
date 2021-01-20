@@ -65,11 +65,21 @@ public class MailCommand implements CommandExecutor {
     private void readMail(Player player) {
         OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
+        boolean hadMail = false;
+
         if (onlineChatPlayer.hasMail()) {
             for (MailMessage mailMessage : onlineChatPlayer.getMailMessages()) {
+                if (onlineChatPlayer.isBlocked(mailMessage.getSender())) {
+                    continue;
+                }
+
                 mailMessage.show(player);
+
+                hadMail = true;
             }
-        } else {
+        }
+
+        if (!hadMail) {
             player.sendMessage(ChatColor.GOLD + "You have no unread mail.");
         }
     }

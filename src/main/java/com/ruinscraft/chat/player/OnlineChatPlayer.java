@@ -112,10 +112,16 @@ public class OnlineChatPlayer extends ChatPlayer {
         return !mailMessages.isEmpty();
     }
 
-    public boolean setMailMessages(List<MailMessage> mailMessages) {
-        boolean newMailMessages = this.mailMessages.size() < mailMessages.size();
+    public List<MailMessage> setMailMessages(List<MailMessage> mailMessages) {
+        List<MailMessage> oldMail = this.mailMessages;
+        List<MailMessage> newMail = new ArrayList<>();
+        for (MailMessage mailMessage : mailMessages) {
+            if (!oldMail.contains(mailMessage)) {
+                newMail.add(mailMessage);
+            }
+        }
         this.mailMessages = mailMessages;
-        return newMailMessages;
+        return newMail;
     }
 
     public Set<ChatPlayer> getBlocked() {
