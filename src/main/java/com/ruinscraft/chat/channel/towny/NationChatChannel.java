@@ -7,6 +7,7 @@ import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.ruinscraft.chat.message.ChatMessage;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
@@ -15,7 +16,7 @@ import java.util.HashSet;
 public class NationChatChannel extends TownyChatChannel {
 
     public NationChatChannel() {
-        super("nation", "[N]", false);
+        super("nation", ChatColor.AQUA + "[N] ", ChatColor.GOLD, false);
     }
 
     @Override

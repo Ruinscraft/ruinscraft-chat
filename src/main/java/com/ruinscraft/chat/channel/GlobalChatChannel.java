@@ -1,9 +1,11 @@
 package com.ruinscraft.chat.channel;
 
+import org.bukkit.ChatColor;
+
 public class GlobalChatChannel extends ChatChannel {
 
     public GlobalChatChannel() {
-        super("default", "global", "[G]", false);
+        super("default", "global", "", ChatColor.RESET, false);
     }
 
 }

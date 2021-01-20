@@ -2,10 +2,12 @@ package com.ruinscraft.chat.channel.plotsquared;
 
 import com.github.intellectualsites.plotsquared.plot.object.Plot;
 import com.github.intellectualsites.plotsquared.plot.object.PlotPlayer;
+import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.ChatMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
@@ -15,7 +17,7 @@ import java.util.Set;
 public class PlotChatChannel extends ChatChannel {
 
     public PlotChatChannel() {
-        super("plotsquared", "plot", "[P]", false);
+        super("plotsquared", "plotchat", "[P]", ChatColor.YELLOW, false);
     }
 
     @Override
@@ -35,6 +37,13 @@ public class PlotChatChannel extends ChatChannel {
         }
 
         return recipients;
+    }
+
+    @Override
+    public Command getCommand(ChatPlugin chatPlugin) {
+        Command command = super.getCommand(chatPlugin);
+        command.getAliases().add("local"); // legacy command support
+        return command;
     }
 
 }

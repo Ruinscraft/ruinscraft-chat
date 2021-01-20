@@ -6,6 +6,7 @@ import com.ruinscraft.chat.channel.plotsquared.PlotChatChannel;
 import com.ruinscraft.chat.channel.towny.AllianceChatChannel;
 import com.ruinscraft.chat.channel.towny.NationChatChannel;
 import com.ruinscraft.chat.channel.towny.TownChatChannel;
+import com.ruinscraft.chat.channel.towny.TownyGlobalChatChannel;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
 
@@ -36,14 +37,18 @@ public class ChatChannelManager {
             channels.add(new TownChatChannel());
             channels.add(new NationChatChannel());
             channels.add(new AllianceChatChannel());
+            defaultChannel = new TownyGlobalChatChannel();
         }
 
         if (cinemaDisplays) {
             channels.add(new TheaterChatChannel());
         }
 
+        if (defaultChannel == null) {
+            defaultChannel = new GlobalChatChannel();
+        }
+
         // Global channel will always be available
-        defaultChannel = new GlobalChatChannel();
         channels.add(defaultChannel);
 
         registerCommands();
