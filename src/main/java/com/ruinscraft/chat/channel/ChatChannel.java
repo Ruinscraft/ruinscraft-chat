@@ -13,17 +13,20 @@ import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 
 public abstract class ChatChannel {
 
+    private ChatPlugin chatPlugin;
     private String pluginName;
     private String name;
     private String prefix;
     private ChatColor chatColor;
     private boolean crossServer;
 
-    public ChatChannel(String pluginName, String name, String prefix, ChatColor chatColor, boolean crossServer) {
+    public ChatChannel(ChatPlugin chatPlugin, String pluginName, String name, String prefix, ChatColor chatColor, boolean crossServer) {
+        this.chatPlugin = chatPlugin;
         this.pluginName = pluginName;
         this.name = name;
         this.prefix = prefix;
@@ -57,14 +60,20 @@ public abstract class ChatChannel {
 
     public String format(ChatMessage chatMessage) {
         Player player = Bukkit.getPlayer(chatMessage.getSender().getMojangId());
+        OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(getPrefix() + ChatColor.RESET);
-        stringBuilder.append(ChatColor.GRAY + "[" + ChatColor.RESET + VaultUtil.getPrefix(player) + ChatColor.GRAY + "]" + ChatColor.RESET + " ");
-        stringBuilder.append(ChatColor.GRAY + player.getName() + ChatColor.RESET + " ");
-        stringBuilder.append(ChatColor.DARK_GRAY + ChatColor.BOLD.toString() + "> " + getChatColor() + chatMessage.getContent());
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        stringJoiner.add(getPrefix() + ChatColor.RESET);
+        stringJoiner.add(ChatColor.GRAY + "[" + VaultUtil.getPrefix(player) + ChatColor.GRAY + "]");
+        stringJoiner.add(onlineChatPlayer.getPersonalizationSettings().getNameColor() + player.getName());
+        stringJoiner.add(ChatColor.DARK_GRAY + ChatColor.BOLD.toString() + ">");
+        boolean hasNickname = !onlineChatPlayer.getPersonalizationSettings().getNickname().equals("");
+        if (hasNickname) {
+            stringJoiner.add(ChatColor.GOLD + "(" + onlineChatPlayer.getPersonalizationSettings().getNickname() + ")");
+        }
+        stringJoiner.add(getChatColor() + chatMessage.getContent());
 
-        return stringBuilder.toString();
+        return stringJoiner.toString();
     }
 
     public Command getCommand(ChatPlugin chatPlugin) {

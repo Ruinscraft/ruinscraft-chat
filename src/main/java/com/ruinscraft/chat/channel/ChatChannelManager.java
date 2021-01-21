@@ -33,17 +33,17 @@ public class ChatChannelManager {
         }
 
         if (towny) {
-            channels.add(new TownChatChannel());
-            channels.add(new NationChatChannel());
-            defaultChannel = new TownyGlobalChatChannel();
+            channels.add(new TownChatChannel(chatPlugin));
+            channels.add(new NationChatChannel(chatPlugin));
+            defaultChannel = new TownyGlobalChatChannel(chatPlugin);
         }
 
         if (cinemaDisplays) {
-            channels.add(new TheaterChatChannel());
+            channels.add(new TheaterChatChannel(chatPlugin));
         }
 
         if (defaultChannel == null) {
-            defaultChannel = new GlobalChatChannel();
+            defaultChannel = new GlobalChatChannel(chatPlugin);
         }
 
         // Global channel will always be available

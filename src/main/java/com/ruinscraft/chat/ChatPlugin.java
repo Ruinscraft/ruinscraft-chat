@@ -78,6 +78,8 @@ public class ChatPlugin extends JavaPlugin {
         getCommand("block").setTabCompleter(new ChatPlayersTabCompleter(this));
         getCommand("unblock").setExecutor(new UnblockCommand(this));
         getCommand("unblock").setTabCompleter(new BlockedPlayersTabCompleter(this));
+        getCommand("nickname").setExecutor(new NicknameCommand(this));
+        getCommand("nicknamereset").setExecutor(new NicknameCommand(this));
 
         VaultUtil.init();
         NetworkUtil.register(this);

@@ -17,8 +17,8 @@ import java.util.HashSet;
 
 public class NationChatChannel extends TownyChatChannel {
 
-    public NationChatChannel() {
-        super("nationchat", ChatColor.AQUA + "[N] ", ChatColor.GOLD, false);
+    public NationChatChannel(ChatPlugin chatPlugin) {
+        super(chatPlugin, "nationchat", ChatColor.AQUA + "[N]", ChatColor.GOLD, false);
     }
 
     @Override

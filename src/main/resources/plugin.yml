@@ -12,3 +12,5 @@ commands:
   mail:
   block:
   unblock:
+  nickname:
+  nicknamereset:

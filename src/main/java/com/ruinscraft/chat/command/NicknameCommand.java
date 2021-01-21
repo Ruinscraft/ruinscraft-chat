@@ -25,9 +25,19 @@ public class NicknameCommand implements CommandExecutor {
         Player player = (Player) sender;
         OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
-        boolean hasNickname = !onlineChatPlayer.getPersonalizationSettings().getNickname().equals("");
+        if (label.equalsIgnoreCase("nicknamereset")) {
+            onlineChatPlayer.getPersonalizationSettings().setNickname("");
+
+            chatPlugin.getChatStorage().savePersonalizationSettings(onlineChatPlayer, onlineChatPlayer.getPersonalizationSettings()).thenRun(() -> {
+                onlineChatPlayer.sendMessage(ChatColor.GOLD + "Nickname reset.");
+            });
+
+            return true;
+        }
 
         if (args.length < 1) {
+            boolean hasNickname = !onlineChatPlayer.getPersonalizationSettings().getNickname().equals("");
+
             if (hasNickname) {
                 player.sendMessage(ChatColor.GOLD + "Your current nickname is: " + onlineChatPlayer.getPersonalizationSettings().getNickname());
                 player.sendMessage(ChatColor.GOLD + "Reset it with /nicknamereset");

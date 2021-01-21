@@ -17,8 +17,8 @@ import java.util.HashSet;
 
 public class TownChatChannel extends TownyChatChannel {
 
-    public TownChatChannel() {
-        super("townchat", ChatColor.AQUA + "[T] ", ChatColor.YELLOW, false);
+    public TownChatChannel(ChatPlugin chatPlugin) {
+        super(chatPlugin, "townchat", ChatColor.AQUA + "[T]", ChatColor.YELLOW, false);
     }
 
     @Override
