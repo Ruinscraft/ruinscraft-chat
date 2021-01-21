@@ -37,7 +37,8 @@ public class MailMessage extends Message {
     @Override
     protected void show0(ChatPlugin chatPlugin, Player to) {
         to.sendMessage(ChatColor.GOLD + "Message from: " + getSender().getMinecraftUsername());
-        to.sendMessage(ChatColor.GRAY + getContent());
+        to.sendMessage(ChatColor.GOLD + "Received " + getDurationSinceSentWords() + " ago.");
+        to.sendMessage("  >> " + ChatColor.GRAY + getContent());
     }
 
 }

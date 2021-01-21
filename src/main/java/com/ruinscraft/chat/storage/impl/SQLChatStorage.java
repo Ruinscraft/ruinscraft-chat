@@ -349,13 +349,13 @@ public abstract class SQLChatStorage extends ChatStorage {
     }
 
     @Override
-    public CompletableFuture<MailMessageQuery> queryMailMessages(OnlineChatPlayer onlineChatPlayer) {
+    public CompletableFuture<MailMessageQuery> queryMailMessages(ChatPlayer chatPlayer) {
         return CompletableFuture.supplyAsync(() -> {
             MailMessageQuery mailMessageQuery = new MailMessageQuery();
 
             try (Connection connection = createConnection()) {
                 try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.MAIL_MESSAGES + " WHERE recipient_id = ? AND is_read = ?;")) {
-                    query.setString(1, onlineChatPlayer.getMojangId().toString());
+                    query.setString(1, chatPlayer.getMojangId().toString());
                     query.setBoolean(2, false);
 
                     try (ResultSet resultSet = query.executeQuery()) {
@@ -366,7 +366,7 @@ public abstract class SQLChatStorage extends ChatStorage {
                             boolean read = resultSet.getBoolean("is_read");
                             String content = resultSet.getString("content");
                             ChatPlayer sender = chatPlugin.getChatPlayerManager().getOrLoad(senderId).join();
-                            MailMessage mailMessage = new MailMessage(id, time, sender, content, onlineChatPlayer, read);
+                            MailMessage mailMessage = new MailMessage(id, time, sender, content, chatPlayer, read);
                             mailMessageQuery.addResult(mailMessage);
                         }
                     }

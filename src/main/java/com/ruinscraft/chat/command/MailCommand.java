@@ -71,12 +71,16 @@ public class MailCommand implements CommandExecutor, TabCompleter {
         boolean hadMail = false;
 
         if (onlineChatPlayer.hasMail()) {
+            player.sendMessage(ChatColor.GOLD + "================================");
+
             for (MailMessage mailMessage : onlineChatPlayer.getMailMessages()) {
                 if (onlineChatPlayer.isBlocked(mailMessage.getSender())) {
                     continue;
                 }
 
                 mailMessage.show(chatPlugin, player);
+
+                player.sendMessage(ChatColor.GOLD + "================================");
 
                 hadMail = true;
             }
@@ -106,10 +110,27 @@ public class MailCommand implements CommandExecutor, TabCompleter {
                 onlineChatPlayer.sendMessage(ChatColor.RED + target + " has never played before.");
             } else {
                 ChatPlayer chatPlayerTarget = chatPlayerQuery.getFirst();
-                MailMessage mailMessage = new MailMessage(onlineChatPlayer, message, chatPlayerTarget);
 
-                chatPlugin.getChatStorage().saveMailMessage(mailMessage).thenRun(() -> {
-                    onlineChatPlayer.sendMessage(ChatColor.GOLD + "Mail sent!");
+                chatPlugin.getChatStorage().queryMailMessages(chatPlayerTarget).thenAccept(mailMessageQuery -> {
+                    int mailFromSender = 0;
+
+                    for (MailMessage mailMessage : mailMessageQuery.getResults()) {
+                        if (mailMessage.getSender().equals(onlineChatPlayer)) {
+                            if (!mailMessage.isRead()) {
+                                mailFromSender++;
+                            }
+                        }
+                    }
+
+                    if (mailFromSender > 10) {
+                        onlineChatPlayer.sendMessage(ChatColor.RED + "You've sent too much mail to this person.");
+                    } else {
+                        MailMessage mailMessage = new MailMessage(onlineChatPlayer, message, chatPlayerTarget);
+
+                        chatPlugin.getChatStorage().saveMailMessage(mailMessage).thenRun(() -> {
+                            onlineChatPlayer.sendMessage(ChatColor.GOLD + "Mail sent!");
+                        });
+                    }
                 });
             }
         });

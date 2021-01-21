@@ -4,6 +4,7 @@ import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.FilterUtil;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.bukkit.entity.Player;
 
 import java.util.Objects;
@@ -37,6 +38,11 @@ public abstract class Message {
 
     public String getContent() {
         return content;
+    }
+
+    public String getDurationSinceSentWords() {
+        long duration = System.currentTimeMillis() - time;
+        return DurationFormatUtils.formatDurationWords(duration, true, true);
     }
 
     @Override

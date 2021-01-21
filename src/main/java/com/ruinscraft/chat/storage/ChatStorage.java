@@ -38,7 +38,7 @@ public abstract class ChatStorage {
 
     public abstract CompletableFuture<Void> saveMailMessage(MailMessage mailMessage);
 
-    public abstract CompletableFuture<MailMessageQuery> queryMailMessages(OnlineChatPlayer onlineChatPlayer);
+    public abstract CompletableFuture<MailMessageQuery> queryMailMessages(ChatPlayer chatPlayer);
 
     public abstract CompletableFuture<ChatPlayerQuery> queryBlocked(ChatPlayer chatPlayer);
 
