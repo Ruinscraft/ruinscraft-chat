@@ -1,6 +1,7 @@
 package com.ruinscraft.chat.message;
 
 import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.FilterUtil;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
 import org.bukkit.entity.Player;
@@ -54,6 +55,12 @@ public abstract class Message {
 
         if (toChatPlayer.isBlocked(sender)) {
             return;
+        }
+
+        if (toChatPlayer.getPersonalizationSettings().isHideProfanity()) {
+            if (FilterUtil.isBadMessage(chatPlugin.getBadWords(), content)) {
+                return;
+            }
         }
 
         show0(chatPlugin, to);

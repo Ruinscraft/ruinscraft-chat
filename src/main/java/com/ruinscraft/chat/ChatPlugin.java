@@ -18,6 +18,7 @@ import com.ruinscraft.chat.task.UpdateOnlinePlayersTask;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.List;
 import java.util.UUID;
 
 public class ChatPlugin extends JavaPlugin {
@@ -43,6 +44,10 @@ public class ChatPlugin extends JavaPlugin {
 
     public ChatChannelManager getChatChannelManager() {
         return chatChannelManager;
+    }
+
+    public List<String> getBadWords() {
+        return getConfig().getStringList("badwords");
     }
 
     @Override
@@ -73,8 +78,9 @@ public class ChatPlugin extends JavaPlugin {
         getCommand("seen").setExecutor(new SeenCommand(this));
         getCommand("seen").setTabCompleter(new ChatPlayersTabCompleter(this));
         getCommand("friend").setExecutor(new FriendCommand(this));
-        getCommand("mail").setExecutor(new MailCommand(this));
-        getCommand("mail").setTabCompleter(new ChatPlayersTabCompleter(this));
+        MailCommand mailCommand = new MailCommand(this);
+        getCommand("mail").setExecutor(mailCommand);
+        getCommand("mail").setTabCompleter(mailCommand);
         getCommand("block").setExecutor(new BlockCommand(this));
         getCommand("block").setTabCompleter(new ChatPlayersTabCompleter(this));
         getCommand("unblock").setExecutor(new UnblockCommand(this));
@@ -87,7 +93,9 @@ public class ChatPlugin extends JavaPlugin {
         getCommand("directmessage").setTabCompleter(new ChatPlayersTabCompleter(this));
         getCommand("reply").setExecutor(directMessageCommand);
         getCommand("reply").setTabCompleter(new EmptyTabCompleter());
-        getCommand("chat").setExecutor(new ChatCommand(this));
+        ChatCommand chatCommand = new ChatCommand(this);
+        getCommand("chat").setExecutor(chatCommand);
+        getCommand("chat").setTabCompleter(chatCommand);
 
         VaultUtil.init();
         NetworkUtil.register(this);

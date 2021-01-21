@@ -1,6 +1,7 @@
 package com.ruinscraft.chat.command;
 
 import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.command.completers.ChatPlayersTabCompleter;
 import com.ruinscraft.chat.message.MailMessage;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
@@ -8,11 +9,14 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-public class MailCommand implements CommandExecutor {
+public class MailCommand implements CommandExecutor, TabCompleter {
 
     // TODO: add long cooldown
 
@@ -58,7 +62,7 @@ public class MailCommand implements CommandExecutor {
     }
 
     private void showHelp(Player player, String label) {
-        player.sendMessage(ChatColor.RED + "/" + label + " <read/clear/send> [username] [message]");
+        player.sendMessage(ChatColor.RED + "/" + label + " <read, clear, send> [username] [message]");
     }
 
     private void readMail(Player player) {
@@ -109,6 +113,24 @@ public class MailCommand implements CommandExecutor {
                 });
             }
         });
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+        List<String> options = new ArrayList<>();
+
+        if (args.length == 1) {
+            options.add("read");
+            options.add("clear");
+            options.add("send");
+        }
+
+        if (args.length == 2) {
+            ChatPlayersTabCompleter chatPlayersTabCompleter = new ChatPlayersTabCompleter(chatPlugin);
+            return chatPlayersTabCompleter.onTabComplete(sender, command, label, args);
+        }
+
+        return options;
     }
 
 }

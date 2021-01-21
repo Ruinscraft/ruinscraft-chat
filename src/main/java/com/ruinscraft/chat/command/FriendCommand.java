@@ -1,6 +1,8 @@
 package com.ruinscraft.chat.command;
 
 import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.command.completers.ChatPlayersTabCompleter;
+import com.ruinscraft.chat.command.completers.FriendsCompleter;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.FriendRequest;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
@@ -8,11 +10,14 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringJoiner;
 
-public class FriendCommand implements CommandExecutor {
+public class FriendCommand implements CommandExecutor, TabCompleter {
 
     private ChatPlugin chatPlugin;
 
@@ -197,6 +202,42 @@ public class FriendCommand implements CommandExecutor {
                 onlineChatPlayer.sendMessage(ChatColor.RED + target + " has never joined before.");
             }
         });
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+        List<String> options = new ArrayList<>();
+
+        if (args.length == 1) {
+            options.add("list");
+            options.add("add");
+            options.add("remove");
+            options.add("accept");
+            options.add("deny");
+        }
+
+        if (args.length == 2) {
+            if (args[0].equalsIgnoreCase("add")) {
+                ChatPlayersTabCompleter chatPlayersTabCompleter = new ChatPlayersTabCompleter(chatPlugin);
+                return chatPlayersTabCompleter.onTabComplete(sender, command, label, args);
+            } else if (args[0].equalsIgnoreCase("remove")) {
+                FriendsCompleter friendsCompleter = new FriendsCompleter(chatPlugin);
+                return friendsCompleter.onTabComplete(sender, command, label, args);
+            } else if (args[0].equalsIgnoreCase("accept") || args[0].equalsIgnoreCase("deny")) {
+                List<String> pendingRequestUsernames = new ArrayList<>();
+                if (sender instanceof Player) {
+                    OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get((Player) sender);
+                    for (FriendRequest friendRequest : onlineChatPlayer.getFriendRequests()) {
+                        if (!friendRequest.isAccepted()) {
+                            pendingRequestUsernames.add(friendRequest.getOther(onlineChatPlayer).getMinecraftUsername());
+                        }
+                    }
+                }
+                return pendingRequestUsernames;
+            }
+        }
+
+        return options;
     }
 
 }
