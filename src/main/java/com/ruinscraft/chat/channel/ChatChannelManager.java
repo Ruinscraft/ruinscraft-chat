@@ -3,6 +3,9 @@ package com.ruinscraft.chat.channel;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.cinema.TheaterChatChannel;
 import com.ruinscraft.chat.channel.plotsquared.PlotChatChannel;
+import com.ruinscraft.chat.channel.staff.MBAChatChannel;
+import com.ruinscraft.chat.channel.staff.MBChatChannel;
+import com.ruinscraft.chat.channel.staff.MBSChatChannel;
 import com.ruinscraft.chat.channel.towny.NationChatChannel;
 import com.ruinscraft.chat.channel.towny.TownChatChannel;
 import com.ruinscraft.chat.channel.towny.TownyGlobalChatChannel;
@@ -45,6 +48,10 @@ public class ChatChannelManager {
         if (defaultChannel == null) {
             defaultChannel = new GlobalChatChannel(chatPlugin);
         }
+
+        channels.add(new MBChatChannel(chatPlugin));
+        channels.add(new MBSChatChannel(chatPlugin));
+        channels.add(new MBAChatChannel(chatPlugin));
 
         // Global channel will always be available
         channels.add(defaultChannel);
