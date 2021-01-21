@@ -1,44 +1,29 @@
 package com.ruinscraft.chat.message;
 
+import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.player.ChatPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import java.util.Objects;
 import java.util.UUID;
 
-public class MailMessage {
+public class MailMessage extends Message {
 
-    private UUID id;
-    private ChatPlayer sender;
     private ChatPlayer recipient;
-    private long time;
     private boolean read;
-    private String content;
 
-    public MailMessage(UUID id, ChatPlayer sender, ChatPlayer recipient, long time, boolean read, String content) {
-        this.id = id;
-        this.sender = sender;
+    public MailMessage(UUID id, long time, ChatPlayer sender, String content, ChatPlayer recipient, boolean read) {
+        super(id, time, sender, content);
         this.recipient = recipient;
-        this.time = time;
         this.read = read;
-        this.content = content;
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public ChatPlayer getSender() {
-        return sender;
+    public MailMessage(ChatPlayer sender, String content, ChatPlayer recipient) {
+        this(UUID.randomUUID(), System.currentTimeMillis(), sender, content, recipient, false);
     }
 
     public ChatPlayer getRecipient() {
         return recipient;
-    }
-
-    public long getTime() {
-        return time;
     }
 
     public boolean isRead() {
@@ -49,24 +34,10 @@ public class MailMessage {
         this.read = read;
     }
 
-    public String getContent() {
-        return content;
-    }
-
-    public void show(Player player) {
-        player.sendMessage(ChatColor.GOLD + "Message from: " + sender.getMinecraftUsername());
-        player.sendMessage(ChatColor.GRAY + content);
-    }
-
     @Override
-    public boolean equals(Object o) {
-        MailMessage that = (MailMessage) o;
-        return Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
+    protected void show0(ChatPlugin chatPlugin, Player to) {
+        to.sendMessage(ChatColor.GOLD + "Message from: " + getSender().getMinecraftUsername());
+        to.sendMessage(ChatColor.GRAY + getContent());
     }
 
 }

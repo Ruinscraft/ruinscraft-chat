@@ -2,7 +2,7 @@ package com.ruinscraft.chat.command;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.NetworkUtil;
-import com.ruinscraft.chat.message.DirectChatChatMessage;
+import com.ruinscraft.chat.message.DirectMessage;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
 import org.bukkit.ChatColor;
@@ -12,7 +12,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
-import java.util.UUID;
 
 public class DirectMessageCommand implements CommandExecutor {
 
@@ -41,11 +40,10 @@ public class DirectMessageCommand implements CommandExecutor {
 
                     if (recipient instanceof OnlineChatPlayer) {
                         String message = String.join(" ", Arrays.copyOfRange(args, 0, args.length));
-                        DirectChatChatMessage directChatChatMessage = new DirectChatChatMessage(UUID.randomUUID(), chatPlugin.getServerId(),
-                                onlineChatPlayer, recipient, System.currentTimeMillis(), message);
+                        DirectMessage directMessage = new DirectMessage(onlineChatPlayer, message, chatPlugin.getServerId(), recipient);
 
-                        chatPlugin.getChatStorage().saveChatMessage(directChatChatMessage).thenRun(() -> {
-                            NetworkUtil.sendPrivateChatEventPacket(chatPlugin, player, chatPlugin, directChatChatMessage.getId());
+                        chatPlugin.getChatStorage().saveChatMessage(directMessage).thenRun(() -> {
+                            NetworkUtil.sendPrivateChatEventPacket(chatPlugin, player, chatPlugin, directMessage.getId());
                         });
                     } else {
                         player.sendMessage(ChatColor.RED + "No one to reply to.");
@@ -70,11 +68,10 @@ public class DirectMessageCommand implements CommandExecutor {
 
                 if (recipient instanceof OnlineChatPlayer) {
                     String message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
-                    DirectChatChatMessage directChatChatMessage = new DirectChatChatMessage(UUID.randomUUID(), chatPlugin.getServerId(),
-                            onlineChatPlayer, recipient, System.currentTimeMillis(), message);
+                    DirectMessage directMessage = new DirectMessage(onlineChatPlayer, message, chatPlugin.getServerId(), recipient);
 
-                    chatPlugin.getChatStorage().saveChatMessage(directChatChatMessage).thenRun(() -> {
-                        NetworkUtil.sendPrivateChatEventPacket(chatPlugin, player, chatPlugin, directChatChatMessage.getId());
+                    chatPlugin.getChatStorage().saveChatMessage(directMessage).thenRun(() -> {
+                        NetworkUtil.sendPrivateChatEventPacket(chatPlugin, player, chatPlugin, directMessage.getId());
                     });
                 } else {
                     player.sendMessage(ChatColor.RED + target + " is not online.");

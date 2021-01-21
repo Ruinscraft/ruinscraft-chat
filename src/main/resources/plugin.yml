@@ -7,16 +7,25 @@ depend: [ Vault ]
 softdepend: [ PlotSquared, Towny, CinemaDisplays ]
 commands:
   list:
+    aliases: [ who, online, whoisonline, showplayers, whoup ]
   seen:
+    aliases: [ lastseen ]
   friend:
+    aliases: [ friends ]
   mail:
   block:
+    aliases: [ ignore ]
   unblock:
+    aliases: [ unignore ]
   nickname:
+    aliases: [ rpname ]
   nicknamereset:
+    aliases: [ rpnamereset ]
   namecolor:
     permission: ruinscraft.command.namecolor
   directmessage:
     aliases: [ dm, pm, m, msg, message, whisper, w ]
   reply:
     aliases: [ r ]
+  chat:
+    aliases: [ chatsettings ]

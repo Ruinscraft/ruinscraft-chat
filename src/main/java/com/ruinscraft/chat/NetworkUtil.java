@@ -4,9 +4,9 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.ruinscraft.chat.channel.ChatChannel;
-import com.ruinscraft.chat.message.BasicChatChatMessage;
 import com.ruinscraft.chat.message.ChatMessage;
-import com.ruinscraft.chat.message.DirectChatChatMessage;
+import com.ruinscraft.chat.message.DirectMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -137,18 +137,31 @@ public final class NetworkUtil {
         chatPlugin.getChatStorage().queryChatMessage(chatMessageId).thenAccept(chatMessageQuery -> {
             if (chatMessageQuery.hasResults()) {
                 ChatMessage chatMessage = chatMessageQuery.getFirst();
-                if (chatMessage instanceof BasicChatChatMessage) {
-                    BasicChatChatMessage basicChatChatMessage = (BasicChatChatMessage) chatMessage;
+
+                if (chatMessage instanceof DirectMessage) {
+                    DirectMessage directMessage = (DirectMessage) chatMessage;
+                    Player senderPlayer = Bukkit.getPlayer(directMessage.getSender().getMojangId());
+                    Player recipientPlayer = Bukkit.getPlayer(directMessage.getRecipient().getMojangId());
+
+                    if (senderPlayer != null) {
+                        directMessage.show(chatPlugin, senderPlayer);
+                    }
+
+                    if (recipientPlayer != null) {
+                        directMessage.show(chatPlugin, recipientPlayer);
+                    }
+                } else {
                     ChatChannel chatChannel = chatPlugin.getChatChannelManager().getChannel(chatMessage.getChannelDbName());
+
                     if (!chatChannel.isCrossServer()) {
                         if (!chatMessage.getOriginServerId().equals(chatPlugin.getServerId())) {
                             return;
                         }
                     }
-                    basicChatChatMessage.showToChat(chatPlugin);
-                } else if (chatMessage instanceof DirectChatChatMessage) {
-                    DirectChatChatMessage directChatChatMessage = (DirectChatChatMessage) chatMessage;
-                    directChatChatMessage.show(chatPlugin);
+
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        chatMessage.show(chatPlugin, player);
+                    }
                 }
             }
         });

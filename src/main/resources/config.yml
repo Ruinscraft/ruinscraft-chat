@@ -5,3 +5,81 @@ storage:
     database: chat
     username: root
     password: password
+badwords:
+  - anal
+  - anus
+  - arse
+  - ass
+  - ballsack
+  - balls
+  - bastard
+  - bitch
+  - biatch
+  - blowjob
+  - blow job
+  - bollock
+  - bollok
+  - boner
+  - boob
+  - bugger
+  - buttplug
+  - clitoris
+  - cock
+  - coon
+  - cunt
+  - cum
+  - cumming
+  - cums
+  - damn
+  - dick
+  - dildo
+  - dyke
+  - fag
+  - fagget
+  - faggot
+  - feck
+  - fellate
+  - fellatio
+  - felching
+  - fuck
+  - fucc
+  - fuk
+  - phuck
+  - fudgepacker
+  - fudge packer
+  - flange
+  - Goddamn
+  - God damn
+  - hell
+  - jizz
+  - knobend
+  - knob end
+  - labia
+  - lmao
+  - lmfao
+  - muff
+  - nigger
+  - nigga
+  - nibba
+  - nigqa
+  - niqqa
+  - niglet
+  - penis
+  - piss
+  - pube
+  - pussy
+  - queer
+  - scrotum
+  - sex
+  - shit
+  - slut
+  - smegma
+  - sperm
+  - spunk
+  - tit
+  - tosser
+  - twat
+  - vagina
+  - wank
+  - whore
+  - wtf

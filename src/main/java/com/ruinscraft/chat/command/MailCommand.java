@@ -11,7 +11,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
-import java.util.UUID;
 
 public class MailCommand implements CommandExecutor {
 
@@ -73,7 +72,7 @@ public class MailCommand implements CommandExecutor {
                     continue;
                 }
 
-                mailMessage.show(player);
+                mailMessage.show(chatPlugin, player);
 
                 hadMail = true;
             }
@@ -103,8 +102,7 @@ public class MailCommand implements CommandExecutor {
                 onlineChatPlayer.sendMessage(ChatColor.RED + target + " has never played before.");
             } else {
                 ChatPlayer chatPlayerTarget = chatPlayerQuery.getFirst();
-                MailMessage mailMessage = new MailMessage(UUID.randomUUID(),
-                        onlineChatPlayer, chatPlayerTarget, System.currentTimeMillis(), false, message);
+                MailMessage mailMessage = new MailMessage(onlineChatPlayer, message, chatPlayerTarget);
 
                 chatPlugin.getChatStorage().saveMailMessage(mailMessage).thenRun(() -> {
                     onlineChatPlayer.sendMessage(ChatColor.GOLD + "Mail sent!");

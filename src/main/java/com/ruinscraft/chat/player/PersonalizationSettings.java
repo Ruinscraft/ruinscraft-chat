@@ -6,10 +6,12 @@ public class PersonalizationSettings {
 
     private ChatColor nameColor;
     private String nickname;
+    private boolean hideProfanity;
 
-    public PersonalizationSettings(ChatColor nameColor, String nickname) {
+    public PersonalizationSettings(ChatColor nameColor, String nickname, boolean hideProfanity) {
         this.nameColor = nameColor;
         this.nickname = nickname;
+        this.hideProfanity = hideProfanity;
     }
 
     public ChatColor getNameColor() {
@@ -26,6 +28,14 @@ public class PersonalizationSettings {
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public boolean isHideProfanity() {
+        return hideProfanity;
+    }
+
+    public void setHideProfanity(boolean hideProfanity) {
+        this.hideProfanity = hideProfanity;
     }
 
 }

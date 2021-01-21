@@ -82,12 +82,12 @@ public class ChatPlugin extends JavaPlugin {
         getCommand("nickname").setExecutor(new NicknameCommand(this));
         getCommand("nicknamereset").setExecutor(new NicknameCommand(this));
         getCommand("namecolor").setExecutor(new NameColorCommand(this));
-
         DirectMessageCommand directMessageCommand = new DirectMessageCommand(this);
         getCommand("directmessage").setExecutor(directMessageCommand);
         getCommand("directmessage").setTabCompleter(new ChatPlayersTabCompleter(this));
         getCommand("reply").setExecutor(directMessageCommand);
         getCommand("reply").setTabCompleter(new EmptyTabCompleter());
+        getCommand("chat").setExecutor(new ChatCommand(this));
 
         VaultUtil.init();
         NetworkUtil.register(this);

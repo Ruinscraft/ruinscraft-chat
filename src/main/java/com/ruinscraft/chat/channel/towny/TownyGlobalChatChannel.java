@@ -7,7 +7,7 @@ import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.GlobalChatChannel;
-import com.ruinscraft.chat.message.BasicChatChatMessage;
+import com.ruinscraft.chat.message.ChatMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -19,14 +19,14 @@ public class TownyGlobalChatChannel extends GlobalChatChannel {
     }
 
     @Override
-    public String format(BasicChatChatMessage basicChatMessage) {
-        Player player = Bukkit.getPlayer(basicChatMessage.getSender().getMojangId());
+    public String format(ChatMessage chatMessage) {
+        Player player = Bukkit.getPlayer(chatMessage.getSender().getMojangId());
         Resident resident;
 
         try {
             resident = TownyUniverse.getInstance().getDataSource().getResident(player.getName());
         } catch (NotRegisteredException e) {
-            return super.format(basicChatMessage);
+            return super.format(chatMessage);
         }
 
         if (resident.hasTown()) {
@@ -35,7 +35,7 @@ public class TownyGlobalChatChannel extends GlobalChatChannel {
             try {
                 town = resident.getTown();
             } catch (NotRegisteredException e) {
-                return super.format(basicChatMessage);
+                return super.format(chatMessage);
             }
 
             StringBuilder stringBuilder = new StringBuilder();
@@ -47,7 +47,7 @@ public class TownyGlobalChatChannel extends GlobalChatChannel {
                 try {
                     nation = town.getNation();
                 } catch (NotRegisteredException e) {
-                    return super.format(basicChatMessage);
+                    return super.format(chatMessage);
                 }
 
                 stringBuilder.append(ChatColor.GRAY + ", " + ChatColor.DARK_PURPLE + nation.getName());
@@ -55,12 +55,12 @@ public class TownyGlobalChatChannel extends GlobalChatChannel {
 
             stringBuilder.append(ChatColor.GRAY + "]" + ChatColor.RESET);
             stringBuilder.append(" ");
-            stringBuilder.append(super.format(basicChatMessage));
+            stringBuilder.append(super.format(chatMessage));
 
             return stringBuilder.toString();
         }
 
-        return super.format(basicChatMessage);
+        return super.format(chatMessage);
     }
 
 }
