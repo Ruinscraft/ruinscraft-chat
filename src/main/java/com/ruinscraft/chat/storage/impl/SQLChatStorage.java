@@ -178,17 +178,26 @@ public abstract class SQLChatStorage extends ChatStorage {
     public CompletableFuture<Void> saveOnlineChatPlayer(OnlineChatPlayer chatPlayer) {
         return CompletableFuture.runAsync(() -> {
             try (Connection connection = createConnection()) {
-                try (PreparedStatement upsert = connection.prepareStatement("INSERT INTO " + Table.ONLINE_CHAT_PLAYERS + " (id, updated_at, server_name, group_name, vanished, last_dm) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE updated_at = ?, group_name = ?, vanished = ?, last_dm = ?;")) {
+                try (PreparedStatement upsert = connection.prepareStatement("INSERT INTO " + Table.ONLINE_CHAT_PLAYERS + " (id, updated_at, server_name, group_name, vanished, last_dm) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE updated_at = ?, server_name = ?, group_name = ?, vanished = ?, last_dm = ?;")) {
                     upsert.setString(1, chatPlayer.getMojangId().toString());
                     upsert.setLong(2, chatPlayer.getUpdatedAt());
                     upsert.setString(3, chatPlayer.getServerName());
                     upsert.setString(4, chatPlayer.getGroupName());
                     upsert.setBoolean(5, chatPlayer.isVanished());
-                    upsert.setString(6, chatPlayer.getLastDm().toString());
+                    if (chatPlayer.getLastDm() != null) {
+                        upsert.setString(6, chatPlayer.getLastDm().toString());
+                    } else {
+                        upsert.setString(6, null);
+                    }
                     upsert.setLong(7, chatPlayer.getUpdatedAt());
-                    upsert.setString(8, chatPlayer.getGroupName());
-                    upsert.setBoolean(9, chatPlayer.isVanished());
-                    upsert.setString(10, chatPlayer.getLastDm().toString());
+                    upsert.setString(8, chatPlayer.getServerName());
+                    upsert.setString(9, chatPlayer.getGroupName());
+                    upsert.setBoolean(10, chatPlayer.isVanished());
+                    if (chatPlayer.getLastDm() != null) {
+                        upsert.setString(11, chatPlayer.getLastDm().toString());
+                    } else {
+                        upsert.setString(11, null);
+                    }
                     upsert.execute();
                 }
             } catch (SQLException e) {
@@ -211,12 +220,20 @@ public abstract class SQLChatStorage extends ChatStorage {
                             String serverName = resultSet.getString("server_name");
                             String groupName = resultSet.getString("group_name");
                             boolean vanished = resultSet.getBoolean("vanished");
-                            UUID lastDm = UUID.fromString(resultSet.getString("last_dm"));
+                            UUID lastDm = null;
+                            if (resultSet.getString("last_dm") != null) {
+                                lastDm = UUID.fromString(resultSet.getString("last_dm"));
+                            }
                             ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().getOrLoad(mojangId).join();
                             final OnlineChatPlayer onlineChatPlayer;
 
                             if (chatPlayer instanceof OnlineChatPlayer) {
                                 onlineChatPlayer = (OnlineChatPlayer) chatPlayer;
+                                onlineChatPlayer.setUpdatedAt(updated);
+                                onlineChatPlayer.setGroupName(groupName);
+                                onlineChatPlayer.setServerName(serverName);
+                                onlineChatPlayer.setVanished(vanished);
+                                onlineChatPlayer.setLastDm(lastDm);
                             } else {
                                 onlineChatPlayer = new OnlineChatPlayer(chatPlayer, updated, serverName, groupName, vanished, lastDm);
                             }

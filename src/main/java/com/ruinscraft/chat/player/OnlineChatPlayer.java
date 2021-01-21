@@ -8,6 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class OnlineChatPlayer extends ChatPlayer {
 
@@ -43,6 +44,16 @@ public class OnlineChatPlayer extends ChatPlayer {
 
     public long getUpdatedAt() {
         return updatedAt;
+    }
+
+    public boolean isOnline() {
+        long check = updatedAt + TimeUnit.SECONDS.toMillis(SECONDS_UNTIL_OFFLINE);
+
+        if (check > System.currentTimeMillis()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void setUpdatedAt(long updatedAt) {

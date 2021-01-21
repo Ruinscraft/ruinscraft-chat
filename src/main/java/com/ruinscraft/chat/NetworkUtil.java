@@ -11,63 +11,71 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
+import java.io.*;
 import java.util.UUID;
 
 public final class NetworkUtil {
 
-    private static final String CHANNEL_CHAT = "ruinscraft:chat";
-    private static ChatPluginMessageListener M_LISTENER_CHAT;
     private static BungeeMessageListener M_LISTENER_BUNGEE;
 
     public static void register(ChatPlugin chatPlugin) {
-        M_LISTENER_CHAT = new ChatPluginMessageListener(chatPlugin);
-        M_LISTENER_BUNGEE = new BungeeMessageListener();
+        M_LISTENER_BUNGEE = new BungeeMessageListener(chatPlugin);
 
-        chatPlugin.getServer().getMessenger().registerOutgoingPluginChannel(chatPlugin, CHANNEL_CHAT);
-        chatPlugin.getServer().getMessenger().registerIncomingPluginChannel(chatPlugin, CHANNEL_CHAT, M_LISTENER_CHAT);
         chatPlugin.getServer().getMessenger().registerOutgoingPluginChannel(chatPlugin, "BungeeCord");
         chatPlugin.getServer().getMessenger().registerIncomingPluginChannel(chatPlugin, "BungeeCord", M_LISTENER_BUNGEE);
     }
 
     public static void unregister(ChatPlugin chatPlugin) {
-        chatPlugin.getServer().getMessenger().unregisterIncomingPluginChannel(chatPlugin, CHANNEL_CHAT);
-        chatPlugin.getServer().getMessenger().unregisterOutgoingPluginChannel(chatPlugin, CHANNEL_CHAT);
+        chatPlugin.getServer().getMessenger().unregisterIncomingPluginChannel(chatPlugin, "BungeeCord");
+        chatPlugin.getServer().getMessenger().unregisterOutgoingPluginChannel(chatPlugin, "BungeeCord");
     }
 
-    public static void sendChatEventPacket(Player player, JavaPlugin javaPlugin, UUID chatMessageId) {
-        String subChannel = "chat_event";
-        String argument = chatMessageId.toString();
-
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF(subChannel);
-        out.writeUTF(argument);
-        byte[] data = out.toByteArray();
-
-        // First, send locally
-        if (M_LISTENER_CHAT != null) {
-            M_LISTENER_CHAT.onPluginMessageReceived(subChannel, player, data);
+    public static void sendChatEventPacket(ChatPlugin chatPlugin, Player player, JavaPlugin javaPlugin, UUID chatMessageId) {
+        {
+            handleChatMessage(chatPlugin, chatMessageId);
         }
-
-        // Then, send out
-        player.sendPluginMessage(javaPlugin, CHANNEL_CHAT, data);
+        {
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("Forward");
+            out.writeUTF("ALL");
+            out.writeUTF("chat_event");
+            ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
+            DataOutputStream msgout = new DataOutputStream(msgbytes);
+            try {
+                msgout.writeUTF(chatMessageId.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+            out.writeShort(msgbytes.toByteArray().length);
+            out.write(msgbytes.toByteArray());
+            byte[] data = out.toByteArray();
+            player.sendPluginMessage(javaPlugin, "BungeeCord", data);
+        }
     }
 
-    public static void sendPrivateChatEventPacket(Player player, JavaPlugin javaPlugin, UUID privateChatMessageId) {
-        String subChannel = "private_chat_event";
-        String argument = privateChatMessageId.toString();
-
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF(subChannel);
-        out.writeUTF(argument);
-        byte[] data = out.toByteArray();
-
-        // First, send locally
-        if (M_LISTENER_CHAT != null) {
-            M_LISTENER_CHAT.onPluginMessageReceived(subChannel, player, data);
+    public static void sendPrivateChatEventPacket(ChatPlugin chatPlugin, Player player, JavaPlugin javaPlugin, UUID privateChatMessageId) {
+        {
+            handleChatMessage(chatPlugin, privateChatMessageId);
         }
-
-        // Then, send out
-        player.sendPluginMessage(javaPlugin, CHANNEL_CHAT, data);
+        {
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("Forward");
+            out.writeUTF("ALL");
+            out.writeUTF("private_chat_event");
+            ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
+            DataOutputStream msgout = new DataOutputStream(msgbytes);
+            try {
+                msgout.writeUTF(privateChatMessageId.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+            out.writeShort(msgbytes.toByteArray().length);
+            out.write(msgbytes.toByteArray());
+            byte[] data = out.toByteArray();
+            player.sendPluginMessage(javaPlugin, "BungeeCord", data);
+        }
     }
 
     public static void sendServerNameRequestBungeePacket(Player player, JavaPlugin javaPlugin) {
@@ -77,6 +85,12 @@ public final class NetworkUtil {
     }
 
     private static class BungeeMessageListener implements PluginMessageListener {
+        private ChatPlugin chatPlugin;
+
+        public BungeeMessageListener(ChatPlugin chatPlugin) {
+            this.chatPlugin = chatPlugin;
+        }
+
         @Override
         public void onPluginMessageReceived(String channel, Player player, byte[] data) {
             if (!channel.equals("BungeeCord")) {
@@ -89,57 +103,55 @@ public final class NetworkUtil {
             if (method.equals("GetServer")) {
                 String name = in.readUTF();
                 ChatPlugin.serverName = name;
+            } else if (method.equals("chat_event")) {
+                short len = in.readShort();
+                byte[] msgbytes = new byte[len];
+                in.readFully(msgbytes);
+                DataInputStream msgin = new DataInputStream(new ByteArrayInputStream(msgbytes));
+                UUID chatMessageId;
+                try {
+                    chatMessageId = UUID.fromString(msgin.readUTF());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }
+                handleChatMessage(chatPlugin, chatMessageId);
+            } else if (method.equals("private_chat_event")) {
+                short len = in.readShort();
+                byte[] msgbytes = new byte[len];
+                in.readFully(msgbytes);
+                DataInputStream msgin = new DataInputStream(new ByteArrayInputStream(msgbytes));
+                UUID chatMessageId;
+                try {
+                    chatMessageId = UUID.fromString(msgin.readUTF());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }
+                handleChatMessage(chatPlugin, chatMessageId);
             }
         }
     }
 
-    private static class ChatPluginMessageListener implements PluginMessageListener {
-        private ChatPlugin chatPlugin;
-
-        public ChatPluginMessageListener(ChatPlugin chatPlugin) {
-            this.chatPlugin = chatPlugin;
-        }
-
-        @Override
-        public void onPluginMessageReceived(String subChannel, Player player, byte[] data) {
-            ByteArrayDataInput in = ByteStreams.newDataInput(data);
-            String method = in.readUTF();
-
-            if (method.equals("chat_event")) {
-                UUID chatMessageId = UUID.fromString(in.readUTF());
-
-                chatPlugin.getChatStorage().queryChatMessage(chatMessageId).thenAccept(chatMessageQuery -> {
-                    if (chatMessageQuery.hasResults()) {
-                        ChatMessage chatMessage = chatMessageQuery.getFirst();
-                        ChatChannel chatChannel = chatPlugin.getChatChannelManager().getChannel(chatMessage.getChannelDbName());
-
-                        if (!chatChannel.isCrossServer()) {
-                            if (!chatMessage.getOriginServerId().equals(chatPlugin.getServerId())) {
-                                return;
-                            }
-                        }
-
-                        if (chatMessage instanceof BasicChatChatMessage) {
-                            BasicChatChatMessage basicChatChatMessage = (BasicChatChatMessage) chatMessage;
-                            basicChatChatMessage.showToChat(chatPlugin);
+    private static void handleChatMessage(ChatPlugin chatPlugin, UUID chatMessageId) {
+        chatPlugin.getChatStorage().queryChatMessage(chatMessageId).thenAccept(chatMessageQuery -> {
+            if (chatMessageQuery.hasResults()) {
+                ChatMessage chatMessage = chatMessageQuery.getFirst();
+                if (chatMessage instanceof BasicChatChatMessage) {
+                    BasicChatChatMessage basicChatChatMessage = (BasicChatChatMessage) chatMessage;
+                    ChatChannel chatChannel = chatPlugin.getChatChannelManager().getChannel(chatMessage.getChannelDbName());
+                    if (!chatChannel.isCrossServer()) {
+                        if (!chatMessage.getOriginServerId().equals(chatPlugin.getServerId())) {
+                            return;
                         }
                     }
-                });
-            } else if (method.equals("private_chat_event")) {
-                UUID privateChatMessageId = UUID.fromString(in.readUTF());
-
-                chatPlugin.getChatStorage().queryChatMessage(privateChatMessageId).thenAccept(chatMessageQuery -> {
-                    if (chatMessageQuery.hasResults()) {
-                        ChatMessage chatMessage = chatMessageQuery.getFirst();
-
-                        if (chatMessage instanceof DirectChatChatMessage) {
-                            DirectChatChatMessage directChatChatMessage = (DirectChatChatMessage) chatMessage;
-                            directChatChatMessage.show();
-                        }
-                    }
-                });
+                    basicChatChatMessage.showToChat(chatPlugin);
+                } else if (chatMessage instanceof DirectChatChatMessage) {
+                    DirectChatChatMessage directChatChatMessage = (DirectChatChatMessage) chatMessage;
+                    directChatChatMessage.show(chatPlugin);
+                }
             }
-        }
+        });
     }
 
 }

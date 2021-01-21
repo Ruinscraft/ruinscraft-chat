@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 public class ChatPlayerManager {
 
@@ -74,10 +73,7 @@ public class ChatPlayerManager {
         List<OnlineChatPlayer> loggedOut = new ArrayList<>();
 
         for (OnlineChatPlayer onlineChatPlayer : getOnlineChatPlayers()) {
-            long thresholdTime = System.currentTimeMillis()
-                    - TimeUnit.SECONDS.toMillis(OnlineChatPlayer.SECONDS_UNTIL_OFFLINE);
-
-            if (onlineChatPlayer.getUpdatedAt() < thresholdTime) {
+            if (!onlineChatPlayer.isOnline()) {
                 cache.remove(onlineChatPlayer.getMojangId());
                 loggedOut.add(onlineChatPlayer);
             }

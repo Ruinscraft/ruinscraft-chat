@@ -45,7 +45,7 @@ public class DirectMessageCommand implements CommandExecutor {
                                 onlineChatPlayer, recipient, System.currentTimeMillis(), message);
 
                         chatPlugin.getChatStorage().saveChatMessage(directChatChatMessage).thenRun(() -> {
-                            NetworkUtil.sendPrivateChatEventPacket(player, chatPlugin, directChatChatMessage.getId());
+                            NetworkUtil.sendPrivateChatEventPacket(chatPlugin, player, chatPlugin, directChatChatMessage.getId());
                         });
                     } else {
                         player.sendMessage(ChatColor.RED + "No one to reply to.");
@@ -60,6 +60,12 @@ public class DirectMessageCommand implements CommandExecutor {
                 player.sendMessage(ChatColor.RED + "/" + label + " <username> <message>");
             } else {
                 String target = args[0];
+
+                if (target.equalsIgnoreCase(player.getName())) {
+                    player.sendMessage(ChatColor.RED + "You cannot direct message yourself.");
+                    return true;
+                }
+
                 ChatPlayer recipient = chatPlugin.getChatPlayerManager().get(target);
 
                 if (recipient instanceof OnlineChatPlayer) {
@@ -68,8 +74,7 @@ public class DirectMessageCommand implements CommandExecutor {
                             onlineChatPlayer, recipient, System.currentTimeMillis(), message);
 
                     chatPlugin.getChatStorage().saveChatMessage(directChatChatMessage).thenRun(() -> {
-                        NetworkUtil.sendPrivateChatEventPacket(player, chatPlugin, directChatChatMessage.getId());
-                        onlineChatPlayer.setLastDm(recipient.getMojangId());
+                        NetworkUtil.sendPrivateChatEventPacket(chatPlugin, player, chatPlugin, directChatChatMessage.getId());
                     });
                 } else {
                     player.sendMessage(ChatColor.RED + target + " is not online.");

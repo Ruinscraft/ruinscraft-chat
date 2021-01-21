@@ -108,7 +108,7 @@ public abstract class ChatChannel {
                     BasicChatChatMessage basicChatMessage = new BasicChatChatMessage(chatPlugin, onlineChatPlayer, ChatChannel.this, message);
 
                     chatPlugin.getChatStorage().saveChatMessage(basicChatMessage)
-                            .thenRun(() -> NetworkUtil.sendChatEventPacket(player, chatPlugin, basicChatMessage.getId()));
+                            .thenRun(() -> NetworkUtil.sendChatEventPacket(chatPlugin, player, chatPlugin, basicChatMessage.getId()));
                 }
 
                 return true;

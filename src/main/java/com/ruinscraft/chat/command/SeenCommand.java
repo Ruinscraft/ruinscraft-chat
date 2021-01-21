@@ -19,7 +19,7 @@ public class SeenCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length < 1) {
-            sender.sendMessage(ChatColor.RED + label + " <username>");
+            sender.sendMessage(ChatColor.RED + "/" + label + " <username>");
             return true;
         }
 

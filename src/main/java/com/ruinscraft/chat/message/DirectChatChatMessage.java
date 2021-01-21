@@ -1,5 +1,6 @@
 package com.ruinscraft.chat.message;
 
+import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
 import net.md_5.bungee.api.ChatColor;
@@ -64,11 +65,16 @@ public class DirectChatChatMessage implements ChatMessage {
         return recipient;
     }
 
-    public void show() {
+    public void show(ChatPlugin chatPlugin) {
         Player senderPlayer = Bukkit.getPlayer(sender.getMojangId());
         Player recipientPlayer = Bukkit.getPlayer(recipient.getMojangId());
 
         if (senderPlayer != null && senderPlayer.isOnline()) {
+            if (sender instanceof OnlineChatPlayer) {
+                OnlineChatPlayer onlineSender = (OnlineChatPlayer) sender;
+                onlineSender.setLastDm(recipient.getMojangId());
+            }
+
             ComponentBuilder componentBuilder = new ComponentBuilder("[to: " + recipient.getMinecraftUsername() + "] ")
                     .color(ChatColor.DARK_AQUA)
                     .append(content)
@@ -78,6 +84,11 @@ public class DirectChatChatMessage implements ChatMessage {
         }
 
         if (recipientPlayer != null && recipientPlayer.isOnline()) {
+            if (recipient instanceof OnlineChatPlayer) {
+                OnlineChatPlayer onlineRecipient = (OnlineChatPlayer) recipient;
+                onlineRecipient.setLastDm(sender.getMojangId());
+            }
+
             showNewMessageActionBar(recipientPlayer, sender.getMinecraftUsername());
 
             ComponentBuilder componentBuilder = new ComponentBuilder("[from: " + sender.getMinecraftUsername() + "] ")
@@ -92,7 +103,7 @@ public class DirectChatChatMessage implements ChatMessage {
 
             componentBuilder.append(content).color(ChatColor.AQUA);
 
-            senderPlayer.spigot().sendMessage(componentBuilder.create());
+            recipientPlayer.spigot().sendMessage(componentBuilder.create());
         }
     }
 

@@ -31,6 +31,8 @@ public class UpdateOnlinePlayersTask implements Runnable {
             ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(player.getUniqueId());
             final OnlineChatPlayer onlineChatPlayer;
 
+            chatPlayer.setLastSeen(System.currentTimeMillis());
+
             long now = System.currentTimeMillis();
             String group = VaultUtil.getGroup(player);
             String serverName = ChatPlugin.serverName == null ? "Unknown" : ChatPlugin.serverName;
@@ -44,9 +46,10 @@ public class UpdateOnlinePlayersTask implements Runnable {
                 onlineChatPlayer.setServerName(serverName);
                 onlineChatPlayer.setVanished(vanished);
             } else {
+                /* Create new online chat player */
                 onlineChatPlayer = new OnlineChatPlayer(chatPlayer, now, serverName, group, vanished, lastDm);
 
-                chatPlugin.getChatPlayerManager().put(player.getUniqueId(), onlineChatPlayer);
+                /* Fetch blocked players */
                 chatPlugin.getChatStorage().queryBlocked(onlineChatPlayer).thenAccept(chatPlayerQuery -> {
                     Set<ChatPlayer> blockedChatPlayers = new HashSet<>();
                     for (ChatPlayer blockedChatPlayer : chatPlayerQuery.getResults()) {
@@ -54,6 +57,7 @@ public class UpdateOnlinePlayersTask implements Runnable {
                     }
                     onlineChatPlayer.setBlocked(blockedChatPlayers);
                 });
+                /* Fetch focused channels */
                 chatPlugin.getChatStorage().queryFocusedChannels(onlineChatPlayer).thenAccept(focusedChatChannelNameQuery -> {
                     for (String chatChannelDbName : focusedChatChannelNameQuery.getResults()) {
                         ChatChannel channel = chatPlugin.getChatChannelManager().getChannel(chatChannelDbName);
@@ -62,6 +66,7 @@ public class UpdateOnlinePlayersTask implements Runnable {
                         }
                     }
                 });
+                /* Fetch personalization settings */
                 chatPlugin.getChatStorage().queryPersonalizationSettings(onlineChatPlayer).thenAccept(personalizationSettingsQuery -> {
                     if (personalizationSettingsQuery.hasResults()) {
                         PersonalizationSettings personalizationSettings = personalizationSettingsQuery.getFirst();
@@ -70,25 +75,19 @@ public class UpdateOnlinePlayersTask implements Runnable {
                 });
             }
 
-            chatPlayer.setLastSeen(System.currentTimeMillis());
-
             chatPlugin.getChatStorage().saveChatPlayer(chatPlayer);
             chatPlugin.getChatStorage().saveOnlineChatPlayer(onlineChatPlayer);
         }
 
         chatPlugin.getChatStorage().queryOnlineChatPlayers().thenAccept(onlineChatPlayerQuery -> {
-            List<OnlineChatPlayer> previouslyOnline = chatPlugin.getChatPlayerManager().getOnlineChatPlayers();
-
-            // Find online players from other servers
-            for (OnlineChatPlayer currentlyOnline : onlineChatPlayerQuery.getResults()) {
-                if (!previouslyOnline.contains(currentlyOnline)) {
-                    // Player has joined
+            for (OnlineChatPlayer onlineChatPlayer : onlineChatPlayerQuery.getResults()) {
+                if (!(chatPlugin.getChatPlayerManager().get(onlineChatPlayer.getMojangId()) instanceof OnlineChatPlayer)) {
+                    chatPlugin.getChatPlayerManager().put(onlineChatPlayer.getMojangId(), onlineChatPlayer);
                     chatPlugin.getServer().getScheduler().runTask(chatPlugin, () -> {
-                        ChatPlayerLoginEvent event = new ChatPlayerLoginEvent(currentlyOnline);
+                        // Player has joined
+                        ChatPlayerLoginEvent event = new ChatPlayerLoginEvent(onlineChatPlayer);
                         chatPlugin.getServer().getPluginManager().callEvent(event);
                     });
-
-                    chatPlugin.getChatPlayerManager().put(currentlyOnline.getMojangId(), currentlyOnline);
                 }
             }
         }).thenRun(() -> {

@@ -4,6 +4,7 @@ import com.ruinscraft.chat.channel.ChatChannelManager;
 import com.ruinscraft.chat.command.*;
 import com.ruinscraft.chat.command.completers.BlockedPlayersTabCompleter;
 import com.ruinscraft.chat.command.completers.ChatPlayersTabCompleter;
+import com.ruinscraft.chat.command.completers.EmptyTabCompleter;
 import com.ruinscraft.chat.listener.ChatListener;
 import com.ruinscraft.chat.listener.ChatPlayerListener;
 import com.ruinscraft.chat.listener.PlayerJoinListener;
@@ -84,7 +85,9 @@ public class ChatPlugin extends JavaPlugin {
 
         DirectMessageCommand directMessageCommand = new DirectMessageCommand(this);
         getCommand("directmessage").setExecutor(directMessageCommand);
+        getCommand("directmessage").setTabCompleter(new ChatPlayersTabCompleter(this));
         getCommand("reply").setExecutor(directMessageCommand);
+        getCommand("reply").setTabCompleter(new EmptyTabCompleter());
 
         VaultUtil.init();
         NetworkUtil.register(this);

@@ -6,7 +6,7 @@ import org.bukkit.ChatColor;
 public class MBAChatChannel extends MBChatChannel {
 
     public MBAChatChannel(ChatPlugin chatPlugin) {
-        super(chatPlugin, "mba", ChatColor.GRAY + "[" + ChatColor.DARK_RED + "mbs" + ChatColor.GRAY + "]", ChatColor.DARK_RED);
+        super(chatPlugin, "mba", ChatColor.GRAY + "[" + ChatColor.DARK_RED + "mba" + ChatColor.GRAY + "]", ChatColor.DARK_RED);
     }
 
 }
