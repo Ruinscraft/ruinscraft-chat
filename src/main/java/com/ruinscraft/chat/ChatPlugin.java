@@ -80,6 +80,7 @@ public class ChatPlugin extends JavaPlugin {
         getCommand("unblock").setTabCompleter(new BlockedPlayersTabCompleter(this));
         getCommand("nickname").setExecutor(new NicknameCommand(this));
         getCommand("nicknamereset").setExecutor(new NicknameCommand(this));
+        getCommand("namecolor").setExecutor(new NameColorCommand(this));
 
         VaultUtil.init();
         NetworkUtil.register(this);

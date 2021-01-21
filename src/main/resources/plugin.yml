@@ -4,7 +4,7 @@ version: ${version}
 api-version: 1.13
 author: royalkingkb
 depend: [ Vault ]
-softdepend: [ PlotSquared, Towny ]
+softdepend: [ PlotSquared, Towny, CinemaDisplays ]
 commands:
   list:
   seen:
@@ -14,3 +14,5 @@ commands:
   unblock:
   nickname:
   nicknamereset:
+  namecolor:
+    permission: ruinscraft.command.namecolor
