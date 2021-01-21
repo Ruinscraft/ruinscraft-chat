@@ -2,7 +2,7 @@ package com.ruinscraft.chat.listener;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.NetworkUtil;
-import com.ruinscraft.chat.message.ChatMessage;
+import com.ruinscraft.chat.message.BasicChatChatMessage;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -22,11 +22,11 @@ public class ChatListener implements Listener {
         Player player = event.getPlayer();
         OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
         String message = event.getMessage();
-        ChatMessage chatMessage = new ChatMessage(chatPlugin, onlineChatPlayer,
+        BasicChatChatMessage basicChatMessage = new BasicChatChatMessage(chatPlugin, onlineChatPlayer,
                 onlineChatPlayer.getFocused(chatPlugin), message);
 
-        chatPlugin.getChatStorage().saveChatMessage(chatMessage)
-                .thenRun(() -> NetworkUtil.sendChatEventPacket(player, chatPlugin, chatMessage.getId()));
+        chatPlugin.getChatStorage().saveChatMessage(basicChatMessage)
+                .thenRun(() -> NetworkUtil.sendChatEventPacket(player, chatPlugin, basicChatMessage.getId()));
 
         event.setCancelled(true);
     }

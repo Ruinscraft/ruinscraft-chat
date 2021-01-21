@@ -3,7 +3,7 @@ package com.ruinscraft.chat.channel;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.NetworkUtil;
 import com.ruinscraft.chat.VaultUtil;
-import com.ruinscraft.chat.message.ChatMessage;
+import com.ruinscraft.chat.message.BasicChatChatMessage;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -58,8 +58,8 @@ public abstract class ChatChannel {
         return crossServer;
     }
 
-    public String format(ChatMessage chatMessage) {
-        Player player = Bukkit.getPlayer(chatMessage.getSender().getMojangId());
+    public String format(BasicChatChatMessage basicChatMessage) {
+        Player player = Bukkit.getPlayer(basicChatMessage.getSender().getMojangId());
         OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
         StringJoiner stringJoiner = new StringJoiner(" ");
@@ -71,7 +71,7 @@ public abstract class ChatChannel {
         if (hasNickname) {
             stringJoiner.add(ChatColor.GOLD + "(" + onlineChatPlayer.getPersonalizationSettings().getNickname() + ")");
         }
-        stringJoiner.add(getChatColor() + chatMessage.getContent());
+        stringJoiner.add(getChatColor() + basicChatMessage.getContent());
 
         return stringJoiner.toString();
     }
@@ -105,10 +105,10 @@ public abstract class ChatChannel {
                 } else {
                     // Send message to channel without switching focused
                     String message = String.join(" ", Arrays.copyOfRange(args, 0, args.length));
-                    ChatMessage chatMessage = new ChatMessage(chatPlugin, onlineChatPlayer, ChatChannel.this, message);
+                    BasicChatChatMessage basicChatMessage = new BasicChatChatMessage(chatPlugin, onlineChatPlayer, ChatChannel.this, message);
 
-                    chatPlugin.getChatStorage().saveChatMessage(chatMessage)
-                            .thenRun(() -> NetworkUtil.sendChatEventPacket(player, chatPlugin, chatMessage.getId()));
+                    chatPlugin.getChatStorage().saveChatMessage(basicChatMessage)
+                            .thenRun(() -> NetworkUtil.sendChatEventPacket(player, chatPlugin, basicChatMessage.getId()));
                 }
 
                 return true;
@@ -116,7 +116,7 @@ public abstract class ChatChannel {
         };
     }
 
-    public Collection<? extends Player> getRecipients(ChatMessage chatMessage) {
+    public Collection<? extends Player> getRecipients(BasicChatChatMessage basicChatMessage) {
         return Bukkit.getOnlinePlayers();
     }
 

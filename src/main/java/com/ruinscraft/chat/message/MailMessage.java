@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import java.util.Objects;
 import java.util.UUID;
 
-public class MailMessage implements Message {
+public class MailMessage {
 
     private UUID id;
     private ChatPlayer sender;

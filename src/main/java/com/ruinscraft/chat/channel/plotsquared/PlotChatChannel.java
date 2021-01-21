@@ -4,7 +4,7 @@ import com.github.intellectualsites.plotsquared.plot.object.Plot;
 import com.github.intellectualsites.plotsquared.plot.object.PlotPlayer;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
-import com.ruinscraft.chat.message.ChatMessage;
+import com.ruinscraft.chat.message.BasicChatChatMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -21,9 +21,9 @@ public class PlotChatChannel extends ChatChannel {
     }
 
     @Override
-    public Collection<? extends Player> getRecipients(ChatMessage chatMessage) {
+    public Collection<? extends Player> getRecipients(BasicChatChatMessage basicChatMessage) {
         Set<Player> recipients = new HashSet<>();
-        Player player = Bukkit.getPlayer(chatMessage.getSender().getMojangId());
+        Player player = Bukkit.getPlayer(basicChatMessage.getSender().getMojangId());
         PlotPlayer plotPlayer = PlotPlayer.wrap(player);
         Plot plot = plotPlayer.getCurrentPlot();
 

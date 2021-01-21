@@ -2,7 +2,7 @@ package com.ruinscraft.chat.storage.impl;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
-import com.ruinscraft.chat.message.ChatMessage;
+import com.ruinscraft.chat.message.BasicChatChatMessage;
 import com.ruinscraft.chat.message.MailMessage;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.FriendRequest;
@@ -40,7 +40,7 @@ public abstract class SQLChatStorage extends ChatStorage {
         try (Connection connection = createConnection()) {
             try (Statement statement = connection.createStatement()) {
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.CHAT_PLAYERS + " (id VARCHAR(36), username VARCHAR(16), first_seen BIGINT, last_seen BIGINT, PRIMARY KEY (id));");
-                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.ONLINE_CHAT_PLAYERS + " (id VARCHAR(36), updated_at BIGINT, server_name VARCHAR(32), group_name VARCHAR(32), vanished BOOL, PRIMARY KEY (id), FOREIGN KEY (id) REFERENCES " + Table.CHAT_PLAYERS + "(id));");
+                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.ONLINE_CHAT_PLAYERS + " (id VARCHAR(36), updated_at BIGINT, server_name VARCHAR(32), group_name VARCHAR(32), vanished BOOL, last_dm VARCHAR(36), PRIMARY KEY (id), FOREIGN KEY (id) REFERENCES " + Table.CHAT_PLAYERS + "(id));");
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.CHAT_MESSAGES + " (id VARCHAR(36), server_id VARCHAR(36), channel VARCHAR(64), time BIGINT, sender_id VARCHAR(36), content VARCHAR(255), PRIMARY KEY (id));");
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.FRIEND_REQUESTS + " (requester_id VARCHAR(36), target_id VARCHAR(36), time BIGINT, accepted BOOL, FOREIGN KEY (requester_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), FOREIGN KEY (target_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), UNIQUE KEY friend (requester_id, target_id));");
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.MAIL_MESSAGES + " (id VARCHAR(36), sender_id VARCHAR(36), recipient_id VARCHAR(36), time BIGINT, is_read BOOL, content VARCHAR(255), PRIMARY KEY (id), FOREIGN KEY (sender_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), FOREIGN KEY (recipient_id) REFERENCES " + Table.CHAT_PLAYERS + "(id));");
@@ -112,17 +112,17 @@ public abstract class SQLChatStorage extends ChatStorage {
     }
 
     @Override
-    public CompletableFuture<Void> saveChatMessage(ChatMessage chatMessage) {
+    public CompletableFuture<Void> saveChatMessage(BasicChatChatMessage basicChatMessage) {
         return CompletableFuture.runAsync(() -> {
             try (Connection connection = createConnection()) {
                 try (PreparedStatement insert = connection.prepareStatement(
                         "INSERT INTO " + Table.CHAT_MESSAGES + " (id, server_id, channel, time, sender_id, content) VALUES (?, ?, ?, ?, ?, ?);")) {
-                    insert.setString(1, chatMessage.getId().toString());
-                    insert.setString(2, chatMessage.getOriginServerId().toString());
-                    insert.setString(3, chatMessage.getChannel().getDatabaseName());
-                    insert.setLong(4, chatMessage.getTime());
-                    insert.setString(5, chatMessage.getSender().getMojangId().toString());
-                    insert.setString(6, chatMessage.getContent());
+                    insert.setString(1, basicChatMessage.getId().toString());
+                    insert.setString(2, basicChatMessage.getOriginServerId().toString());
+                    insert.setString(3, basicChatMessage.getChannel().getDatabaseName());
+                    insert.setLong(4, basicChatMessage.getTime());
+                    insert.setString(5, basicChatMessage.getSender().getMojangId().toString());
+                    insert.setString(6, basicChatMessage.getContent());
                     insert.execute();
                 }
             } catch (SQLException e) {
@@ -151,8 +151,8 @@ public abstract class SQLChatStorage extends ChatStorage {
                             UUID senderId = UUID.fromString(resultSet.getString("sender_id"));
                             String content = resultSet.getString("content");
                             ChatPlayer sender = chatPlugin.getChatPlayerManager().getOrLoad(senderId).join();
-                            ChatMessage chatMessage = new ChatMessage(chatMessageId, serverId, channel, time, sender, content);
-                            chatMessageQuery.addResult(chatMessage);
+                            BasicChatChatMessage basicChatMessage = new BasicChatChatMessage(chatMessageId, serverId, channel, time, sender, content);
+                            chatMessageQuery.addResult(basicChatMessage);
                         }
                     }
                 }
@@ -168,15 +168,17 @@ public abstract class SQLChatStorage extends ChatStorage {
     public CompletableFuture<Void> saveOnlineChatPlayer(OnlineChatPlayer chatPlayer) {
         return CompletableFuture.runAsync(() -> {
             try (Connection connection = createConnection()) {
-                try (PreparedStatement upsert = connection.prepareStatement("INSERT INTO " + Table.ONLINE_CHAT_PLAYERS + " (id, updated_at, server_name, group_name, vanished) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE updated_at = ?, group_name = ?, vanished = ?;")) {
+                try (PreparedStatement upsert = connection.prepareStatement("INSERT INTO " + Table.ONLINE_CHAT_PLAYERS + " (id, updated_at, server_name, group_name, vanished, last_dm) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE updated_at = ?, group_name = ?, vanished = ?, last_dm = ?;")) {
                     upsert.setString(1, chatPlayer.getMojangId().toString());
                     upsert.setLong(2, chatPlayer.getUpdatedAt());
                     upsert.setString(3, chatPlayer.getServerName());
                     upsert.setString(4, chatPlayer.getGroupName());
                     upsert.setBoolean(5, chatPlayer.isVanished());
-                    upsert.setLong(6, chatPlayer.getUpdatedAt());
-                    upsert.setString(7, chatPlayer.getGroupName());
-                    upsert.setBoolean(8, chatPlayer.isVanished());
+                    upsert.setString(6, chatPlayer.getLastDm().toString());
+                    upsert.setLong(7, chatPlayer.getUpdatedAt());
+                    upsert.setString(8, chatPlayer.getGroupName());
+                    upsert.setBoolean(9, chatPlayer.isVanished());
+                    upsert.setString(10, chatPlayer.getLastDm().toString());
                     upsert.execute();
                 }
             } catch (SQLException e) {
@@ -199,13 +201,14 @@ public abstract class SQLChatStorage extends ChatStorage {
                             String serverName = resultSet.getString("server_name");
                             String groupName = resultSet.getString("group_name");
                             boolean vanished = resultSet.getBoolean("vanished");
+                            UUID lastDm = UUID.fromString(resultSet.getString("last_dm"));
                             ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().getOrLoad(mojangId).join();
                             final OnlineChatPlayer onlineChatPlayer;
 
                             if (chatPlayer instanceof OnlineChatPlayer) {
                                 onlineChatPlayer = (OnlineChatPlayer) chatPlayer;
                             } else {
-                                onlineChatPlayer = new OnlineChatPlayer(chatPlayer, updated, serverName, groupName, vanished);
+                                onlineChatPlayer = new OnlineChatPlayer(chatPlayer, updated, serverName, groupName, vanished, lastDm);
                             }
 
                             onlineChatPlayerQuery.addResult(onlineChatPlayer);

@@ -1,7 +1,7 @@
 package com.ruinscraft.chat.storage;
 
 import com.ruinscraft.chat.channel.ChatChannel;
-import com.ruinscraft.chat.message.ChatMessage;
+import com.ruinscraft.chat.message.BasicChatChatMessage;
 import com.ruinscraft.chat.message.MailMessage;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.FriendRequest;
@@ -20,7 +20,7 @@ public abstract class ChatStorage {
 
     public abstract CompletableFuture<ChatPlayerQuery> queryChatPlayer(String username);
 
-    public abstract CompletableFuture<Void> saveChatMessage(ChatMessage chatMessage);
+    public abstract CompletableFuture<Void> saveChatMessage(BasicChatChatMessage basicChatMessage);
 
     public abstract CompletableFuture<ChatMessageQuery> queryChatMessage(UUID chatMessageId);
 

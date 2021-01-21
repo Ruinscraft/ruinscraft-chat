@@ -2,7 +2,7 @@ package com.ruinscraft.chat.channel;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.VaultUtil;
-import com.ruinscraft.chat.message.ChatMessage;
+import com.ruinscraft.chat.message.BasicChatChatMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -24,14 +24,14 @@ public class GlobalChatChannel extends ChatChannel {
     }
 
     @Override
-    public String format(ChatMessage chatMessage) {
-        Player player = Bukkit.getPlayer(chatMessage.getSender().getMojangId());
+    public String format(BasicChatChatMessage basicChatMessage) {
+        Player player = Bukkit.getPlayer(basicChatMessage.getSender().getMojangId());
 
         StringJoiner stringJoiner = new StringJoiner(" ");
         stringJoiner.add(ChatColor.GRAY + "[" + VaultUtil.getPrefix(player) + ChatColor.GRAY + "]");
         stringJoiner.add(ChatColor.GRAY + player.getName());
         stringJoiner.add(ChatColor.DARK_GRAY + ChatColor.BOLD.toString() + ">");
-        stringJoiner.add(ChatColor.RESET + chatMessage.getContent());
+        stringJoiner.add(ChatColor.RESET + basicChatMessage.getContent());
 
         return stringJoiner.toString();
     }

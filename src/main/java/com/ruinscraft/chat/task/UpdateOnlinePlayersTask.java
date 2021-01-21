@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 public class UpdateOnlinePlayersTask implements Runnable {
 
@@ -34,6 +35,7 @@ public class UpdateOnlinePlayersTask implements Runnable {
             String group = VaultUtil.getGroup(player);
             String serverName = ChatPlugin.serverName == null ? "Unknown" : ChatPlugin.serverName;
             boolean vanished = false;
+            UUID lastDm = null;
 
             if (chatPlayer instanceof OnlineChatPlayer) {
                 onlineChatPlayer = (OnlineChatPlayer) chatPlayer;
@@ -42,7 +44,7 @@ public class UpdateOnlinePlayersTask implements Runnable {
                 onlineChatPlayer.setServerName(serverName);
                 onlineChatPlayer.setVanished(vanished);
             } else {
-                onlineChatPlayer = new OnlineChatPlayer(chatPlayer, now, serverName, group, vanished);
+                onlineChatPlayer = new OnlineChatPlayer(chatPlayer, now, serverName, group, vanished, lastDm);
 
                 chatPlugin.getChatPlayerManager().put(player.getUniqueId(), onlineChatPlayer);
                 chatPlugin.getChatStorage().queryBlocked(onlineChatPlayer).thenAccept(chatPlayerQuery -> {

@@ -3,7 +3,7 @@ package com.ruinscraft.chat;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import com.ruinscraft.chat.message.ChatMessage;
+import com.ruinscraft.chat.message.BasicChatChatMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -38,7 +38,24 @@ public final class NetworkUtil {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF(subChannel);
         out.writeUTF(argument);
+        byte[] data = out.toByteArray();
 
+        // First, send locally
+        if (M_LISTENER_CHAT != null) {
+            M_LISTENER_CHAT.onPluginMessageReceived(subChannel, player, data);
+        }
+
+        // Then, send out
+        player.sendPluginMessage(javaPlugin, CHANNEL_CHAT, data);
+    }
+
+    public static void sendPrivateChatEventPacket(Player player, JavaPlugin javaPlugin, UUID privateChatMessageId) {
+        String subChannel = "private_chat_event";
+        String argument = privateChatMessageId.toString();
+
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF(subChannel);
+        out.writeUTF(argument);
         byte[] data = out.toByteArray();
 
         // First, send locally
@@ -90,17 +107,22 @@ public final class NetworkUtil {
 
                 chatPlugin.getChatStorage().queryChatMessage(chatMessageId).thenAccept(chatMessageQuery -> {
                     if (chatMessageQuery.hasResults()) {
-                        ChatMessage chatMessage = chatMessageQuery.getFirst();
+                        BasicChatChatMessage basicChatMessage = chatMessageQuery.getFirst();
 
-                        if (!chatMessage.getChannel().isCrossServer()) {
-                            if (!chatMessage.getOriginServerId().equals(chatPlugin.getServerId())) {
+                        if (!basicChatMessage.getChannel().isCrossServer()) {
+                            if (!basicChatMessage.getOriginServerId().equals(chatPlugin.getServerId())) {
                                 return;
                             }
                         }
 
-                        chatMessage.showToChat(chatPlugin);
+                        basicChatMessage.showToChat(chatPlugin);
                     }
                 });
+            } else if (method.equals("private_chat_event")) {
+                UUID privateChatMessageId = UUID.fromString(in.readUTF());
+
+
+
             }
         }
     }

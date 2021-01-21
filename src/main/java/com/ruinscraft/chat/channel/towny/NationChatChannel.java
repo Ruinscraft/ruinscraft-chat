@@ -6,7 +6,7 @@ import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.ruinscraft.chat.ChatPlugin;
-import com.ruinscraft.chat.message.ChatMessage;
+import com.ruinscraft.chat.message.BasicChatChatMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -22,8 +22,8 @@ public class NationChatChannel extends TownyChatChannel {
     }
 
     @Override
-    public Collection<? extends Player> getRecipients(ChatMessage chatMessage) {
-        Player player = Bukkit.getPlayer(chatMessage.getSender().getMojangId());
+    public Collection<? extends Player> getRecipients(BasicChatChatMessage basicChatMessage) {
+        Player player = Bukkit.getPlayer(basicChatMessage.getSender().getMojangId());
         Resident resident;
         Nation nation;
 

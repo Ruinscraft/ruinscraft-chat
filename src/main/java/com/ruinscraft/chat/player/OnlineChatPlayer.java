@@ -17,26 +17,28 @@ public class OnlineChatPlayer extends ChatPlayer {
     private String serverName;
     private String groupName;
     private boolean vanished;
+    private UUID lastDm;
     private List<FriendRequest> friendRequests;
     private List<MailMessage> mailMessages;
     private Set<ChatPlayer> blocked;
     private ChatChannel focused;
     private PersonalizationSettings personalizationSettings;
 
-    public OnlineChatPlayer(UUID mojangId, String minecraftUsername, long firstSeen, long lastSeen, long updatedAt, String serverName, String groupName, boolean vanished) {
+    public OnlineChatPlayer(UUID mojangId, String minecraftUsername, long firstSeen, long lastSeen, long updatedAt, String serverName, String groupName, boolean vanished, UUID lastDm) {
         super(mojangId, minecraftUsername, firstSeen, lastSeen);
         this.updatedAt = updatedAt;
         this.serverName = serverName;
         this.groupName = groupName;
         this.vanished = vanished;
+        this.lastDm = lastDm;
         friendRequests = new ArrayList<>();
         mailMessages = new ArrayList<>();
         blocked = new HashSet<>();
         personalizationSettings = new PersonalizationSettings(ChatColor.GRAY, "");
     }
 
-    public OnlineChatPlayer(ChatPlayer chatPlayer, long updatedAt, String serverName, String groupName, boolean vanished) {
-        this(chatPlayer.getMojangId(), chatPlayer.getMinecraftUsername(), chatPlayer.getFirstSeen(), chatPlayer.getLastSeen(), updatedAt, serverName, groupName, vanished);
+    public OnlineChatPlayer(ChatPlayer chatPlayer, long updatedAt, String serverName, String groupName, boolean vanished, UUID lastDm) {
+        this(chatPlayer.getMojangId(), chatPlayer.getMinecraftUsername(), chatPlayer.getFirstSeen(), chatPlayer.getLastSeen(), updatedAt, serverName, groupName, vanished, lastDm);
     }
 
     public long getUpdatedAt() {
@@ -69,6 +71,18 @@ public class OnlineChatPlayer extends ChatPlayer {
 
     public void setVanished(boolean vanished) {
         this.vanished = vanished;
+    }
+
+    public UUID getLastDm() {
+        return lastDm;
+    }
+
+    public boolean hasLastDm() {
+        return lastDm != null;
+    }
+
+    public void setLastDm(UUID lastDm) {
+        this.lastDm = lastDm;
     }
 
     public List<FriendRequest> getFriendRequests() {

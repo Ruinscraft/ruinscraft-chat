@@ -2,7 +2,7 @@ package com.ruinscraft.chat.channel.staff;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
-import com.ruinscraft.chat.message.ChatMessage;
+import com.ruinscraft.chat.message.BasicChatChatMessage;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
 import org.bukkit.ChatColor;
 
@@ -23,20 +23,20 @@ public class MBChatChannel extends ChatChannel {
     }
 
     @Override
-    public String format(ChatMessage chatMessage) {
+    public String format(BasicChatChatMessage basicChatMessage) {
         StringJoiner stringJoiner = new StringJoiner(" ");
 
         stringJoiner.add(getPrefix() + ChatColor.RESET);
 
-        if (chatMessage.getSender() instanceof OnlineChatPlayer) {
-            OnlineChatPlayer onlineChatPlayer = (OnlineChatPlayer) chatMessage.getSender();
+        if (basicChatMessage.getSender() instanceof OnlineChatPlayer) {
+            OnlineChatPlayer onlineChatPlayer = (OnlineChatPlayer) basicChatMessage.getSender();
             stringJoiner.add(ChatColor.GRAY + "[" + getChatColor() + onlineChatPlayer.getServerName() + ChatColor.GRAY + "]" + ChatColor.RESET);
             stringJoiner.add(ChatColor.GRAY + "[" + getChatColor() + onlineChatPlayer.getGroupName() + ChatColor.GRAY + "]" + ChatColor.RESET);
         }
 
-        stringJoiner.add(ChatColor.RED + chatMessage.getSender().getMinecraftUsername());
+        stringJoiner.add(ChatColor.RED + basicChatMessage.getSender().getMinecraftUsername());
         stringJoiner.add(ChatColor.DARK_GRAY + ChatColor.BOLD.toString() + ">");
-        stringJoiner.add(getChatColor() + chatMessage.getContent());
+        stringJoiner.add(getChatColor() + basicChatMessage.getContent());
 
         return stringJoiner.toString();
     }
