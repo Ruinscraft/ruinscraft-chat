@@ -1,6 +1,14 @@
 package com.ruinscraft.chat.message;
 
 import com.ruinscraft.chat.player.ChatPlayer;
+import com.ruinscraft.chat.player.OnlineChatPlayer;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
@@ -34,7 +42,7 @@ public class DirectChatChatMessage implements ChatMessage {
 
     @Override
     public String getChannelDbName() {
-        return "";
+        return "dm:" + recipient.getMojangId().toString();
     }
 
     @Override
@@ -57,7 +65,41 @@ public class DirectChatChatMessage implements ChatMessage {
     }
 
     public void show() {
+        Player senderPlayer = Bukkit.getPlayer(sender.getMojangId());
+        Player recipientPlayer = Bukkit.getPlayer(recipient.getMojangId());
 
+        if (senderPlayer != null && senderPlayer.isOnline()) {
+            ComponentBuilder componentBuilder = new ComponentBuilder("[to: " + recipient.getMinecraftUsername() + "] ")
+                    .color(ChatColor.DARK_AQUA)
+                    .append(content)
+                    .color(ChatColor.AQUA);
+
+            senderPlayer.spigot().sendMessage(componentBuilder.create());
+        }
+
+        if (recipientPlayer != null && recipientPlayer.isOnline()) {
+            showNewMessageActionBar(recipientPlayer, sender.getMinecraftUsername());
+
+            ComponentBuilder componentBuilder = new ComponentBuilder("[from: " + sender.getMinecraftUsername() + "] ")
+                    .color(ChatColor.DARK_AQUA);
+
+            if (sender instanceof OnlineChatPlayer) {
+                OnlineChatPlayer onlineSender = (OnlineChatPlayer) sender;
+
+                componentBuilder.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                        TextComponent.fromLegacyText(onlineSender.getMinecraftUsername() + " is on " + onlineSender.getServerName())));
+            }
+
+            componentBuilder.append(content).color(ChatColor.AQUA);
+
+            senderPlayer.spigot().sendMessage(componentBuilder.create());
+        }
+    }
+
+    private void showNewMessageActionBar(Player player, String from) {
+        TextComponent message = new TextComponent("New message from " + from);
+        message.setColor(ChatColor.AQUA);
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, message);
     }
 
 }

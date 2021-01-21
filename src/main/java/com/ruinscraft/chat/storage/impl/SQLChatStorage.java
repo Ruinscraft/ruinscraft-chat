@@ -153,8 +153,8 @@ public abstract class SQLChatStorage extends ChatStorage {
                             String content = resultSet.getString("content");
                             ChatPlayer sender = chatPlugin.getChatPlayerManager().getOrLoad(senderId).join();
 
-                            if (channelName.startsWith("dm:")) {
-                                UUID recipientId = UUID.fromString(channelName.split(":")[1]);
+                            if (pluginName.startsWith("dm")) {
+                                UUID recipientId = UUID.fromString(channelName);
                                 ChatPlayer recipient = chatPlugin.getChatPlayerManager().getOrLoad(recipientId).join();
                                 DirectChatChatMessage directChatChatMessage = new DirectChatChatMessage(chatMessageId, serverId, sender, recipient, time, content);
                                 chatMessageQuery.addResult(directChatChatMessage);
