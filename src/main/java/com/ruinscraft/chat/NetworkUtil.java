@@ -3,7 +3,10 @@ package com.ruinscraft.chat;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.BasicChatChatMessage;
+import com.ruinscraft.chat.message.ChatMessage;
+import com.ruinscraft.chat.message.DirectChatChatMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -107,22 +110,34 @@ public final class NetworkUtil {
 
                 chatPlugin.getChatStorage().queryChatMessage(chatMessageId).thenAccept(chatMessageQuery -> {
                     if (chatMessageQuery.hasResults()) {
-                        BasicChatChatMessage basicChatMessage = chatMessageQuery.getFirst();
+                        ChatMessage chatMessage = chatMessageQuery.getFirst();
+                        ChatChannel chatChannel = chatPlugin.getChatChannelManager().getChannel(chatMessage.getChannelDbName());
 
-                        if (!basicChatMessage.getChannel().isCrossServer()) {
-                            if (!basicChatMessage.getOriginServerId().equals(chatPlugin.getServerId())) {
+                        if (!chatChannel.isCrossServer()) {
+                            if (!chatMessage.getOriginServerId().equals(chatPlugin.getServerId())) {
                                 return;
                             }
                         }
 
-                        basicChatMessage.showToChat(chatPlugin);
+                        if (chatMessage instanceof BasicChatChatMessage) {
+                            BasicChatChatMessage basicChatChatMessage = (BasicChatChatMessage) chatMessage;
+                            basicChatChatMessage.showToChat(chatPlugin);
+                        }
                     }
                 });
             } else if (method.equals("private_chat_event")) {
                 UUID privateChatMessageId = UUID.fromString(in.readUTF());
 
+                chatPlugin.getChatStorage().queryChatMessage(privateChatMessageId).thenAccept(chatMessageQuery -> {
+                    if (chatMessageQuery.hasResults()) {
+                        ChatMessage chatMessage = chatMessageQuery.getFirst();
 
-
+                        if (chatMessage instanceof DirectChatChatMessage) {
+                            DirectChatChatMessage directChatChatMessage = (DirectChatChatMessage) chatMessage;
+                            directChatChatMessage.show();
+                        }
+                    }
+                });
             }
         }
     }

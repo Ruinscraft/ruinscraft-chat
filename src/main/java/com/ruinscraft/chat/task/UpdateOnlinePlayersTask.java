@@ -56,9 +56,7 @@ public class UpdateOnlinePlayersTask implements Runnable {
                 });
                 chatPlugin.getChatStorage().queryFocusedChannels(onlineChatPlayer).thenAccept(focusedChatChannelNameQuery -> {
                     for (String chatChannelDbName : focusedChatChannelNameQuery.getResults()) {
-                        String pluginName = chatChannelDbName.split(":")[0];
-                        String channelName = chatChannelDbName.split(":")[1];
-                        ChatChannel channel = chatPlugin.getChatChannelManager().getChannel(pluginName, channelName);
+                        ChatChannel channel = chatPlugin.getChatChannelManager().getChannel(chatChannelDbName);
                         if (!(channel instanceof GlobalChatChannel)) {
                             onlineChatPlayer.setFocused(channel);
                         }

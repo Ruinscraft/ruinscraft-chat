@@ -56,4 +56,8 @@ public class DirectChatChatMessage implements ChatMessage {
         return recipient;
     }
 
+    public void show() {
+
+    }
+
 }

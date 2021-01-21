@@ -1,8 +1,8 @@
 package com.ruinscraft.chat.storage.query;
 
-import com.ruinscraft.chat.message.BasicChatChatMessage;
+import com.ruinscraft.chat.message.ChatMessage;
 
-public class ChatMessageQuery extends Query<BasicChatChatMessage> {
+public class ChatMessageQuery extends Query<ChatMessage> {
 
 
 }

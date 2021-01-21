@@ -70,6 +70,13 @@ public class ChatChannelManager {
         return getDefaultChannel();
     }
 
+    public ChatChannel getChannel(String channelDbName) {
+        String pluginName = channelDbName.split(":")[0];
+        String channelName = channelDbName.split(":")[1];
+
+        return getChannel(pluginName, channelName);
+    }
+
     public ChatChannel getDefaultChannel() {
         return defaultChannel;
     }

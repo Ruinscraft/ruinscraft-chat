@@ -3,6 +3,8 @@ package com.ruinscraft.chat.storage.impl;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.BasicChatChatMessage;
+import com.ruinscraft.chat.message.ChatMessage;
+import com.ruinscraft.chat.message.DirectChatChatMessage;
 import com.ruinscraft.chat.message.MailMessage;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.FriendRequest;
@@ -112,17 +114,17 @@ public abstract class SQLChatStorage extends ChatStorage {
     }
 
     @Override
-    public CompletableFuture<Void> saveChatMessage(BasicChatChatMessage basicChatMessage) {
+    public CompletableFuture<Void> saveChatMessage(ChatMessage chatMessage) {
         return CompletableFuture.runAsync(() -> {
             try (Connection connection = createConnection()) {
                 try (PreparedStatement insert = connection.prepareStatement(
                         "INSERT INTO " + Table.CHAT_MESSAGES + " (id, server_id, channel, time, sender_id, content) VALUES (?, ?, ?, ?, ?, ?);")) {
-                    insert.setString(1, basicChatMessage.getId().toString());
-                    insert.setString(2, basicChatMessage.getOriginServerId().toString());
-                    insert.setString(3, basicChatMessage.getChannel().getDatabaseName());
-                    insert.setLong(4, basicChatMessage.getTime());
-                    insert.setString(5, basicChatMessage.getSender().getMojangId().toString());
-                    insert.setString(6, basicChatMessage.getContent());
+                    insert.setString(1, chatMessage.getId().toString());
+                    insert.setString(2, chatMessage.getOriginServerId().toString());
+                    insert.setString(3, chatMessage.getChannelDbName());
+                    insert.setLong(4, chatMessage.getTime());
+                    insert.setString(5, chatMessage.getSender().getMojangId().toString());
+                    insert.setString(6, chatMessage.getContent());
                     insert.execute();
                 }
             } catch (SQLException e) {
@@ -146,13 +148,21 @@ public abstract class SQLChatStorage extends ChatStorage {
                             String channelDbName = resultSet.getString("channel");
                             String pluginName = channelDbName.split(":")[0];
                             String channelName = channelDbName.split(":")[1];
-                            ChatChannel channel = chatPlugin.getChatChannelManager().getChannel(pluginName, channelName);
                             long time = resultSet.getLong("time");
                             UUID senderId = UUID.fromString(resultSet.getString("sender_id"));
                             String content = resultSet.getString("content");
                             ChatPlayer sender = chatPlugin.getChatPlayerManager().getOrLoad(senderId).join();
-                            BasicChatChatMessage basicChatMessage = new BasicChatChatMessage(chatMessageId, serverId, channel, time, sender, content);
-                            chatMessageQuery.addResult(basicChatMessage);
+
+                            if (channelName.startsWith("dm:")) {
+                                UUID recipientId = UUID.fromString(channelName.split(":")[1]);
+                                ChatPlayer recipient = chatPlugin.getChatPlayerManager().getOrLoad(recipientId).join();
+                                DirectChatChatMessage directChatChatMessage = new DirectChatChatMessage(chatMessageId, serverId, sender, recipient, time, content);
+                                chatMessageQuery.addResult(directChatChatMessage);
+                            } else {
+                                ChatChannel channel = chatPlugin.getChatChannelManager().getChannel(pluginName, channelName);
+                                BasicChatChatMessage basicChatMessage = new BasicChatChatMessage(chatMessageId, serverId, channel, time, sender, content);
+                                chatMessageQuery.addResult(basicChatMessage);
+                            }
                         }
                     }
                 }
