@@ -17,7 +17,7 @@ public class GuiManager {
     }
 
     public void registerGuis() {
-        guis.put("chatsettings", new ChatSettingsGui("Chat Settings", 9, chatPlugin));
+        guis.put("chatsettings", new ChatSettingsGui("Chat Settings", 18, chatPlugin));
 
         for (Gui gui : guis.values()) {
             chatPlugin.getServer().getPluginManager().registerEvents(gui, chatPlugin);

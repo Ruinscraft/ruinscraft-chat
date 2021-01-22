@@ -1,7 +1,9 @@
 package com.ruinscraft.chat.gui;
 
 import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -9,6 +11,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChatSettingsGui extends Gui {
 
@@ -51,8 +56,24 @@ public class ChatSettingsGui extends Gui {
             case ALLOW_DMS_FROM_FRIENDS:
                 onlineChatPlayer.getPersonalizationSettings().setAllowDmsFromAnyone(false);
                 break;
-            default:
-                return;
+        }
+
+        if (itemName.startsWith("Unmute")) {
+            List<String> lore = itemMeta.getLore();
+            if (lore != null) {
+                String channelDbName = lore.get(0);
+                onlineChatPlayer.getPersonalizationSettings().getMutedChannelDbNames().remove(channelDbName);
+            }
+        } else if (itemName.startsWith("Mute")) {
+            List<String> lore = itemMeta.getLore();
+            if (lore != null) {
+                String channelDbName = lore.get(0);
+                if (onlineChatPlayer.getFocused(chatPlugin).getDatabaseName().equals(channelDbName)) {
+                    onlineChatPlayer.sendMessage(ChatColor.RED + "You are currently focused to this channel.");
+                } else {
+                    onlineChatPlayer.getPersonalizationSettings().getMutedChannelDbNames().add(channelDbName);
+                }
+            }
         }
 
         chatPlugin.getChatStorage().savePersonalizationSettings(onlineChatPlayer, onlineChatPlayer.getPersonalizationSettings());
@@ -94,6 +115,36 @@ public class ChatSettingsGui extends Gui {
             dmsItemStack.setItemMeta(itemMeta);
         }
         inventory.setItem(1, dmsItemStack);
+
+        int index = 9;
+
+        for (ChatChannel channel : chatPlugin.getChatChannelManager().getChannels()) {
+            if (channel.getPermission() != null) {
+                if (!player.hasPermission(channel.getPermission())) {
+                    continue;
+                }
+            }
+
+            ItemStack channelItemStack;
+            if (onlineChatPlayer.getPersonalizationSettings().getMutedChannelDbNames().contains(channel.getDatabaseName())) {
+                channelItemStack = new ItemStack(Material.MUSIC_DISC_CAT, 1);
+                ItemMeta itemMeta = channelItemStack.getItemMeta();
+                itemMeta.setDisplayName("Unmute " + channel.getName());
+                List<String> lore = new ArrayList<>();
+                lore.add(channel.getDatabaseName());
+                itemMeta.setLore(lore);
+                channelItemStack.setItemMeta(itemMeta);
+            } else {
+                channelItemStack = new ItemStack(Material.MUSIC_DISC_BLOCKS, 1);
+                ItemMeta itemMeta = channelItemStack.getItemMeta();
+                itemMeta.setDisplayName("Mute " + channel.getName());
+                List<String> lore = new ArrayList<>();
+                lore.add(channel.getDatabaseName());
+                itemMeta.setLore(lore);
+                channelItemStack.setItemMeta(itemMeta);
+            }
+            inventory.setItem(index++, channelItemStack);
+        }
     }
 
 }
