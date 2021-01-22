@@ -30,7 +30,7 @@ public class ChatCommand implements CommandExecutor, TabCompleter {
         OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
         if (args.length < 1) {
-            // TODO: gui
+            chatPlugin.getGuiManager().openGui(player, "chatsettings");
             return true;
         }
 

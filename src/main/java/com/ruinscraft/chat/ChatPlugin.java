@@ -5,6 +5,7 @@ import com.ruinscraft.chat.command.*;
 import com.ruinscraft.chat.command.completers.BlockedPlayersTabCompleter;
 import com.ruinscraft.chat.command.completers.ChatPlayersTabCompleter;
 import com.ruinscraft.chat.command.completers.EmptyTabCompleter;
+import com.ruinscraft.chat.gui.GuiManager;
 import com.ruinscraft.chat.listener.ChatListener;
 import com.ruinscraft.chat.listener.ChatPlayerListener;
 import com.ruinscraft.chat.listener.PlayerJoinQuitListener;
@@ -31,6 +32,7 @@ public class ChatPlugin extends JavaPlugin {
     private ChatPlayerManager chatPlayerManager;
     private ChatChannelManager chatChannelManager;
     private SpamHandler spamHandler;
+    private GuiManager guiManager;
 
     public UUID getServerId() {
         return serverId;
@@ -50,6 +52,10 @@ public class ChatPlugin extends JavaPlugin {
 
     public SpamHandler getSpamHandler() {
         return spamHandler;
+    }
+
+    public GuiManager getGuiManager() {
+        return guiManager;
     }
 
     public List<String> getBadWords() {
@@ -72,6 +78,8 @@ public class ChatPlugin extends JavaPlugin {
         chatPlayerManager = new ChatPlayerManager(this);
         chatChannelManager = new ChatChannelManager(this);
         spamHandler = new SpamHandler(this);
+        guiManager = new GuiManager(this);
+        guiManager.registerGuis();
 
         getServer().getPluginManager().registerEvents(new PlayerJoinQuitListener(this), this);
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);

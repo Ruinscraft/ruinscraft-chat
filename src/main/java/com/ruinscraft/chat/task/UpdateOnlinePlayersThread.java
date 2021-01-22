@@ -42,6 +42,11 @@ public class UpdateOnlinePlayersThread extends Thread {
 
             OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
+            // Still loading from when they joined
+            if (onlineChatPlayer == null) {
+                continue;
+            }
+
             long now = System.currentTimeMillis();
             String group = VaultUtil.getGroup(player);
             String serverName = ChatPlugin.serverName == null ? "Unknown" : ChatPlugin.serverName;
