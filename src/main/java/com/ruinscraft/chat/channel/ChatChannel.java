@@ -88,8 +88,21 @@ public abstract class ChatChannel {
                     return false;
                 }
 
+                if (getPermission() != null) {
+                    if (!sender.hasPermission(getPermission())) {
+                        sender.sendMessage(ChatColor.RED + "You don't have permission for this command.");
+                        return true;
+                    }
+                }
+
                 Player player = (Player) sender;
                 OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
+
+                if (onlineChatPlayer.getPersonalizationSettings().getMutedChannelDbNames().contains(getDatabaseName())) {
+                    onlineChatPlayer.getPersonalizationSettings().getMutedChannelDbNames().remove(getDatabaseName());
+                    onlineChatPlayer.sendMessage(ChatColor.GOLD + "You had " + ChatChannel.this.getName() + " muted. It is now unmuted.");
+                    chatPlugin.getChatStorage().saveOnlineChatPlayer(onlineChatPlayer);
+                }
 
                 if (args.length < 1) {
                     ChatChannel oldFocused = onlineChatPlayer.getFocused(chatPlugin);

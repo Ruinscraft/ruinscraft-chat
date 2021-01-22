@@ -51,6 +51,12 @@ public class ChatMessage extends Message {
             }
         }
 
+        OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(to);
+
+        if (onlineChatPlayer.getPersonalizationSettings().getMutedChannelDbNames().contains(channelDbName)) {
+            return;
+        }
+
         ChatChannel channel = chatPlugin.getChatChannelManager().getChannel(getChannelDbName());
         String message = channel.format(this);
 

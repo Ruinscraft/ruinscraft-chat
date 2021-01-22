@@ -59,6 +59,10 @@ public class ChatChannelManager {
         registerCommands();
     }
 
+    public Set<ChatChannel> getChannels() {
+        return channels;
+    }
+
     public ChatChannel getChannel(String pluginName, String name) {
         for (ChatChannel channel : channels) {
             if (channel.getPluginName().equalsIgnoreCase(pluginName)

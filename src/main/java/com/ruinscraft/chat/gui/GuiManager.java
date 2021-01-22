@@ -1,7 +1,6 @@
 package com.ruinscraft.chat.gui;
 
 import com.ruinscraft.chat.ChatPlugin;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -9,13 +8,11 @@ import java.util.Map;
 
 public class GuiManager {
 
-    public final NamespacedKey chatAction;
     private ChatPlugin chatPlugin;
     private Map<String, Gui> guis;
 
     public GuiManager(ChatPlugin chatPlugin) {
         this.chatPlugin = chatPlugin;
-        chatAction = new NamespacedKey(chatPlugin, "chat_action");
         guis = new HashMap<>();
     }
 
