@@ -17,7 +17,7 @@ import java.util.Set;
 public class PlotChatChannel extends ChatChannel {
 
     public PlotChatChannel(ChatPlugin chatPlugin) {
-        super(chatPlugin, "plotsquared", "plotchat", ChatColor.AQUA + "[L]", ChatColor.YELLOW, false);
+        super(chatPlugin, "plotsquared", "plotchat", ChatColor.AQUA + "[P]", ChatColor.YELLOW, false);
     }
 
     @Override

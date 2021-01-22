@@ -28,6 +28,7 @@ public class PlayerJoinQuitListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
+        onlineChatPlayer.setLastSeen(System.currentTimeMillis());
         chatPlugin.getChatStorage().saveChatPlayer(onlineChatPlayer);
     }
 

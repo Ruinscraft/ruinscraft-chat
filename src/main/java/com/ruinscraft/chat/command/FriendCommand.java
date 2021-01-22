@@ -143,6 +143,7 @@ public class FriendCommand implements CommandExecutor, TabCompleter {
                 .bold(true)
                 .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/friend list " + (page.getPageNumber() + 1)));
 
+        player.sendMessage("");
         player.spigot().sendMessage(buttonBuilder.create());
 
         StringBuilder footer = new StringBuilder();

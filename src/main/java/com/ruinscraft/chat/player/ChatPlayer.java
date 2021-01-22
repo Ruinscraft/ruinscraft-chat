@@ -50,10 +50,14 @@ public class ChatPlayer {
     public String getLastSeenDurationWords() {
         long duration = System.currentTimeMillis() - lastSeen;
         String durationString = DurationFormatUtils.formatDurationWords(duration, true, true);
-        durationString = durationString.replace("seconds", "s");
-        durationString = durationString.replace("minutes", "m");
-        durationString = durationString.replace("hours", "h");
-        durationString = durationString.replace("years", "y");
+        durationString = durationString.replace(" seconds", "s");
+        durationString = durationString.replace(" second", "s");
+        durationString = durationString.replace(" minutes", "m");
+        durationString = durationString.replace(" minute", "m");
+        durationString = durationString.replace(" hours", "h");
+        durationString = durationString.replace(" hour", "h");
+        durationString = durationString.replace(" years", "y");
+        durationString = durationString.replace(" year", "y");
         return durationString;
     }
 
