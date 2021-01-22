@@ -38,6 +38,9 @@ public class ChatCommand implements CommandExecutor, TabCompleter {
             case "togglefilter":
                 toggleFilter(onlineChatPlayer);
                 break;
+            case "toggleallowdmsfromanyone":
+                toggleAllowDmsFromAnyone(onlineChatPlayer);
+                break;
             default:
                 break;
         }
@@ -58,15 +61,39 @@ public class ChatCommand implements CommandExecutor, TabCompleter {
         chatPlugin.getChatStorage().savePersonalizationSettings(onlineChatPlayer, onlineChatPlayer.getPersonalizationSettings());
     }
 
-    @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        List<String> options = new ArrayList<>();
+    private void toggleAllowDmsFromAnyone(OnlineChatPlayer onlineChatPlayer) {
+        boolean allowDmsFromAnyone = !onlineChatPlayer.getPersonalizationSettings().isAllowDmsFromAnyone();
 
-        if (args.length == 1) {
-            options.add("togglefilter");
+        if (allowDmsFromAnyone) {
+            onlineChatPlayer.sendMessage(ChatColor.GOLD + "You have allowed direct messages from anyone (except people you've blocked).");
+        } else {
+            onlineChatPlayer.sendMessage(ChatColor.GOLD + "You have only allowed your friends to direct message you.");
         }
 
-        return options;
+        onlineChatPlayer.getPersonalizationSettings().setAllowDmsFromAnyone(allowDmsFromAnyone);
+        chatPlugin.getChatStorage().savePersonalizationSettings(onlineChatPlayer, onlineChatPlayer.getPersonalizationSettings());
+    }
+
+    private static List<String> options = new ArrayList<>();
+
+    static {
+        options.add("togglefilter");
+        options.add("toggleallowdmsfromanyone");
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+        List<String> completions = new ArrayList<>();
+
+        if (args.length == 1) {
+            for (String option : options) {
+                if (option.toLowerCase().startsWith(args[0])) {
+                    completions.add(option);
+                }
+            }
+        }
+
+        return completions;
     }
 
 }

@@ -35,7 +35,7 @@ public class OnlineChatPlayer extends ChatPlayer {
         friendRequests = new ArrayList<>();
         mailMessages = new ArrayList<>();
         blocked = new HashSet<>();
-        personalizationSettings = new PersonalizationSettings(ChatColor.GRAY, "", false);
+        personalizationSettings = new PersonalizationSettings(ChatColor.GRAY, "", false, true);
     }
 
     public OnlineChatPlayer(ChatPlayer chatPlayer, long updatedAt, String serverName, String groupName, boolean vanished, UUID lastDm) {

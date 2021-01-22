@@ -47,7 +47,7 @@ public abstract class SQLChatStorage extends ChatStorage {
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.MAIL_MESSAGES + " (id VARCHAR(36), sender_id VARCHAR(36), recipient_id VARCHAR(36), time BIGINT, is_read BOOL, content VARCHAR(255), PRIMARY KEY (id), FOREIGN KEY (sender_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), FOREIGN KEY (recipient_id) REFERENCES " + Table.CHAT_PLAYERS + "(id));");
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.BLOCKED_PLAYERS + " (blocker_id VARCHAR(36), blocked_id VARCHAR(36), FOREIGN KEY (blocker_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), FOREIGN KEY (blocked_id) REFERENCES " + Table.CHAT_PLAYERS + "(id), UNIQUE KEY block (blocker_id, blocked_id));");
                 statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.FOCUSED_CHANNELS + " (id VARCHAR(36), plugin_name VARCHAR(32), channel_name VARCHAR(32), FOREIGN KEY (id) REFERENCES " + Table.CHAT_PLAYERS + "(id), UNIQUE KEY focused (id, plugin_name));");
-                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.PERSONALIZATION_SETTINGS + " (id VARCHAR(36), name_color VARCHAR(16), nickname VARCHAR(64), hide_profanity BOOL, PRIMARY KEY (id), FOREIGN KEY (id) REFERENCES " + Table.CHAT_PLAYERS + "(id));");
+                statement.addBatch("CREATE TABLE IF NOT EXISTS " + Table.PERSONALIZATION_SETTINGS + " (id VARCHAR(36), name_color VARCHAR(16), nickname VARCHAR(64), hide_profanity BOOL, allow_dms_from_anyone BOOL, PRIMARY KEY (id), FOREIGN KEY (id) REFERENCES " + Table.CHAT_PLAYERS + "(id));");
                 statement.executeBatch();
             }
         } catch (SQLException e) {
@@ -518,14 +518,16 @@ public abstract class SQLChatStorage extends ChatStorage {
     public CompletableFuture<Void> savePersonalizationSettings(ChatPlayer chatPlayer, PersonalizationSettings personalizationSettings) {
         return CompletableFuture.runAsync(() -> {
             try (Connection connection = createConnection()) {
-                try (PreparedStatement upsert = connection.prepareStatement("INSERT INTO " + Table.PERSONALIZATION_SETTINGS + " (id, name_color, nickname, hide_profanity) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE name_color = ?, nickname = ?, hide_profanity = ?;")) {
+                try (PreparedStatement upsert = connection.prepareStatement("INSERT INTO " + Table.PERSONALIZATION_SETTINGS + " (id, name_color, nickname, hide_profanity, allow_dms_from_anyone) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name_color = ?, nickname = ?, hide_profanity = ?, allow_dms_from_anyone = ?;")) {
                     upsert.setString(1, chatPlayer.getMojangId().toString());
                     upsert.setString(2, personalizationSettings.getNameColor().name());
                     upsert.setString(3, personalizationSettings.getNickname());
                     upsert.setBoolean(4, personalizationSettings.isHideProfanity());
-                    upsert.setString(5, personalizationSettings.getNameColor().name());
-                    upsert.setString(6, personalizationSettings.getNickname());
-                    upsert.setBoolean(7, personalizationSettings.isHideProfanity());
+                    upsert.setBoolean(5, personalizationSettings.isAllowDmsFromAnyone());
+                    upsert.setString(6, personalizationSettings.getNameColor().name());
+                    upsert.setString(7, personalizationSettings.getNickname());
+                    upsert.setBoolean(8, personalizationSettings.isHideProfanity());
+                    upsert.setBoolean(9, personalizationSettings.isAllowDmsFromAnyone());
                     upsert.execute();
                 }
             } catch (SQLException e) {
@@ -548,7 +550,8 @@ public abstract class SQLChatStorage extends ChatStorage {
                             ChatColor nameColor = ChatColor.valueOf(resultSet.getString("name_color"));
                             String nickname = resultSet.getString("nickname");
                             boolean hideProfanity = resultSet.getBoolean("hide_profanity");
-                            PersonalizationSettings personalizationSettings = new PersonalizationSettings(nameColor, nickname, hideProfanity);
+                            boolean allowDmsFromAnyone = resultSet.getBoolean("allow_dms_from_anyone");
+                            PersonalizationSettings personalizationSettings = new PersonalizationSettings(nameColor, nickname, hideProfanity, allowDmsFromAnyone);
                             personalizationSettingsQuery.addResult(personalizationSettings);
                         }
                     }

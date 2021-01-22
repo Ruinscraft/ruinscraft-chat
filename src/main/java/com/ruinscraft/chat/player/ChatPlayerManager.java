@@ -45,7 +45,9 @@ public class ChatPlayerManager {
                 onlineChatPlayer.setVanished(found.isVanished());
                 onlineChatPlayer.setLastDm(found.getLastDm());
             } else {
-                chatPlugin.getChatStorage().saveOnlineChatPlayer(onlineChatPlayer);
+                chatPlugin.getServer().getScheduler().runTaskLater(chatPlugin, () -> {
+                    chatPlugin.getChatStorage().saveOnlineChatPlayer(onlineChatPlayer);
+                }, 20L);
             }
         });
         /* Fetch blocked players */
