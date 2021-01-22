@@ -150,11 +150,11 @@ public abstract class SQLChatStorage extends ChatStorage {
                             long time = resultSet.getLong("time");
                             UUID senderId = UUID.fromString(resultSet.getString("sender_id"));
                             String content = resultSet.getString("content");
-                            ChatPlayer sender = chatPlugin.getChatPlayerManager().getOrLoad(senderId).join();
+                            ChatPlayer sender = chatPlugin.getChatPlayerManager().getAndLoad(senderId);
 
                             if (pluginName.startsWith("dm")) {
                                 UUID recipientId = UUID.fromString(channelName);
-                                ChatPlayer recipient = chatPlugin.getChatPlayerManager().getOrLoad(recipientId).join();
+                                ChatPlayer recipient = chatPlugin.getChatPlayerManager().getAndLoad(recipientId);
                                 DirectMessage directMessage = new DirectMessage(chatMessageId, time, sender, content, serverId, channelDbName, recipient);
                                 chatMessageQuery.addResult(directMessage);
                             } else {
@@ -215,36 +215,8 @@ public abstract class SQLChatStorage extends ChatStorage {
 
                     try (ResultSet resultSet = query.executeQuery()) {
                         while (resultSet.next()) {
-                            ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().getOrLoad(mojangId).join();
+                            ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().getAndLoad(mojangId);
                             long updatedAt = resultSet.getLong("updated_at");
-                            String serverName = resultSet.getString("server_name");
-                            String groupName = resultSet.getString("group_name");
-                            boolean vanished = resultSet.getBoolean("vanished");
-                            UUID lastDm = UUID.fromString(resultSet.getString("last_dm"));
-                            OnlineChatPlayer onlineChatPlayer = new OnlineChatPlayer(chatPlayer, updatedAt, serverName, groupName, vanished, lastDm);
-                            onlineChatPlayerQuery.addResult(onlineChatPlayer);
-                        }
-                    }
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
-            return onlineChatPlayerQuery;
-        });
-    }
-
-    @Override
-    public CompletableFuture<OnlineChatPlayerQuery> queryOnlineChatPlayers() {
-        return CompletableFuture.supplyAsync(() -> {
-            OnlineChatPlayerQuery onlineChatPlayerQuery = new OnlineChatPlayerQuery();
-
-            try (Connection connection = createConnection()) {
-                try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.ONLINE_CHAT_PLAYERS + ";")) {
-                    try (ResultSet resultSet = query.executeQuery()) {
-                        while (resultSet.next()) {
-                            UUID mojangId = UUID.fromString(resultSet.getString("id"));
-                            long updated = resultSet.getLong("updated_at");
                             String serverName = resultSet.getString("server_name");
                             String groupName = resultSet.getString("group_name");
                             boolean vanished = resultSet.getBoolean("vanished");
@@ -252,20 +224,7 @@ public abstract class SQLChatStorage extends ChatStorage {
                             if (resultSet.getString("last_dm") != null) {
                                 lastDm = UUID.fromString(resultSet.getString("last_dm"));
                             }
-                            ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().getOrLoad(mojangId).join();
-                            final OnlineChatPlayer onlineChatPlayer;
-
-                            if (chatPlayer instanceof OnlineChatPlayer) {
-                                onlineChatPlayer = (OnlineChatPlayer) chatPlayer;
-                                onlineChatPlayer.setUpdatedAt(updated);
-                                onlineChatPlayer.setGroupName(groupName);
-                                onlineChatPlayer.setServerName(serverName);
-                                onlineChatPlayer.setVanished(vanished);
-                                onlineChatPlayer.setLastDm(lastDm);
-                            } else {
-                                onlineChatPlayer = new OnlineChatPlayer(chatPlayer, updated, serverName, groupName, vanished, lastDm);
-                            }
-
+                            OnlineChatPlayer onlineChatPlayer = new OnlineChatPlayer(chatPlayer, updatedAt, serverName, groupName, vanished, lastDm);
                             onlineChatPlayerQuery.addResult(onlineChatPlayer);
                         }
                     }
@@ -327,8 +286,8 @@ public abstract class SQLChatStorage extends ChatStorage {
                             UUID targetId = UUID.fromString(resultSet.getString("target_id"));
                             long time = resultSet.getLong("time");
                             boolean accepted = resultSet.getBoolean("accepted");
-                            ChatPlayer requester = chatPlugin.getChatPlayerManager().getOrLoad(requesterId).join();
-                            ChatPlayer target = chatPlugin.getChatPlayerManager().getOrLoad(targetId).join();
+                            ChatPlayer requester = chatPlugin.getChatPlayerManager().getAndLoad(requesterId);
+                            ChatPlayer target = chatPlugin.getChatPlayerManager().getAndLoad(targetId);
                             FriendRequest friendRequest = new FriendRequest(requester, target, time, accepted);
                             friendRequestQuery.addResult(friendRequest);
                         }
@@ -395,7 +354,7 @@ public abstract class SQLChatStorage extends ChatStorage {
                             long time = resultSet.getLong("time");
                             boolean read = resultSet.getBoolean("is_read");
                             String content = resultSet.getString("content");
-                            ChatPlayer sender = chatPlugin.getChatPlayerManager().getOrLoad(senderId).join();
+                            ChatPlayer sender = chatPlugin.getChatPlayerManager().getAndLoad(senderId);
                             MailMessage mailMessage = new MailMessage(id, time, sender, content, chatPlayer, read);
                             mailMessageQuery.addResult(mailMessage);
                         }
@@ -421,7 +380,7 @@ public abstract class SQLChatStorage extends ChatStorage {
                     try (ResultSet resultSet = query.executeQuery()) {
                         while (resultSet.next()) {
                             UUID blockedId = UUID.fromString(resultSet.getString("blocked_id"));
-                            ChatPlayer blockedChatPlayer = chatPlugin.getChatPlayerManager().getOrLoad(blockedId).join();
+                            ChatPlayer blockedChatPlayer = chatPlugin.getChatPlayerManager().getAndLoad(blockedId);
                             chatPlayerQuery.addResult(blockedChatPlayer);
                         }
                     }

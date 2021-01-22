@@ -25,7 +25,8 @@ public class ChatPlayerListener implements Listener {
             OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
             if (onlineChatPlayer.isFriend(loggedIn)) {
-                player.sendMessage(ChatColor.GOLD + "Your friend, " + loggedIn.getMinecraftUsername() + ", has logged into " + loggedIn.getServerName() + ".");
+                player.sendMessage(ChatColor.GOLD + "Your friend, " + loggedIn.getMinecraftUsername()
+                        + ", has logged into " + loggedIn.getServerName().toUpperCase() + ".");
             }
         }
     }

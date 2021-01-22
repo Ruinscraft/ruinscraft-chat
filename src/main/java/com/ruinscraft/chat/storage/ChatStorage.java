@@ -28,8 +28,6 @@ public abstract class ChatStorage {
 
     public abstract CompletableFuture<OnlineChatPlayerQuery> queryOnlineChatPlayer(UUID mojangId);
 
-    public abstract CompletableFuture<OnlineChatPlayerQuery> queryOnlineChatPlayers();
-
     public abstract CompletableFuture<Void> saveFriendRequest(FriendRequest friendRequest);
 
     public abstract CompletableFuture<Void> deleteFriendRequest(FriendRequest friendRequest);

@@ -120,7 +120,7 @@ public class ChatPlugin extends JavaPlugin {
         NetworkUtil.register(this);
 
         for (Player player : getServer().getOnlinePlayers()) {
-            chatPlayerManager.getOrLoad(player).join();
+            chatPlayerManager.getAndLoad(player);
         }
     }
 

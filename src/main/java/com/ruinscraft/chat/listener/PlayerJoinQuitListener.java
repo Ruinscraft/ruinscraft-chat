@@ -2,6 +2,8 @@ package com.ruinscraft.chat.listener;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
+import com.ruinscraft.chat.util.NetworkUtil;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -17,15 +19,19 @@ public class PlayerJoinQuitListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().getOrLoad(event.getPlayer()).join();
-        onlineChatPlayer.setLastSeen(System.currentTimeMillis());
-        onlineChatPlayer.setMinecraftUsername(event.getPlayer().getName());
+        Player player = event.getPlayer();
+        chatPlugin.getChatPlayerManager().getAndLoad(player);
+        NetworkUtil.sendChatPlayerLoginPacket(chatPlugin, player);
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(event.getPlayer());
+        Player player = event.getPlayer();
+
+        OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
         chatPlugin.getChatStorage().saveChatPlayer(onlineChatPlayer);
+
+        NetworkUtil.sendChatPlayerLogoutPacket(chatPlugin, player);
     }
 
 }

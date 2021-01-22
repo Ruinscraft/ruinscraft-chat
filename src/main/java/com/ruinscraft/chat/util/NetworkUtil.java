@@ -4,6 +4,9 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.event.ChatPlayerLoginEvent;
+import com.ruinscraft.chat.event.ChatPlayerLogoutEvent;
+import com.ruinscraft.chat.player.OnlineChatPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -75,6 +78,80 @@ public final class NetworkUtil {
         }
     }
 
+    private static void sendChatPlayerLoginEvent(ChatPlugin chatPlugin, UUID playerId) {
+        chatPlugin.getChatStorage().queryOnlineChatPlayer(playerId).thenAccept(onlineChatPlayerQuery -> {
+            if (onlineChatPlayerQuery.hasResults()) {
+                OnlineChatPlayer onlineChatPlayer = onlineChatPlayerQuery.getFirst();
+
+                chatPlugin.getServer().getScheduler().runTask(chatPlugin, () -> {
+                    ChatPlayerLoginEvent event = new ChatPlayerLoginEvent(onlineChatPlayer);
+                    chatPlugin.getServer().getPluginManager().callEvent(event);
+                });
+            }
+        });
+    }
+
+    private static void sendChatPlayerLogoutEvent(ChatPlugin chatPlugin, UUID playerId) {
+        chatPlugin.getChatStorage().queryOnlineChatPlayer(playerId).thenAccept(onlineChatPlayerQuery -> {
+            if (onlineChatPlayerQuery.hasResults()) {
+                OnlineChatPlayer onlineChatPlayer = onlineChatPlayerQuery.getFirst();
+
+                chatPlugin.getServer().getScheduler().runTask(chatPlugin, () -> {
+                    ChatPlayerLogoutEvent event = new ChatPlayerLogoutEvent(onlineChatPlayer);
+                    chatPlugin.getServer().getPluginManager().callEvent(event);
+                });
+            }
+        });
+    }
+
+    public static void sendChatPlayerLoginPacket(ChatPlugin chatPlugin, Player player) {
+        {
+            sendChatPlayerLoginEvent(chatPlugin, player.getUniqueId());
+        }
+        {
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("Forward");
+            out.writeUTF("ALL");
+            out.writeUTF("chat_player_login");
+            ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
+            DataOutputStream msgout = new DataOutputStream(msgbytes);
+            try {
+                msgout.writeUTF(player.getUniqueId().toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+            out.writeShort(msgbytes.toByteArray().length);
+            out.write(msgbytes.toByteArray());
+            byte[] data = out.toByteArray();
+            player.sendPluginMessage(chatPlugin, "BungeeCord", data);
+        }
+    }
+
+    public static void sendChatPlayerLogoutPacket(ChatPlugin chatPlugin, Player player) {
+        {
+            sendChatPlayerLogoutEvent(chatPlugin, player.getUniqueId());
+        }
+        {
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("Forward");
+            out.writeUTF("ALL");
+            out.writeUTF("chat_player_logout");
+            ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
+            DataOutputStream msgout = new DataOutputStream(msgbytes);
+            try {
+                msgout.writeUTF(player.getUniqueId().toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+            out.writeShort(msgbytes.toByteArray().length);
+            out.write(msgbytes.toByteArray());
+            byte[] data = out.toByteArray();
+            player.sendPluginMessage(chatPlugin, "BungeeCord", data);
+        }
+    }
+
     public static void sendServerNameRequestBungeePacket(Player player, JavaPlugin javaPlugin) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("GetServer");
@@ -126,9 +203,34 @@ public final class NetworkUtil {
                     return;
                 }
                 ChatUtil.handleChatMessage(chatPlugin, chatMessageId);
+            } else if (method.equals("chat_player_login")) {
+                short len = in.readShort();
+                byte[] msgbytes = new byte[len];
+                in.readFully(msgbytes);
+                DataInputStream msgin = new DataInputStream(new ByteArrayInputStream(msgbytes));
+                UUID playerId;
+                try {
+                    playerId = UUID.fromString(msgin.readUTF());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }
+                sendChatPlayerLoginEvent(chatPlugin, playerId);
+            } else if (method.equals("chat_player_logout")) {
+                short len = in.readShort();
+                byte[] msgbytes = new byte[len];
+                in.readFully(msgbytes);
+                DataInputStream msgin = new DataInputStream(new ByteArrayInputStream(msgbytes));
+                UUID playerId;
+                try {
+                    playerId = UUID.fromString(msgin.readUTF());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }
+                sendChatPlayerLogoutEvent(chatPlugin, playerId);
             }
         }
     }
-
 
 }

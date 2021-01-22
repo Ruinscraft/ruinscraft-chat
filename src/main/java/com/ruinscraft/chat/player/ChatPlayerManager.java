@@ -3,15 +3,12 @@ package com.ruinscraft.chat.player;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.channel.GlobalChatChannel;
-import com.ruinscraft.chat.storage.query.ChatPlayerQuery;
-import com.ruinscraft.chat.storage.query.OnlineChatPlayerQuery;
 import com.ruinscraft.chat.util.VaultUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ChatPlayerManager {
@@ -24,85 +21,85 @@ public class ChatPlayerManager {
         cache = new ConcurrentHashMap<>();
     }
 
-    public CompletableFuture<OnlineChatPlayer> getOrLoad(Player player) {
-        OnlineChatPlayer cached = get(player);
+    public OnlineChatPlayer getAndLoad(Player player) {
+        ChatPlayer chatPlayer = getAndLoad(player.getUniqueId());
 
-        if (cached != null) {
-            return CompletableFuture.completedFuture(cached);
+        if (chatPlayer instanceof OnlineChatPlayer) {
+            return (OnlineChatPlayer) chatPlayer;
         }
 
-        return CompletableFuture.supplyAsync(() -> {
-            OnlineChatPlayerQuery query = chatPlugin.getChatStorage().queryOnlineChatPlayer(player.getUniqueId()).join();
-            final OnlineChatPlayer onlineChatPlayer;
+        long updatedAt = System.currentTimeMillis();
+        String serverName = ChatPlugin.serverName == null ? "unknown" : ChatPlugin.serverName;
+        String groupName = VaultUtil.getGroup(player);
+        boolean vanished = false;
+        UUID lastDm = null;
+        OnlineChatPlayer onlineChatPlayer = new OnlineChatPlayer(chatPlayer, updatedAt, serverName, groupName, vanished, lastDm);
 
-            if (query.hasResults()) {
-                onlineChatPlayer = query.getFirst();
+        /* Fetch online chat player */
+        chatPlugin.getChatStorage().queryOnlineChatPlayer(player.getUniqueId()).thenAccept(onlineChatPlayerQuery -> {
+            if (onlineChatPlayerQuery.hasResults()) {
+                OnlineChatPlayer found = onlineChatPlayerQuery.getFirst();
+                onlineChatPlayer.setUpdatedAt(found.getUpdatedAt());
+                onlineChatPlayer.setServerName(found.getServerName());
+                onlineChatPlayer.setGroupName(found.getGroupName());
+                onlineChatPlayer.setVanished(found.isVanished());
+                onlineChatPlayer.setLastDm(found.getLastDm());
             } else {
-                ChatPlayer chatPlayer = getOrLoad(player.getUniqueId()).join();
-                long updatedAt = System.currentTimeMillis();
-                String serverName = ChatPlugin.serverName == null ? "Unknown" : ChatPlugin.serverName;
-                String groupName = VaultUtil.getGroup(player);
-                boolean vanished = false;
-                UUID lastDm = null;
-                onlineChatPlayer = new OnlineChatPlayer(chatPlayer, updatedAt, serverName, groupName, vanished, lastDm);
-
-                /* Fetch blocked players */
-                chatPlugin.getChatStorage().queryBlocked(onlineChatPlayer).thenAccept(chatPlayerQuery -> {
-                    Set<ChatPlayer> blockedChatPlayers = new HashSet<>();
-                    for (ChatPlayer blockedChatPlayer : chatPlayerQuery.getResults()) {
-                        blockedChatPlayers.add(blockedChatPlayer);
-                    }
-                    onlineChatPlayer.setBlocked(blockedChatPlayers);
-                });
-                /* Fetch focused channels */
-                chatPlugin.getChatStorage().queryFocusedChannels(onlineChatPlayer).thenAccept(focusedChatChannelNameQuery -> {
-                    for (String chatChannelDbName : focusedChatChannelNameQuery.getResults()) {
-                        ChatChannel channel = chatPlugin.getChatChannelManager().getChannel(chatChannelDbName);
-                        if (!(channel instanceof GlobalChatChannel)) {
-                            onlineChatPlayer.setFocused(channel);
-                        }
-                    }
-                });
-                /* Fetch personalization settings */
-                chatPlugin.getChatStorage().queryPersonalizationSettings(onlineChatPlayer).thenAccept(personalizationSettingsQuery -> {
-                    if (personalizationSettingsQuery.hasResults()) {
-                        PersonalizationSettings personalizationSettings = personalizationSettingsQuery.getFirst();
-                        onlineChatPlayer.setPersonalizationSettings(personalizationSettings);
-                    }
-                });
-                /* Save the new chat player */
                 chatPlugin.getChatStorage().saveOnlineChatPlayer(onlineChatPlayer);
             }
-
-            cache.put(player.getUniqueId(), onlineChatPlayer);
-
-            return onlineChatPlayer;
         });
+        /* Fetch blocked players */
+        chatPlugin.getChatStorage().queryBlocked(onlineChatPlayer).thenAccept(chatPlayerQuery -> {
+            Set<ChatPlayer> blockedChatPlayers = new HashSet<>();
+            for (ChatPlayer blockedChatPlayer : chatPlayerQuery.getResults()) {
+                blockedChatPlayers.add(blockedChatPlayer);
+            }
+            onlineChatPlayer.setBlocked(blockedChatPlayers);
+        });
+        /* Fetch focused channels */
+        chatPlugin.getChatStorage().queryFocusedChannels(onlineChatPlayer).thenAccept(focusedChatChannelNameQuery -> {
+            for (String chatChannelDbName : focusedChatChannelNameQuery.getResults()) {
+                ChatChannel channel = chatPlugin.getChatChannelManager().getChannel(chatChannelDbName);
+                if (!(channel instanceof GlobalChatChannel)) {
+                    onlineChatPlayer.setFocused(channel);
+                }
+            }
+        });
+        /* Fetch personalization settings */
+        chatPlugin.getChatStorage().queryPersonalizationSettings(onlineChatPlayer).thenAccept(personalizationSettingsQuery -> {
+            if (personalizationSettingsQuery.hasResults()) {
+                PersonalizationSettings personalizationSettings = personalizationSettingsQuery.getFirst();
+                onlineChatPlayer.setPersonalizationSettings(personalizationSettings);
+            }
+        });
+
+        cache.put(player.getUniqueId(), onlineChatPlayer);
+
+        return onlineChatPlayer;
     }
 
-    public CompletableFuture<ChatPlayer> getOrLoad(UUID mojangId) {
+    public ChatPlayer getAndLoad(UUID mojangId) {
         if (cache.containsKey(mojangId)) {
-            return CompletableFuture.completedFuture(cache.get(mojangId));
+            return cache.get(mojangId);
         }
 
-        return CompletableFuture.supplyAsync(() -> {
-            ChatPlayerQuery query = chatPlugin.getChatStorage().queryChatPlayer(mojangId).join();
-            final ChatPlayer chatPlayer;
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(mojangId);
+        ChatPlayer chatPlayer = new ChatPlayer(mojangId, offlinePlayer.getName(), System.currentTimeMillis(), System.currentTimeMillis());
 
-            if (query.hasResults()) {
-                chatPlayer = query.getFirst();
+        chatPlugin.getChatStorage().queryChatPlayer(mojangId).thenAccept(chatPlayerQuery -> {
+            if (chatPlayerQuery.hasResults()) {
+                ChatPlayer found = chatPlayerQuery.getFirst();
+                chatPlayer.setMinecraftUsername(found.getMinecraftUsername());
+                chatPlayer.setFirstSeen(found.getFirstSeen());
+                chatPlayer.setLastSeen(found.getLastSeen());
             } else {
-                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(mojangId);
-                String username = offlinePlayer.getName();
-                long now = System.currentTimeMillis();
-                chatPlayer = new ChatPlayer(mojangId, username, now, now);
                 chatPlugin.getChatStorage().saveChatPlayer(chatPlayer);
             }
-
-            cache.put(mojangId, chatPlayer);
-
-            return chatPlayer;
         });
+
+        cache.put(mojangId, chatPlayer);
+
+        return chatPlayer;
     }
 
     public ChatPlayer get(UUID mojangId) {

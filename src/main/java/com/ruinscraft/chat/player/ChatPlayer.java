@@ -35,6 +35,10 @@ public class ChatPlayer {
         return firstSeen;
     }
 
+    public void setFirstSeen(long firstSeen) {
+        this.firstSeen = firstSeen;
+    }
+
     public long getLastSeen() {
         return lastSeen;
     }
