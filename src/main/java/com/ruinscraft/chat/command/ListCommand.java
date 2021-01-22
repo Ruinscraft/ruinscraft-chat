@@ -1,6 +1,8 @@
 package com.ruinscraft.chat.command;
 
 import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.player.ChatPlayer;
+import com.ruinscraft.chat.player.FriendRequest;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -87,24 +89,69 @@ public class ListCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        boolean localServerOnly = true;
+
+        if (label.toLowerCase().contains("all") || label.toLowerCase().contains("everyone")) {
+            localServerOnly = false;
+        }
+
+        int totalPlayers = 0;
+
         for (String server : serversCache.keySet()) {
+            if (localServerOnly) {
+                if (!server.equals(ChatPlugin.serverName)) {
+                    continue;
+                }
+            }
+
             List<OnlineChatPlayer> onlineChatPlayers = serversCache.get(server);
             List<String> onlineNames = new ArrayList<>();
 
             for (OnlineChatPlayer onlineChatPlayer : onlineChatPlayers) {
+                if (sender.hasPermission("ruinscraft.list.showvanished") && onlineChatPlayer.isVanished()) {
+                    continue;
+                }
                 onlineNames.add(getColorForGroup(onlineChatPlayer.getGroupName()) + onlineChatPlayer.getMinecraftUsername());
+                totalPlayers++;
             }
 
-            sender.sendMessage(server + " (" + onlineNames.size() + ") " + String.join(", ", onlineNames));
+            sender.sendMessage(ChatColor.GOLD + server.toUpperCase() + ChatColor.YELLOW + " (" + onlineNames.size() + ") " + ChatColor.RESET + String.join(", ", onlineNames));
         }
 
         List<String> staffNames = new ArrayList<>();
 
         for (OnlineChatPlayer staff : staffCache) {
-            staffNames.add(getColorForGroup(staff.getGroupName()) + staff.getMinecraftUsername());
+            if (sender.hasPermission("ruinscraft.list.showvanished") && staff.isVanished()) {
+                continue;
+            }
+
+            staffNames.add(getColorForGroup(staff.getGroupName()) + staff.getMinecraftUsername() + ChatColor.GRAY + " (" + staff.getServerName().toUpperCase() + ")" + ChatColor.RESET);
         }
 
-        sender.sendMessage("Staff (" + staffNames.size() + ") " + String.join(", ", staffNames));
+        sender.sendMessage(ChatColor.GREEN + "Staff Online: " + ChatColor.YELLOW + "(" + staffNames.size() + ") " + String.join(", ", staffNames));
+
+        if (sender instanceof Player) {
+            Player player = (Player) sender;
+            OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
+            List<String> onlineFriendNames = new ArrayList<>();
+
+            for (FriendRequest friendRequest : onlineChatPlayer.getFriendRequests()) {
+                ChatPlayer friend = friendRequest.getOther(onlineChatPlayer);
+
+                if (friend instanceof OnlineChatPlayer) {
+                    OnlineChatPlayer onlineFriend = (OnlineChatPlayer) friend;
+                    onlineFriendNames.add(getColorForGroup(onlineFriend.getGroupName()) + onlineFriend.getMinecraftUsername() + ChatColor.GRAY + " (" + onlineFriend.getServerName().toUpperCase() + ")" + ChatColor.RESET);
+                }
+            }
+
+            player.sendMessage(ChatColor.GREEN + "Friends Online: " + ChatColor.YELLOW + "(" + onlineFriendNames.size() + ") " + String.join(", ", onlineFriendNames));
+        }
+
+        if (localServerOnly) {
+            sender.sendMessage(ChatColor.GOLD + "Total players on " + ChatPlugin.serverName.toUpperCase() + ": " + ChatColor.YELLOW + totalPlayers);
+        } else {
+            sender.sendMessage(ChatColor.GOLD + "Total players on Ruinscraft: " + ChatColor.YELLOW + totalPlayers);
+        }
 
         return true;
     }

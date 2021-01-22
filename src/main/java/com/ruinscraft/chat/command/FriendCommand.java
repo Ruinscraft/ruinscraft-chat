@@ -88,7 +88,7 @@ public class FriendCommand implements CommandExecutor, TabCompleter {
                 if (friend instanceof OnlineChatPlayer) {
                     OnlineChatPlayer onlineFriend = (OnlineChatPlayer) friend;
                     stringJoiner.add(ChatColor.GREEN + onlineFriend.getMinecraftUsername());
-                    stringJoiner.add(ChatColor.YELLOW + "is currently online playing " + onlineFriend.getServerName() + "!");
+                    stringJoiner.add(ChatColor.YELLOW + "is currently online playing " + onlineFriend.getServerName().toUpperCase() + "!");
                 } else {
                     stringJoiner.add(ChatColor.GRAY + friend.getMinecraftUsername());
                     stringJoiner.add(ChatColor.YELLOW + "was last online");

@@ -83,7 +83,9 @@ public class ChatPlugin extends JavaPlugin {
         getServer().getScheduler().runTaskTimer(this, new FetchFriendRequestTask(this), 20L, 20L);
         getServer().getScheduler().runTaskTimer(this, new FetchMailTask(this), 20L, 20L);
 
-        getCommand("list").setExecutor(new ListCommand(this));
+        ListCommand listCommand = new ListCommand(this);
+        getCommand("list").setExecutor(listCommand);
+        getCommand("listall").setExecutor(listCommand);
         getCommand("seen").setExecutor(new SeenCommand(this));
         getCommand("seen").setTabCompleter(new ChatPlayersTabCompleter(this));
         getCommand("friend").setExecutor(new FriendCommand(this));

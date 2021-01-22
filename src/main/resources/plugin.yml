@@ -7,7 +7,9 @@ depend: [ Vault ]
 softdepend: [ PlotSquared, Towny, CinemaDisplays ]
 commands:
   list:
-    aliases: [ who, online, whoisonline, showplayers, whoup ]
+    aliases: [ who, online ]
+  listall:
+    aliases: [ listeveryone, listabsolutelyeveryoneonruinscraftatthismoment ]
   seen:
     aliases: [ lastseen ]
   friend:
