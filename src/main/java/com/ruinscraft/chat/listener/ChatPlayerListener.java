@@ -25,7 +25,7 @@ public class ChatPlayerListener implements Listener {
             OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
             if (onlineChatPlayer.isFriend(loggedIn)) {
-                if (!player.hasPermission("ruinscraft.command.vanish") && onlineChatPlayer.isVanished()) {
+                if (!player.hasPermission("ruinscraft.command.vanish") && loggedIn.isVanished()) {
                     continue;
                 }
 
@@ -43,7 +43,7 @@ public class ChatPlayerListener implements Listener {
             OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
             if (onlineChatPlayer.isFriend(loggedOut)) {
-                if (!player.hasPermission("ruinscraft.command.vanish") && onlineChatPlayer.isVanished()) {
+                if (!player.hasPermission("ruinscraft.command.vanish") && loggedOut.isVanished()) {
                     continue;
                 }
 

@@ -38,7 +38,7 @@ public class DirectMessageCommand implements CommandExecutor {
                 if (onlineChatPlayer.hasLastDm()) {
                     ChatPlayer recipient = chatPlugin.getChatPlayerManager().get(onlineChatPlayer.getLastDm());
 
-                    if (recipient instanceof OnlineChatPlayer) {
+                    if (recipient instanceof OnlineChatPlayer && !((OnlineChatPlayer) recipient).isVanished()) {
                         String message = String.join(" ", Arrays.copyOfRange(args, 0, args.length));
                         DirectMessage directMessage = new DirectMessage(onlineChatPlayer, message, chatPlugin.getServerId(), recipient);
 
@@ -66,7 +66,7 @@ public class DirectMessageCommand implements CommandExecutor {
 
                 ChatPlayer recipient = chatPlugin.getChatPlayerManager().get(target);
 
-                if (recipient instanceof OnlineChatPlayer) {
+                if (recipient instanceof OnlineChatPlayer && !((OnlineChatPlayer) recipient).isVanished()) {
                     String message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
                     DirectMessage directMessage = new DirectMessage(onlineChatPlayer, message, chatPlugin.getServerId(), recipient);
 
