@@ -92,4 +92,21 @@ public class ChatMessage extends Message {
         staff.sendMessage(stringJoiner.toString());
     }
 
+    @Override
+    protected void showConsole(ChatPlugin chatPlugin) {
+        ChatChannel channel = chatPlugin.getChatChannelManager().getChannel(getChannelDbName());
+
+        if (channel == null) {
+            return;
+        }
+
+        if (channel.isCrossServer()) {
+            if (!chatPlugin.getServerId().equals(originServerId)) {
+                return;
+            }
+        }
+
+        System.out.println(channel.format(this));
+    }
+
 }

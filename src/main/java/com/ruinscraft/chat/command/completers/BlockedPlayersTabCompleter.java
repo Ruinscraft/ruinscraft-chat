@@ -25,12 +25,19 @@ public class BlockedPlayersTabCompleter implements TabCompleter {
             return new ArrayList<>();
         }
 
+        if (args.length != 1) {
+            return new ArrayList<>();
+        }
+
+        String typing = args[0];
         Player player = (Player) sender;
         OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
         List<String> blockedPlayerUsernames = new ArrayList<>();
 
         for (ChatPlayer blockedPlayer : onlineChatPlayer.getBlocked()) {
-            blockedPlayerUsernames.add(blockedPlayer.getMinecraftUsername());
+            if (blockedPlayer.getMinecraftUsername().toLowerCase().startsWith(typing.toLowerCase())) {
+                blockedPlayerUsernames.add(blockedPlayer.getMinecraftUsername());
+            }
         }
 
         return blockedPlayerUsernames;

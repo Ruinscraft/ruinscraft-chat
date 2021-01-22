@@ -148,7 +148,8 @@ public class ListCommand implements CommandExecutor {
         }
 
         if (localServerOnly) {
-            sender.sendMessage(ChatColor.GOLD + "Total players on " + ChatPlugin.serverName.toUpperCase() + ": " + ChatColor.YELLOW + totalPlayers);
+            String serverName = ChatPlugin.serverName == null ? "Unknown" : ChatPlugin.serverName;
+            sender.sendMessage(ChatColor.GOLD + "Total players on " + serverName.toUpperCase() + ": " + ChatColor.YELLOW + totalPlayers);
         } else {
             sender.sendMessage(ChatColor.GOLD + "Total players on Ruinscraft: " + ChatColor.YELLOW + totalPlayers);
         }

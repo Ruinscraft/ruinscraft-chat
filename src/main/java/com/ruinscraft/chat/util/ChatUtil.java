@@ -15,6 +15,8 @@ public final class ChatUtil {
             if (chatMessageQuery.hasResults()) {
                 ChatMessage chatMessage = chatMessageQuery.getFirst();
 
+                chatPlugin.getSpamHandler().addMessage(chatMessage.getSender().getMojangId());
+
                 if (chatMessage instanceof DirectMessage) {
                     DirectMessage directMessage = (DirectMessage) chatMessage;
                     Player senderPlayer = Bukkit.getPlayer(directMessage.getSender().getMojangId());

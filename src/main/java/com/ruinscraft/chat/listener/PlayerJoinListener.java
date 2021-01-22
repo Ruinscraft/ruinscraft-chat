@@ -1,7 +1,6 @@
 package com.ruinscraft.chat.listener;
 
-import com.ruinscraft.chat.player.ChatPlayer;
-import com.ruinscraft.chat.player.ChatPlayerManager;
+import com.ruinscraft.chat.ChatPlugin;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
@@ -11,22 +10,21 @@ import java.util.UUID;
 
 public class PlayerJoinListener implements Listener {
 
-    private ChatPlayerManager chatPlayerManager;
+    private ChatPlugin chatPlugin;
 
-    public PlayerJoinListener(ChatPlayerManager chatPlayerManager) {
-        this.chatPlayerManager = chatPlayerManager;
+    public PlayerJoinListener(ChatPlugin chatPlugin) {
+        this.chatPlugin = chatPlugin;
     }
 
     @EventHandler
     public void onPlayerPreJoin(AsyncPlayerPreLoginEvent event) {
         UUID uuid = event.getUniqueId();
-        chatPlayerManager.getOrLoad(uuid).join();
+        chatPlugin.getChatPlayerManager().getOrLoad(uuid).join();
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        ChatPlayer chatPlayer = chatPlayerManager.get(event.getPlayer().getUniqueId());
-        chatPlayer.setMinecraftUsername(event.getPlayer().getName());
+        chatPlugin.getUpdateOnlinePlayersThread().updateOnlinePlayer(event.getPlayer());
     }
 
 }

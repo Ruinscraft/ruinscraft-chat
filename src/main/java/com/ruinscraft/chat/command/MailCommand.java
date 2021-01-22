@@ -122,7 +122,7 @@ public class MailCommand implements CommandExecutor, TabCompleter {
                         }
                     }
 
-                    if (mailFromSender > 10) {
+                    if (mailFromSender > 5) {
                         onlineChatPlayer.sendMessage(ChatColor.RED + "You've sent too much mail to this person.");
                     } else {
                         MailMessage mailMessage = new MailMessage(onlineChatPlayer, message, chatPlayerTarget);
@@ -136,14 +136,25 @@ public class MailCommand implements CommandExecutor, TabCompleter {
         });
     }
 
+    private static List<String> options = new ArrayList<>();
+
+    static {
+        options.add("read");
+        options.add("clear");
+        options.add("send");
+    }
+
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        List<String> options = new ArrayList<>();
+        List<String> completions = new ArrayList<>();
 
         if (args.length == 1) {
-            options.add("read");
-            options.add("clear");
-            options.add("send");
+            for (String option : options) {
+                if (option.startsWith(args[0].toLowerCase())) {
+                    completions.add(option);
+                }
+            }
         }
 
         if (args.length == 2) {
@@ -151,7 +162,7 @@ public class MailCommand implements CommandExecutor, TabCompleter {
             return chatPlayersTabCompleter.onTabComplete(sender, command, label, args);
         }
 
-        return options;
+        return completions;
     }
 
 }

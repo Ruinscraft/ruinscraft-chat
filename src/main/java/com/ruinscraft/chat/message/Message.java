@@ -60,7 +60,7 @@ public abstract class Message {
     public void show(ChatPlugin chatPlugin, Player to) {
         OnlineChatPlayer toChatPlayer = chatPlugin.getChatPlayerManager().get(to);
 
-        if (!chatPlugin.getSpamHandler().canSendMessage(getSender())) {
+        if (!chatPlugin.getSpamHandler().canSendMessage(getSender().getMojangId())) {
             return;
         }
 
@@ -70,6 +70,8 @@ public abstract class Message {
                 showChatSpy(chatPlugin, player);
             }
         }
+
+        showConsole(chatPlugin);
 
         if (toChatPlayer.isBlocked(sender)) {
             return;
@@ -87,5 +89,7 @@ public abstract class Message {
     protected abstract void show0(ChatPlugin chatPlugin, Player to);
 
     protected abstract void showChatSpy(ChatPlugin chatPlugin, Player staff);
+
+    protected abstract void showConsole(ChatPlugin chatPlugin);
 
 }

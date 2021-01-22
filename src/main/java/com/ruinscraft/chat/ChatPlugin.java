@@ -14,7 +14,7 @@ import com.ruinscraft.chat.storage.impl.MySQLChatStorage;
 import com.ruinscraft.chat.task.FetchFriendRequestTask;
 import com.ruinscraft.chat.task.FetchMailTask;
 import com.ruinscraft.chat.task.FetchServerNameTask;
-import com.ruinscraft.chat.task.UpdateOnlinePlayersTask;
+import com.ruinscraft.chat.task.UpdateOnlinePlayersThread;
 import com.ruinscraft.chat.util.NetworkUtil;
 import com.ruinscraft.chat.util.SpamHandler;
 import com.ruinscraft.chat.util.VaultUtil;
@@ -33,6 +33,7 @@ public class ChatPlugin extends JavaPlugin {
     private ChatPlayerManager chatPlayerManager;
     private ChatChannelManager chatChannelManager;
     private SpamHandler spamHandler;
+    private UpdateOnlinePlayersThread updateOnlinePlayersThread;
 
     public UUID getServerId() {
         return serverId;
@@ -52,6 +53,10 @@ public class ChatPlugin extends JavaPlugin {
 
     public SpamHandler getSpamHandler() {
         return spamHandler;
+    }
+
+    public UpdateOnlinePlayersThread getUpdateOnlinePlayersThread() {
+        return updateOnlinePlayersThread;
     }
 
     public List<String> getBadWords() {
@@ -75,10 +80,13 @@ public class ChatPlugin extends JavaPlugin {
         chatChannelManager = new ChatChannelManager(this);
         spamHandler = new SpamHandler(this);
 
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(chatPlayerManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
         getServer().getPluginManager().registerEvents(new ChatPlayerListener(this), this);
-        getServer().getScheduler().runTaskTimer(this, new UpdateOnlinePlayersTask(this), 20L, 20L);
+
+        // Start tasks/threads
+        updateOnlinePlayersThread = new UpdateOnlinePlayersThread(this);
+        updateOnlinePlayersThread.start();
         getServer().getScheduler().runTaskTimer(this, new FetchServerNameTask(this), 20L, 20L);
         getServer().getScheduler().runTaskTimer(this, new FetchFriendRequestTask(this), 20L, 20L);
         getServer().getScheduler().runTaskTimer(this, new FetchMailTask(this), 20L, 20L);
@@ -113,6 +121,7 @@ public class ChatPlugin extends JavaPlugin {
 
         for (Player player : getServer().getOnlinePlayers()) {
             chatPlayerManager.getOrLoad(player.getUniqueId());
+            updateOnlinePlayersThread.updateOnlinePlayer(player);
         }
     }
 

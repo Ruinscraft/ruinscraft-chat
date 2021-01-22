@@ -90,6 +90,16 @@ public class DirectMessage extends ChatMessage {
         staff.sendMessage(stringJoiner.toString());
     }
 
+    @Override
+    protected void showConsole(ChatPlugin chatPlugin) {
+        StringJoiner stringJoiner = new StringJoiner(" ");
+
+        stringJoiner.add(org.bukkit.ChatColor.GRAY + "[" + getSender().getMinecraftUsername() +
+                " -> " + getRecipient().getMinecraftUsername() + "] " + getContent());
+
+        System.out.println(stringJoiner.toString());
+    }
+
     private void showNewMessageActionBar(Player player, String from) {
         TextComponent message = new TextComponent("New message from " + from);
         message.setColor(ChatColor.AQUA);

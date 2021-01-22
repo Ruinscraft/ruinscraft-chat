@@ -46,4 +46,9 @@ public class MailMessage extends Message {
         // Do nothing?
     }
 
+    @Override
+    protected void showConsole(ChatPlugin chatPlugin) {
+        // Do nothing?
+    }
+
 }

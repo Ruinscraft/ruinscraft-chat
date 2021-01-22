@@ -25,14 +25,22 @@ public class FriendsCompleter implements TabCompleter {
             return new ArrayList<>();
         }
 
+        if (args.length < 1) {
+            return new ArrayList<>();
+        }
+
         Player player = (Player) sender;
         OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
         List<String> friendUsernames = new ArrayList<>();
 
+        String typing = args[args.length - 1];
+
         for (FriendRequest friendRequest : onlineChatPlayer.getFriendRequests()) {
             if (friendRequest.isAccepted()) {
                 String username = friendRequest.getOther(onlineChatPlayer).getMinecraftUsername();
-                friendUsernames.add(username);
+                if (username.toLowerCase().startsWith(typing.toLowerCase())) {
+                    friendUsernames.add(username);
+                }
             }
         }
 

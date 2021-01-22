@@ -30,7 +30,7 @@ public class FetchMailTask implements Runnable {
                 }
 
                 if (shouldAlert) {
-                    onlineChatPlayer.sendMessage(ChatColor.GOLD + "You have unread mail! Type /mail to read it.");
+                    onlineChatPlayer.sendMessage(ChatColor.GOLD + "You have unread mail! Type '/mail read' to read it.");
                 }
             });
         }

@@ -21,8 +21,16 @@ public class ChatPlayersTabCompleter implements TabCompleter {
     public List<String> onTabComplete(CommandSender commandSender, Command command, String label, String[] args) {
         List<String> usernames = new ArrayList<>();
 
+        if (args.length < 1) {
+            return usernames;
+        }
+
+        String typing = args[args.length - 1];
+
         for (OnlineChatPlayer onlineChatPlayer : chatPlugin.getChatPlayerManager().getOnlineChatPlayers()) {
-            usernames.add(onlineChatPlayer.getMinecraftUsername());
+            if (onlineChatPlayer.getMinecraftUsername().toLowerCase().startsWith(typing.toLowerCase())) {
+                usernames.add(onlineChatPlayer.getMinecraftUsername());
+            }
         }
 
         return usernames;

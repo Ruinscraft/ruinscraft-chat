@@ -204,16 +204,26 @@ public class FriendCommand implements CommandExecutor, TabCompleter {
         });
     }
 
+    private static List<String> options = new ArrayList<>();
+
+    static {
+        options.add("list");
+        options.add("add");
+        options.add("remove");
+        options.add("accept");
+        options.add("deny");
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        List<String> options = new ArrayList<>();
+        List<String> completions = new ArrayList<>();
 
         if (args.length == 1) {
-            options.add("list");
-            options.add("add");
-            options.add("remove");
-            options.add("accept");
-            options.add("deny");
+            for (String option : options) {
+                if (option.startsWith(args[0].toLowerCase())) {
+                    completions.add(option);
+                }
+            }
         }
 
         if (args.length == 2) {
@@ -237,7 +247,7 @@ public class FriendCommand implements CommandExecutor, TabCompleter {
             }
         }
 
-        return options;
+        return completions;
     }
 
 }
