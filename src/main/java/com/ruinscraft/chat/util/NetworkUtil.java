@@ -1,8 +1,9 @@
-package com.ruinscraft.chat;
+package com.ruinscraft.chat.util;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.message.DirectMessage;
@@ -32,7 +33,7 @@ public final class NetworkUtil {
 
     public static void sendChatEventPacket(ChatPlugin chatPlugin, Player player, JavaPlugin javaPlugin, UUID chatMessageId) {
         {
-            handleChatMessage(chatPlugin, chatMessageId);
+            ChatUtil.handleChatMessage(chatPlugin, chatMessageId);
         }
         {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
@@ -56,7 +57,7 @@ public final class NetworkUtil {
 
     public static void sendPrivateChatEventPacket(ChatPlugin chatPlugin, Player player, JavaPlugin javaPlugin, UUID privateChatMessageId) {
         {
-            handleChatMessage(chatPlugin, privateChatMessageId);
+            ChatUtil.handleChatMessage(chatPlugin, privateChatMessageId);
         }
         {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
@@ -115,7 +116,7 @@ public final class NetworkUtil {
                     e.printStackTrace();
                     return;
                 }
-                handleChatMessage(chatPlugin, chatMessageId);
+                ChatUtil.handleChatMessage(chatPlugin, chatMessageId);
             } else if (method.equals("private_chat_event")) {
                 short len = in.readShort();
                 byte[] msgbytes = new byte[len];
@@ -128,43 +129,10 @@ public final class NetworkUtil {
                     e.printStackTrace();
                     return;
                 }
-                handleChatMessage(chatPlugin, chatMessageId);
+                ChatUtil.handleChatMessage(chatPlugin, chatMessageId);
             }
         }
     }
 
-    private static void handleChatMessage(ChatPlugin chatPlugin, UUID chatMessageId) {
-        chatPlugin.getChatStorage().queryChatMessage(chatMessageId).thenAccept(chatMessageQuery -> {
-            if (chatMessageQuery.hasResults()) {
-                ChatMessage chatMessage = chatMessageQuery.getFirst();
-
-                if (chatMessage instanceof DirectMessage) {
-                    DirectMessage directMessage = (DirectMessage) chatMessage;
-                    Player senderPlayer = Bukkit.getPlayer(directMessage.getSender().getMojangId());
-                    Player recipientPlayer = Bukkit.getPlayer(directMessage.getRecipient().getMojangId());
-
-                    if (senderPlayer != null) {
-                        directMessage.show(chatPlugin, senderPlayer);
-                    }
-
-                    if (recipientPlayer != null) {
-                        directMessage.show(chatPlugin, recipientPlayer);
-                    }
-                } else {
-                    ChatChannel chatChannel = chatPlugin.getChatChannelManager().getChannel(chatMessage.getChannelDbName());
-
-                    if (!chatChannel.isCrossServer()) {
-                        if (!chatMessage.getOriginServerId().equals(chatPlugin.getServerId())) {
-                            return;
-                        }
-                    }
-
-                    for (Player player : Bukkit.getOnlinePlayers()) {
-                        chatMessage.show(chatPlugin, player);
-                    }
-                }
-            }
-        });
-    }
 
 }

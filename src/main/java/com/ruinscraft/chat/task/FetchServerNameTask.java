@@ -2,7 +2,7 @@ package com.ruinscraft.chat.task;
 
 import com.google.common.collect.Iterables;
 import com.ruinscraft.chat.ChatPlugin;
-import com.ruinscraft.chat.NetworkUtil;
+import com.ruinscraft.chat.util.NetworkUtil;
 import org.bukkit.entity.Player;
 
 public class FetchServerNameTask implements Runnable {

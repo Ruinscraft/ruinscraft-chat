@@ -15,6 +15,9 @@ import com.ruinscraft.chat.task.FetchFriendRequestTask;
 import com.ruinscraft.chat.task.FetchMailTask;
 import com.ruinscraft.chat.task.FetchServerNameTask;
 import com.ruinscraft.chat.task.UpdateOnlinePlayersTask;
+import com.ruinscraft.chat.util.NetworkUtil;
+import com.ruinscraft.chat.util.SpamHandler;
+import com.ruinscraft.chat.util.VaultUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -29,6 +32,7 @@ public class ChatPlugin extends JavaPlugin {
     private ChatStorage chatStorage;
     private ChatPlayerManager chatPlayerManager;
     private ChatChannelManager chatChannelManager;
+    private SpamHandler spamHandler;
 
     public UUID getServerId() {
         return serverId;
@@ -44,6 +48,10 @@ public class ChatPlugin extends JavaPlugin {
 
     public ChatChannelManager getChatChannelManager() {
         return chatChannelManager;
+    }
+
+    public SpamHandler getSpamHandler() {
+        return spamHandler;
     }
 
     public List<String> getBadWords() {
@@ -65,6 +73,7 @@ public class ChatPlugin extends JavaPlugin {
         chatStorage = new MySQLChatStorage(this, mysqlHost, mysqlPort, mysqlDatabase, mysqlUsername, mysqlPassword);
         chatPlayerManager = new ChatPlayerManager(this);
         chatChannelManager = new ChatChannelManager(this);
+        spamHandler = new SpamHandler(this);
 
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(chatPlayerManager), this);
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);

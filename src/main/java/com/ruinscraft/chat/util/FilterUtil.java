@@ -1,4 +1,4 @@
-package com.ruinscraft.chat;
+package com.ruinscraft.chat.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;

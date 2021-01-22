@@ -1,4 +1,4 @@
-package com.ruinscraft.chat;
+package com.ruinscraft.chat.util;
 
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
@@ -7,7 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
-public class VaultUtil {
+public final class VaultUtil {
 
     private static Permission perms;
     private static Chat chat;

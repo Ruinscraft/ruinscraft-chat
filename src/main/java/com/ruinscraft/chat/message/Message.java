@@ -1,9 +1,9 @@
 package com.ruinscraft.chat.message;
 
 import com.ruinscraft.chat.ChatPlugin;
-import com.ruinscraft.chat.FilterUtil;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
+import com.ruinscraft.chat.util.FilterUtil;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.bukkit.entity.Player;
 
@@ -58,6 +58,10 @@ public abstract class Message {
 
     public void show(ChatPlugin chatPlugin, Player to) {
         OnlineChatPlayer toChatPlayer = chatPlugin.getChatPlayerManager().get(to);
+
+        if (!chatPlugin.getSpamHandler().canSendMessage(getSender())) {
+            return;
+        }
 
         if (toChatPlayer.isBlocked(sender)) {
             return;

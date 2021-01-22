@@ -1,7 +1,7 @@
 package com.ruinscraft.chat.task;
 
 import com.ruinscraft.chat.ChatPlugin;
-import com.ruinscraft.chat.VaultUtil;
+import com.ruinscraft.chat.util.VaultUtil;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.channel.GlobalChatChannel;
 import com.ruinscraft.chat.event.ChatPlayerLoginEvent;
@@ -31,7 +31,7 @@ public class UpdateOnlinePlayersTask implements Runnable {
             ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(player.getUniqueId());
             final OnlineChatPlayer onlineChatPlayer;
 
-            chatPlayer.setLastSeen(System.currentTimeMillis());
+            chatPlayer.setLastSeen(System.currentTimeMillis()); // TODO: NPE
 
             long now = System.currentTimeMillis();
             String group = VaultUtil.getGroup(player);

@@ -1,7 +1,7 @@
 package com.ruinscraft.chat.channel;
 
 import com.ruinscraft.chat.ChatPlugin;
-import com.ruinscraft.chat.VaultUtil;
+import com.ruinscraft.chat.util.VaultUtil;
 import com.ruinscraft.chat.message.ChatMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
