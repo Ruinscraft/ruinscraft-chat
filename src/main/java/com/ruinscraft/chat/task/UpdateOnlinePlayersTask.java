@@ -1,7 +1,6 @@
 package com.ruinscraft.chat.task;
 
 import com.ruinscraft.chat.ChatPlugin;
-import com.ruinscraft.chat.util.VaultUtil;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.channel.GlobalChatChannel;
 import com.ruinscraft.chat.event.ChatPlayerLoginEvent;
@@ -9,6 +8,7 @@ import com.ruinscraft.chat.event.ChatPlayerLogoutEvent;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
 import com.ruinscraft.chat.player.PersonalizationSettings;
+import com.ruinscraft.chat.util.VaultUtil;
 import org.bukkit.entity.Player;
 
 import java.util.HashSet;

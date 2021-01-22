@@ -1,7 +1,6 @@
 package com.ruinscraft.chat.util;
 
 import com.ruinscraft.chat.ChatPlugin;
-import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.message.DirectMessage;
 import org.bukkit.Bukkit;
@@ -29,14 +28,6 @@ public final class ChatUtil {
                         directMessage.show(chatPlugin, recipientPlayer);
                     }
                 } else {
-                    ChatChannel chatChannel = chatPlugin.getChatChannelManager().getChannel(chatMessage.getChannelDbName());
-
-                    if (!chatChannel.isCrossServer()) {
-                        if (!chatMessage.getOriginServerId().equals(chatPlugin.getServerId())) {
-                            return;
-                        }
-                    }
-
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         chatMessage.show(chatPlugin, player);
                     }

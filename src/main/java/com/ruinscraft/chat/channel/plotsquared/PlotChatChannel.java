@@ -24,7 +24,17 @@ public class PlotChatChannel extends ChatChannel {
     public Collection<? extends Player> getRecipients(ChatMessage chatMessage) {
         Set<Player> recipients = new HashSet<>();
         Player player = Bukkit.getPlayer(chatMessage.getSender().getMojangId());
+
+        if (player == null || !player.isOnline()) {
+            return new HashSet<>();
+        }
+
         PlotPlayer plotPlayer = PlotPlayer.wrap(player);
+
+        if (plotPlayer == null) {
+            return new HashSet<>();
+        }
+
         Plot plot = plotPlayer.getCurrentPlot();
 
         if (plot == null) {

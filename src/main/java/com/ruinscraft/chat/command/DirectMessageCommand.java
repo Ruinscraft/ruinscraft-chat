@@ -1,10 +1,10 @@
 package com.ruinscraft.chat.command;
 
 import com.ruinscraft.chat.ChatPlugin;
-import com.ruinscraft.chat.util.NetworkUtil;
 import com.ruinscraft.chat.message.DirectMessage;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
+import com.ruinscraft.chat.util.NetworkUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

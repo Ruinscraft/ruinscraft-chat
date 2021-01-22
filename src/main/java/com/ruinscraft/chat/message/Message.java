@@ -5,6 +5,7 @@ import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
 import com.ruinscraft.chat.util.FilterUtil;
 import org.apache.commons.lang.time.DurationFormatUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.Objects;
@@ -63,6 +64,13 @@ public abstract class Message {
             return;
         }
 
+        // Chat Spy
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.hasPermission("ruinscraft.chat.chatspy")) {
+                showChatSpy(chatPlugin, player);
+            }
+        }
+
         if (toChatPlayer.isBlocked(sender)) {
             return;
         }
@@ -77,5 +85,7 @@ public abstract class Message {
     }
 
     protected abstract void show0(ChatPlugin chatPlugin, Player to);
+
+    protected abstract void showChatSpy(ChatPlugin chatPlugin, Player staff);
 
 }

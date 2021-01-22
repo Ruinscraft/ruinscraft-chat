@@ -10,6 +10,7 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 
+import java.util.StringJoiner;
 import java.util.UUID;
 
 public class DirectMessage extends ChatMessage {
@@ -69,6 +70,24 @@ public class DirectMessage extends ChatMessage {
             componentBuilder.append(getContent()).color(ChatColor.AQUA);
             to.spigot().sendMessage(componentBuilder.create());
         }
+    }
+
+    @Override
+    protected void showChatSpy(ChatPlugin chatPlugin, Player staff) {
+        if (staff.getUniqueId().equals(getSender().getMojangId())) {
+            return;
+        }
+
+        if (staff.getUniqueId().equals(getRecipient().getMojangId())) {
+            return;
+        }
+
+        StringJoiner stringJoiner = new StringJoiner(" ");
+
+        stringJoiner.add(org.bukkit.ChatColor.GRAY + "[" + getSender().getMinecraftUsername() +
+                " -> " + getRecipient().getMinecraftUsername() + "] " + getContent());
+
+        staff.sendMessage(stringJoiner.toString());
     }
 
     private void showNewMessageActionBar(Player player, String from) {

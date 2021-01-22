@@ -3,16 +3,16 @@ package com.ruinscraft.chat.util;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.player.ChatPlayer;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SpamHandler {
 
     private Map<ChatPlayer, PriorityQueue<Long>> recentMessages;
 
     public SpamHandler(ChatPlugin chatPlugin) {
-        recentMessages = new HashMap<>();
+        recentMessages = new ConcurrentHashMap<>();
 
         chatPlugin.getServer().getScheduler().runTaskTimer(chatPlugin, () -> {
             for (ChatPlayer chatPlayer : recentMessages.keySet()) {

@@ -1,10 +1,10 @@
 package com.ruinscraft.chat.channel;
 
 import com.ruinscraft.chat.ChatPlugin;
-import com.ruinscraft.chat.util.NetworkUtil;
-import com.ruinscraft.chat.util.VaultUtil;
 import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
+import com.ruinscraft.chat.util.NetworkUtil;
+import com.ruinscraft.chat.util.VaultUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -56,6 +56,10 @@ public abstract class ChatChannel {
 
     public boolean isCrossServer() {
         return crossServer;
+    }
+
+    public String getPermission() {
+        return getCommand(chatPlugin).getPermission();
     }
 
     public String format(ChatMessage chatMessage) {

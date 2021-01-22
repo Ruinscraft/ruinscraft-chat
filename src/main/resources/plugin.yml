@@ -9,7 +9,7 @@ commands:
   list:
     aliases: [ who, online ]
   listall:
-    aliases: [ listeveryone, listabsolutelyeveryoneonruinscraftatthismoment ]
+    aliases: [ listeveryone ]
   seen:
     aliases: [ lastseen ]
   friend:

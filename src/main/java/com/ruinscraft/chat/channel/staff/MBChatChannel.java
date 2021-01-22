@@ -5,6 +5,7 @@ import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
 import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
 
 import java.util.StringJoiner;
 
@@ -39,6 +40,13 @@ public class MBChatChannel extends ChatChannel {
         stringJoiner.add(getChatColor() + chatMessage.getContent());
 
         return stringJoiner.toString();
+    }
+
+    @Override
+    public Command getCommand(ChatPlugin chatPlugin) {
+        Command command = super.getCommand(chatPlugin);
+        command.setPermission("ruinscraft.chat." + getName());
+        return command;
     }
 
 }

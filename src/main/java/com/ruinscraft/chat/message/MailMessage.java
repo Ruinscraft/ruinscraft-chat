@@ -41,4 +41,9 @@ public class MailMessage extends Message {
         to.sendMessage("  >> " + ChatColor.GRAY + getContent());
     }
 
+    @Override
+    protected void showChatSpy(ChatPlugin chatPlugin, Player staff) {
+        // Do nothing?
+    }
+
 }
