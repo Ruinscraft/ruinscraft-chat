@@ -31,3 +31,5 @@ commands:
     aliases: [ r ]
   chat:
     aliases: [ chatsettings ]
+  vanish:
+    permission: ruinscraft.command.vanish

@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 public class OnlineChatPlayer extends ChatPlayer {
 
-    public static final int SECONDS_UNTIL_OFFLINE = 6;
+    public static final int SECONDS_UNTIL_OFFLINE = 5;
 
     private long updatedAt;
     private String serverName;

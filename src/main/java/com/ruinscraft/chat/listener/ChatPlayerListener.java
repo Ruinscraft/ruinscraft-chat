@@ -25,6 +25,10 @@ public class ChatPlayerListener implements Listener {
             OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
             if (onlineChatPlayer.isFriend(loggedIn)) {
+                if (!player.hasPermission("ruinscraft.command.vanish") && onlineChatPlayer.isVanished()) {
+                    continue;
+                }
+
                 player.sendMessage(ChatColor.GOLD + "Your friend, " + loggedIn.getMinecraftUsername()
                         + ", has logged into " + loggedIn.getServerName().toUpperCase() + ".");
             }
@@ -39,6 +43,10 @@ public class ChatPlayerListener implements Listener {
             OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
             if (onlineChatPlayer.isFriend(loggedOut)) {
+                if (!player.hasPermission("ruinscraft.command.vanish") && onlineChatPlayer.isVanished()) {
+                    continue;
+                }
+
                 player.sendMessage(ChatColor.GOLD + "Your friend, " + loggedOut.getMinecraftUsername() + ", has logged out.");
             }
         }

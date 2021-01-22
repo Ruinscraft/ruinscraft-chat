@@ -8,13 +8,11 @@ import com.ruinscraft.chat.command.completers.EmptyTabCompleter;
 import com.ruinscraft.chat.listener.ChatListener;
 import com.ruinscraft.chat.listener.ChatPlayerListener;
 import com.ruinscraft.chat.listener.PlayerJoinQuitListener;
+import com.ruinscraft.chat.listener.VanishListener;
 import com.ruinscraft.chat.player.ChatPlayerManager;
 import com.ruinscraft.chat.storage.ChatStorage;
 import com.ruinscraft.chat.storage.impl.MySQLChatStorage;
-import com.ruinscraft.chat.task.FetchFriendRequestTask;
-import com.ruinscraft.chat.task.FetchMailTask;
-import com.ruinscraft.chat.task.FetchServerNameTask;
-import com.ruinscraft.chat.task.UpdateOnlinePlayersThread;
+import com.ruinscraft.chat.task.*;
 import com.ruinscraft.chat.util.NetworkUtil;
 import com.ruinscraft.chat.util.SpamHandler;
 import com.ruinscraft.chat.util.VaultUtil;
@@ -78,12 +76,14 @@ public class ChatPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerJoinQuitListener(this), this);
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
         getServer().getPluginManager().registerEvents(new ChatPlayerListener(this), this);
+        getServer().getPluginManager().registerEvents(new VanishListener(this), this);
 
         // Start tasks/threads
         new UpdateOnlinePlayersThread(this).start();
         getServer().getScheduler().runTaskTimer(this, new FetchServerNameTask(this), 20L, 20L);
         getServer().getScheduler().runTaskTimer(this, new FetchFriendRequestTask(this), 20L, 20L);
         getServer().getScheduler().runTaskTimer(this, new FetchMailTask(this), 20L, 20L);
+        getServer().getScheduler().runTaskTimer(this, new VanishTask(this), 20L, 20L);
 
         ListCommand listCommand = new ListCommand(this);
         getCommand("list").setExecutor(listCommand);
@@ -109,6 +109,7 @@ public class ChatPlugin extends JavaPlugin {
         ChatCommand chatCommand = new ChatCommand(this);
         getCommand("chat").setExecutor(chatCommand);
         getCommand("chat").setTabCompleter(chatCommand);
+        getCommand("vanish").setExecutor(new VanishCommand(this));
 
         VaultUtil.init();
         NetworkUtil.register(this);

@@ -108,9 +108,10 @@ public class ListCommand implements CommandExecutor {
             List<String> onlineNames = new ArrayList<>();
 
             for (OnlineChatPlayer onlineChatPlayer : onlineChatPlayers) {
-                if (sender.hasPermission("ruinscraft.list.showvanished") && onlineChatPlayer.isVanished()) {
+                if (!sender.hasPermission("ruinscraft.command.vanish") && onlineChatPlayer.isVanished()) {
                     continue;
                 }
+
                 onlineNames.add(getColorForGroup(onlineChatPlayer.getGroupName()) + onlineChatPlayer.getMinecraftUsername());
                 totalPlayers++;
             }
@@ -121,7 +122,7 @@ public class ListCommand implements CommandExecutor {
         List<String> staffNames = new ArrayList<>();
 
         for (OnlineChatPlayer staff : staffCache) {
-            if (sender.hasPermission("ruinscraft.list.showvanished") && staff.isVanished()) {
+            if (!sender.hasPermission("ruinscraft.command.vanish") && staff.isVanished()) {
                 continue;
             }
 
@@ -140,6 +141,11 @@ public class ListCommand implements CommandExecutor {
 
                 if (friend instanceof OnlineChatPlayer) {
                     OnlineChatPlayer onlineFriend = (OnlineChatPlayer) friend;
+
+                    if (!player.hasPermission("ruinscraft.command.vanish") && onlineFriend.isVanished()) {
+                        continue;
+                    }
+
                     onlineFriendNames.add(getColorForGroup(onlineFriend.getGroupName()) + onlineFriend.getMinecraftUsername() + ChatColor.GRAY + " (" + onlineFriend.getServerName().toUpperCase() + ")" + ChatColor.RESET);
                 }
             }

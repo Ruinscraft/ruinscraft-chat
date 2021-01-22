@@ -18,7 +18,7 @@ public class ChatPlayersTabCompleter implements TabCompleter {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender commandSender, Command command, String label, String[] args) {
+    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         List<String> usernames = new ArrayList<>();
 
         if (args.length < 1) {
@@ -28,6 +28,10 @@ public class ChatPlayersTabCompleter implements TabCompleter {
         String typing = args[args.length - 1];
 
         for (OnlineChatPlayer onlineChatPlayer : chatPlugin.getChatPlayerManager().getOnlineChatPlayers()) {
+            if (!sender.hasPermission("ruinscraft.command.vanish") && onlineChatPlayer.isVanished()) {
+                continue;
+            }
+
             if (onlineChatPlayer.getMinecraftUsername().toLowerCase().startsWith(typing.toLowerCase())) {
                 usernames.add(onlineChatPlayer.getMinecraftUsername());
             }

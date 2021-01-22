@@ -45,12 +45,10 @@ public class UpdateOnlinePlayersThread extends Thread {
             long now = System.currentTimeMillis();
             String group = VaultUtil.getGroup(player);
             String serverName = ChatPlugin.serverName == null ? "Unknown" : ChatPlugin.serverName;
-            boolean vanished = false;
 
             onlineChatPlayer.setUpdatedAt(now);
             onlineChatPlayer.setGroupName(group);
             onlineChatPlayer.setServerName(serverName);
-            onlineChatPlayer.setVanished(vanished);
 
             chatPlugin.getChatStorage().saveOnlineChatPlayer(onlineChatPlayer).join();
         }
