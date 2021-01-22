@@ -205,6 +205,36 @@ public abstract class SQLChatStorage extends ChatStorage {
     }
 
     @Override
+    public CompletableFuture<OnlineChatPlayerQuery> queryOnlineChatPlayer(UUID mojangId) {
+        return CompletableFuture.supplyAsync(() -> {
+            OnlineChatPlayerQuery onlineChatPlayerQuery = new OnlineChatPlayerQuery();
+
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.ONLINE_CHAT_PLAYERS + " WHERE id = ?;")) {
+                    query.setString(1, mojangId.toString());
+
+                    try (ResultSet resultSet = query.executeQuery()) {
+                        while (resultSet.next()) {
+                            ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().getOrLoad(mojangId).join();
+                            long updatedAt = resultSet.getLong("updated_at");
+                            String serverName = resultSet.getString("server_name");
+                            String groupName = resultSet.getString("group_name");
+                            boolean vanished = resultSet.getBoolean("vanished");
+                            UUID lastDm = UUID.fromString(resultSet.getString("last_dm"));
+                            OnlineChatPlayer onlineChatPlayer = new OnlineChatPlayer(chatPlayer, updatedAt, serverName, groupName, vanished, lastDm);
+                            onlineChatPlayerQuery.addResult(onlineChatPlayer);
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            return onlineChatPlayerQuery;
+        });
+    }
+
+    @Override
     public CompletableFuture<OnlineChatPlayerQuery> queryOnlineChatPlayers() {
         return CompletableFuture.supplyAsync(() -> {
             OnlineChatPlayerQuery onlineChatPlayerQuery = new OnlineChatPlayerQuery();

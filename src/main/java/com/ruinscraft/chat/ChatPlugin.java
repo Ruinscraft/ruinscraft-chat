@@ -7,7 +7,7 @@ import com.ruinscraft.chat.command.completers.ChatPlayersTabCompleter;
 import com.ruinscraft.chat.command.completers.EmptyTabCompleter;
 import com.ruinscraft.chat.listener.ChatListener;
 import com.ruinscraft.chat.listener.ChatPlayerListener;
-import com.ruinscraft.chat.listener.PlayerJoinListener;
+import com.ruinscraft.chat.listener.PlayerJoinQuitListener;
 import com.ruinscraft.chat.player.ChatPlayerManager;
 import com.ruinscraft.chat.storage.ChatStorage;
 import com.ruinscraft.chat.storage.impl.MySQLChatStorage;
@@ -80,7 +80,7 @@ public class ChatPlugin extends JavaPlugin {
         chatChannelManager = new ChatChannelManager(this);
         spamHandler = new SpamHandler(this);
 
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoinQuitListener(this), this);
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
         getServer().getPluginManager().registerEvents(new ChatPlayerListener(this), this);
 
@@ -120,8 +120,7 @@ public class ChatPlugin extends JavaPlugin {
         NetworkUtil.register(this);
 
         for (Player player : getServer().getOnlinePlayers()) {
-            chatPlayerManager.getOrLoad(player.getUniqueId());
-            updateOnlinePlayersThread.updateOnlinePlayer(player);
+            chatPlayerManager.getOrLoad(player).join();
         }
     }
 
