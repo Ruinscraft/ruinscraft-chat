@@ -49,7 +49,12 @@ public class ChatPlayer {
 
     public String getLastSeenDurationWords() {
         long duration = System.currentTimeMillis() - lastSeen;
-        return DurationFormatUtils.formatDurationWords(duration, true, true);
+        String durationString = DurationFormatUtils.formatDurationWords(duration, true, true);
+        durationString = durationString.replace("seconds", "s");
+        durationString = durationString.replace("minutes", "m");
+        durationString = durationString.replace("hours", "h");
+        durationString = durationString.replace("years", "y");
+        return durationString;
     }
 
     @Override

@@ -6,12 +6,15 @@ import com.ruinscraft.chat.command.completers.FriendsCompleter;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.FriendRequest;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.util.ChatPaginator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +41,7 @@ public class FriendCommand implements CommandExecutor, TabCompleter {
         } else if (args.length == 1) {
             switch (args[0].toLowerCase()) {
                 case "list":
-                    listFriends(player);
+                    listFriends(player, 1);
                     break;
                 default:
                     showHelp(player, label);
@@ -46,6 +49,18 @@ public class FriendCommand implements CommandExecutor, TabCompleter {
             }
         } else if (args.length > 1) {
             switch (args[0].toLowerCase()) {
+                case "list":
+                    int pageNumber;
+                    try {
+                        pageNumber = Integer.parseInt(args[1]);
+                    } catch (NumberFormatException e) {
+                        pageNumber = 1;
+                    }
+                    if (pageNumber < 1) {
+                        pageNumber = 1;
+                    }
+                    listFriends(player, pageNumber);
+                    break;
                 case "add":
                     addFriend(player, args[1]);
                     break;
@@ -68,41 +83,73 @@ public class FriendCommand implements CommandExecutor, TabCompleter {
     }
 
     private void showHelp(Player player, String label) {
-        player.sendMessage(ChatColor.RED + "/" + label + " <list, add, remove, accept, deny> [username]");
+        player.sendMessage(ChatColor.RED + "/" + label + " <list, add, remove, accept, deny> [page/username]");
     }
 
-    private void listFriends(Player player) {
+    private void listFriends(Player player, int pageNumber) {
         OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
-
-        boolean empty = true;
-
-        onlineChatPlayer.sendMessage(ChatColor.GOLD + "====== Your Friends ======");
+        List<String> friendListFull = new ArrayList<>();
 
         for (FriendRequest friendRequest : onlineChatPlayer.getFriendRequests()) {
             if (friendRequest.isAccepted()) {
-                empty = false;
-
                 StringJoiner stringJoiner = new StringJoiner(" ");
                 ChatPlayer friend = friendRequest.getOther(onlineChatPlayer);
 
+                boolean online = false;
+
                 if (friend instanceof OnlineChatPlayer) {
                     OnlineChatPlayer onlineFriend = (OnlineChatPlayer) friend;
+
+                    if (onlineFriend.isVanished() && !player.hasPermission("ruinscraft.command.vanish")) {
+                        online = false;
+                    } else {
+                        online = true;
+                    }
+                }
+
+                if (online) {
+                    OnlineChatPlayer onlineFriend = (OnlineChatPlayer) friend;
                     stringJoiner.add(ChatColor.GREEN + onlineFriend.getMinecraftUsername());
-                    stringJoiner.add(ChatColor.YELLOW + "is currently online playing " + onlineFriend.getServerName().toUpperCase() + "!");
+                    stringJoiner.add(ChatColor.GRAY + "is currently online playing " + onlineFriend.getServerName().toUpperCase() + "!");
                 } else {
                     stringJoiner.add(ChatColor.GRAY + friend.getMinecraftUsername());
-                    stringJoiner.add(ChatColor.YELLOW + "was last online");
+                    stringJoiner.add(ChatColor.GRAY + "was last online");
                     stringJoiner.add(friend.getLastSeenDurationWords());
                     stringJoiner.add("ago");
                 }
 
-                onlineChatPlayer.sendMessage(stringJoiner.toString());
+                friendListFull.add(stringJoiner.toString());
+
+                if (friendListFull.size() >= 10) {
+                    break;
+                }
             }
         }
 
-        if (empty) {
-            player.sendMessage(ChatColor.GOLD + "You have no friends added.");
+        ChatPaginator.ChatPage page = ChatPaginator.paginate(String.join("\n", friendListFull), pageNumber);
+        onlineChatPlayer.sendMessage(ChatColor.GOLD + "------------ Your Friends | Page " + page.getPageNumber() + "/" + page.getTotalPages() + "  ------------");
+
+        for (String line : page.getLines()) {
+            player.sendMessage(line);
         }
+
+        ComponentBuilder buttonBuilder = new ComponentBuilder("<")
+                .color(net.md_5.bungee.api.ChatColor.YELLOW)
+                .bold(true)
+                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/friend list " + (page.getPageNumber() - 1)))
+                .append(" ")
+                .append(" >")
+                .color(net.md_5.bungee.api.ChatColor.YELLOW)
+                .bold(true)
+                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/friend list " + (page.getPageNumber() + 1)));
+
+        player.spigot().sendMessage(buttonBuilder.create());
+
+        StringBuilder footer = new StringBuilder();
+        for (int i = 0; i < ChatPaginator.GUARANTEED_NO_WRAP_CHAT_PAGE_WIDTH - 9; i++) {
+            footer.append("-");
+        }
+        onlineChatPlayer.sendMessage(ChatColor.GOLD + footer.toString());
     }
 
     private void addFriend(Player player, String target) {
