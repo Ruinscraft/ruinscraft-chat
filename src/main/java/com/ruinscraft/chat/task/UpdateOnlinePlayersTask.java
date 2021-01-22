@@ -28,6 +28,10 @@ public class UpdateOnlinePlayersTask implements Runnable {
     public void run() {
         // Find online players who aren't currently marked as online
         for (Player player : chatPlugin.getServer().getOnlinePlayers()) {
+            if (!player.isOnline()) {
+                continue;
+            }
+
             ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(player.getUniqueId());
             final OnlineChatPlayer onlineChatPlayer;
 
