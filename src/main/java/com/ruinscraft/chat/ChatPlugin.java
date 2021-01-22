@@ -33,7 +33,6 @@ public class ChatPlugin extends JavaPlugin {
     private ChatPlayerManager chatPlayerManager;
     private ChatChannelManager chatChannelManager;
     private SpamHandler spamHandler;
-    private UpdateOnlinePlayersThread updateOnlinePlayersThread;
 
     public UUID getServerId() {
         return serverId;
@@ -53,10 +52,6 @@ public class ChatPlugin extends JavaPlugin {
 
     public SpamHandler getSpamHandler() {
         return spamHandler;
-    }
-
-    public UpdateOnlinePlayersThread getUpdateOnlinePlayersThread() {
-        return updateOnlinePlayersThread;
     }
 
     public List<String> getBadWords() {
@@ -85,8 +80,7 @@ public class ChatPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ChatPlayerListener(this), this);
 
         // Start tasks/threads
-        updateOnlinePlayersThread = new UpdateOnlinePlayersThread(this);
-        updateOnlinePlayersThread.start();
+        new UpdateOnlinePlayersThread(this).start();
         getServer().getScheduler().runTaskTimer(this, new FetchServerNameTask(this), 20L, 20L);
         getServer().getScheduler().runTaskTimer(this, new FetchFriendRequestTask(this), 20L, 20L);
         getServer().getScheduler().runTaskTimer(this, new FetchMailTask(this), 20L, 20L);

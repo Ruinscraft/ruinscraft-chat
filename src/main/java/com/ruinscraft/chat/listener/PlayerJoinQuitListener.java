@@ -20,18 +20,15 @@ public class PlayerJoinQuitListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        chatPlugin.getChatPlayerManager().getAndLoad(player);
-        NetworkUtil.sendChatPlayerLoginPacket(chatPlugin, player);
+        OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().getAndLoad(player);
+        NetworkUtil.sendChatPlayerLoginPacket(chatPlugin, onlineChatPlayer, player);
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-
         OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
         chatPlugin.getChatStorage().saveChatPlayer(onlineChatPlayer);
-
-        NetworkUtil.sendChatPlayerLogoutPacket(chatPlugin, player);
     }
 
 }

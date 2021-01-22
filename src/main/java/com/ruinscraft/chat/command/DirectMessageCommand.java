@@ -43,7 +43,7 @@ public class DirectMessageCommand implements CommandExecutor {
                         DirectMessage directMessage = new DirectMessage(onlineChatPlayer, message, chatPlugin.getServerId(), recipient);
 
                         chatPlugin.getChatStorage().saveChatMessage(directMessage).thenRun(() -> {
-                            NetworkUtil.sendPrivateChatEventPacket(chatPlugin, player, chatPlugin, directMessage.getId());
+                            NetworkUtil.sendPrivateChatEventPacket(chatPlugin, player, directMessage.getId());
                         });
                     } else {
                         player.sendMessage(ChatColor.RED + "No one to reply to.");
@@ -71,7 +71,7 @@ public class DirectMessageCommand implements CommandExecutor {
                     DirectMessage directMessage = new DirectMessage(onlineChatPlayer, message, chatPlugin.getServerId(), recipient);
 
                     chatPlugin.getChatStorage().saveChatMessage(directMessage).thenRun(() -> {
-                        NetworkUtil.sendPrivateChatEventPacket(chatPlugin, player, chatPlugin, directMessage.getId());
+                        NetworkUtil.sendPrivateChatEventPacket(chatPlugin, player, directMessage.getId());
                     });
                 } else {
                     player.sendMessage(ChatColor.RED + target + " is not online.");

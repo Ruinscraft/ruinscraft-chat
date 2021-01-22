@@ -4,6 +4,7 @@ import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.event.ChatPlayerLogoutEvent;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
 import com.ruinscraft.chat.util.VaultUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -41,10 +42,6 @@ public class UpdateOnlinePlayersThread extends Thread {
 
             OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
-            if (onlineChatPlayer == null) {
-                continue;
-            }
-
             long now = System.currentTimeMillis();
             String group = VaultUtil.getGroup(player);
             String serverName = ChatPlugin.serverName == null ? "Unknown" : ChatPlugin.serverName;
@@ -57,6 +54,25 @@ public class UpdateOnlinePlayersThread extends Thread {
 
             chatPlugin.getChatStorage().saveOnlineChatPlayer(onlineChatPlayer).join();
         }
+
+        // Find online players from other servers and add them to the local cache
+        chatPlugin.getChatStorage().queryOnlineChatPlayers().thenAccept(onlineChatPlayerQuery -> {
+            for (OnlineChatPlayer found : onlineChatPlayerQuery.getResults()) {
+                if (chatPlugin.getChatPlayerManager().get(found.getMojangId()) instanceof OnlineChatPlayer) {
+                    Player player = Bukkit.getPlayer(found.getMojangId());
+                    OnlineChatPlayer cached = (OnlineChatPlayer) chatPlugin.getChatPlayerManager().get(found.getMojangId());
+
+                    if (player == null || !player.isOnline()) {
+                        cached.setUpdatedAt(found.getUpdatedAt());
+                        cached.setGroupName(found.getGroupName());
+                        cached.setServerName(found.getServerName());
+                        cached.setVanished(found.isVanished());
+                    }
+                } else {
+                    chatPlugin.getChatPlayerManager().put(found.getMojangId(), found);
+                }
+            }
+        });
 
         // Delete players who have been offline for too long
         chatPlugin.getChatStorage().deleteOfflineChatPlayers().thenRun(() -> {

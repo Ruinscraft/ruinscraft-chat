@@ -28,7 +28,7 @@ public class ChatListener implements Listener {
                 onlineChatPlayer.getFocused(chatPlugin).getDatabaseName());
 
         chatPlugin.getChatStorage().saveChatMessage(chatMessage)
-                .thenRun(() -> NetworkUtil.sendChatEventPacket(chatPlugin, player, chatPlugin, chatMessage.getId()));
+                .thenRun(() -> NetworkUtil.sendChatEventPacket(chatPlugin, player, chatMessage.getId()));
     }
 
 }

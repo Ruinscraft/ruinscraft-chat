@@ -238,6 +238,38 @@ public abstract class SQLChatStorage extends ChatStorage {
     }
 
     @Override
+    public CompletableFuture<OnlineChatPlayerQuery> queryOnlineChatPlayers() {
+        return CompletableFuture.supplyAsync(() -> {
+            OnlineChatPlayerQuery onlineChatPlayerQuery = new OnlineChatPlayerQuery();
+
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.ONLINE_CHAT_PLAYERS + ";")) {
+                    try (ResultSet resultSet = query.executeQuery()) {
+                        while (resultSet.next()) {
+                            UUID mojangId = UUID.fromString(resultSet.getString("id"));
+                            ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().getAndLoad(mojangId);
+                            long updatedAt = resultSet.getLong("updated_at");
+                            String serverName = resultSet.getString("server_name");
+                            String groupName = resultSet.getString("group_name");
+                            boolean vanished = resultSet.getBoolean("vanished");
+                            UUID lastDm = null;
+                            if (resultSet.getString("last_dm") != null) {
+                                lastDm = UUID.fromString(resultSet.getString("last_dm"));
+                            }
+                            OnlineChatPlayer onlineChatPlayer = new OnlineChatPlayer(chatPlayer, updatedAt, serverName, groupName, vanished, lastDm);
+                            onlineChatPlayerQuery.addResult(onlineChatPlayer);
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            return onlineChatPlayerQuery;
+        });
+    }
+
+    @Override
     public CompletableFuture<Void> saveFriendRequest(FriendRequest friendRequest) {
         return CompletableFuture.runAsync(() -> {
             try (Connection connection = createConnection()) {
