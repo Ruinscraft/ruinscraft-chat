@@ -32,8 +32,10 @@ public class ChatPlayersTabCompleter implements TabCompleter {
                 continue;
             }
 
-            if (onlineChatPlayer.getMinecraftUsername().toLowerCase().startsWith(typing.toLowerCase())) {
-                usernames.add(onlineChatPlayer.getMinecraftUsername());
+            if (onlineChatPlayer != null && onlineChatPlayer.getMinecraftUsername() != null) {
+                if (onlineChatPlayer.getMinecraftUsername().toLowerCase().startsWith(typing.toLowerCase())) {
+                    usernames.add(onlineChatPlayer.getMinecraftUsername());
+                }
             }
         }
 

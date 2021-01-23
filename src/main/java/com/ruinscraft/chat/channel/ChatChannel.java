@@ -1,6 +1,7 @@
 package com.ruinscraft.chat.channel;
 
 import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.event.DummyAsyncPlayerChatEvent;
 import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
 import com.ruinscraft.chat.util.NetworkUtil;
@@ -122,6 +123,14 @@ public abstract class ChatChannel {
                 } else {
                     // Send message to channel without switching focused
                     String message = String.join(" ", Arrays.copyOfRange(args, 0, args.length));
+
+                    DummyAsyncPlayerChatEvent dummyEvent = new DummyAsyncPlayerChatEvent(false, player, message);
+                    chatPlugin.getServer().getPluginManager().callEvent(dummyEvent);
+
+                    if (dummyEvent.isCancelled()) {
+                        return true;
+                    }
+
                     ChatMessage chatMessage = new ChatMessage(onlineChatPlayer, message, chatPlugin.getServerId(), getDatabaseName());
 
                     chatPlugin.getChatStorage().saveChatMessage(chatMessage)

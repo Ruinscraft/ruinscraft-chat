@@ -42,12 +42,12 @@ public class MailMessage extends Message {
     }
 
     @Override
-    protected void showChatSpy(ChatPlugin chatPlugin, Player staff) {
+    public void showChatSpy(ChatPlugin chatPlugin, Player staff) {
         // Do nothing?
     }
 
     @Override
-    protected void showConsole(ChatPlugin chatPlugin) {
+    public void showConsole(ChatPlugin chatPlugin) {
         // Do nothing?
     }
 

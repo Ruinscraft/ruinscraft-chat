@@ -37,6 +37,15 @@ public final class ChatUtil {
                         for (Player player : channel.getRecipients(chatMessage)) {
                             chatMessage.show(chatPlugin, player);
                         }
+
+                        chatMessage.showConsole(chatPlugin);
+
+                        // Chat Spy
+                        for (Player player : Bukkit.getOnlinePlayers()) {
+                            if (player.hasPermission("ruinscraft.chat.chatspy")) {
+                                chatMessage.showChatSpy(chatPlugin, player);
+                            }
+                        }
                     }
                 }
             }

@@ -58,6 +58,10 @@ public class ChatPlugin extends JavaPlugin {
         return guiManager;
     }
 
+    public List<String> getRacialSlurs() {
+        return getConfig().getStringList("racialslurs");
+    }
+
     public List<String> getBadWords() {
         return getConfig().getStringList("badwords");
     }

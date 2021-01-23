@@ -73,7 +73,7 @@ public class DirectMessage extends ChatMessage {
     }
 
     @Override
-    protected void showChatSpy(ChatPlugin chatPlugin, Player staff) {
+    public void showChatSpy(ChatPlugin chatPlugin, Player staff) {
         if (staff.getUniqueId().equals(getSender().getMojangId())) {
             return;
         }
@@ -91,7 +91,7 @@ public class DirectMessage extends ChatMessage {
     }
 
     @Override
-    protected void showConsole(ChatPlugin chatPlugin) {
+    public void showConsole(ChatPlugin chatPlugin) {
         StringJoiner stringJoiner = new StringJoiner(" ");
 
         stringJoiner.add(org.bukkit.ChatColor.GRAY + "[" + getSender().getMinecraftUsername() +

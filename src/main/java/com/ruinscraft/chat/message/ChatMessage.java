@@ -64,7 +64,7 @@ public class ChatMessage extends Message {
     }
 
     @Override
-    protected void showChatSpy(ChatPlugin chatPlugin, Player staff) {
+    public void showChatSpy(ChatPlugin chatPlugin, Player staff) {
         if (staff.getUniqueId().equals(getSender().getMojangId())) {
             return;
         }
@@ -99,7 +99,7 @@ public class ChatMessage extends Message {
     }
 
     @Override
-    protected void showConsole(ChatPlugin chatPlugin) {
+    public void showConsole(ChatPlugin chatPlugin) {
         ChatChannel channel = chatPlugin.getChatChannelManager().getChannel(getChannelDbName());
 
         if (channel == null) {

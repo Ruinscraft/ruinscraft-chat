@@ -250,7 +250,7 @@ public abstract class SQLChatStorage extends ChatStorage {
                     try (ResultSet resultSet = query.executeQuery()) {
                         while (resultSet.next()) {
                             UUID mojangId = UUID.fromString(resultSet.getString("id"));
-                            ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().getAndLoad(mojangId);
+                            ChatPlayer chatPlayer = queryChatPlayer(mojangId).join().getFirst();
                             long updatedAt = resultSet.getLong("updated_at");
                             String serverName = resultSet.getString("server_name");
                             String groupName = resultSet.getString("group_name");

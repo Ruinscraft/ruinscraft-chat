@@ -1,6 +1,7 @@
 package com.ruinscraft.chat.command;
 
 import com.ruinscraft.chat.ChatPlugin;
+import com.ruinscraft.chat.event.DummyAsyncPlayerChatEvent;
 import com.ruinscraft.chat.message.DirectMessage;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
@@ -42,13 +43,23 @@ public class DirectMessageCommand implements CommandExecutor {
                         OnlineChatPlayer onlineRecipient = (OnlineChatPlayer) recipient;
 
                         if (!onlineRecipient.getPersonalizationSettings().isAllowDmsFromAnyone()) {
-                            if (!onlineRecipient.isFriend(onlineChatPlayer)) {
-                                onlineChatPlayer.sendMessage(ChatColor.RED + onlineRecipient.getMinecraftUsername() + " has only allowed friends to direct message them.");
-                                return true;
+                            if (!sender.hasPermission("ruinscraft.command.vanish")) {
+                                if (!onlineRecipient.isFriend(onlineChatPlayer)) {
+                                    onlineChatPlayer.sendMessage(ChatColor.RED + onlineRecipient.getMinecraftUsername() + " has only allowed friends to direct message them.");
+                                    return true;
+                                }
                             }
                         }
 
                         String message = String.join(" ", Arrays.copyOfRange(args, 0, args.length));
+
+                        DummyAsyncPlayerChatEvent dummyEvent = new DummyAsyncPlayerChatEvent(false, player, message);
+                        chatPlugin.getServer().getPluginManager().callEvent(dummyEvent);
+
+                        if (dummyEvent.isCancelled()) {
+                            return true;
+                        }
+
                         DirectMessage directMessage = new DirectMessage(onlineChatPlayer, message, chatPlugin.getServerId(), recipient);
 
                         chatPlugin.getChatStorage().saveChatMessage(directMessage).thenRun(() -> {
@@ -79,13 +90,23 @@ public class DirectMessageCommand implements CommandExecutor {
                     OnlineChatPlayer onlineRecipient = (OnlineChatPlayer) recipient;
 
                     if (!onlineRecipient.getPersonalizationSettings().isAllowDmsFromAnyone()) {
-                        if (!onlineRecipient.isFriend(onlineChatPlayer)) {
-                            onlineChatPlayer.sendMessage(ChatColor.RED + onlineRecipient.getMinecraftUsername() + " has only allowed friends to direct message them.");
-                            return true;
+                        if (!sender.hasPermission("ruinscraft.command.vanish")) {
+                            if (!onlineRecipient.isFriend(onlineChatPlayer)) {
+                                onlineChatPlayer.sendMessage(ChatColor.RED + onlineRecipient.getMinecraftUsername() + " has only allowed friends to direct message them.");
+                                return true;
+                            }
                         }
                     }
 
                     String message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+
+                    DummyAsyncPlayerChatEvent dummyEvent = new DummyAsyncPlayerChatEvent(false, player, message);
+                    chatPlugin.getServer().getPluginManager().callEvent(dummyEvent);
+
+                    if (dummyEvent.isCancelled()) {
+                        return true;
+                    }
+
                     DirectMessage directMessage = new DirectMessage(onlineChatPlayer, message, chatPlugin.getServerId(), recipient);
 
                     chatPlugin.getChatStorage().saveChatMessage(directMessage).thenRun(() -> {

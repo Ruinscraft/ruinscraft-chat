@@ -29,8 +29,6 @@ public class VanishTask implements Runnable {
 
             if (onlineChatPlayer.isVanished()) {
                 player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1));
-            } else {
-                player.removePotionEffect(PotionEffectType.INVISIBILITY);
             }
 
             for (Player onlinePlayer : chatPlugin.getServer().getOnlinePlayers()) {

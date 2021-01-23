@@ -5,6 +5,15 @@ storage:
     database: chat
     username: root
     password: password
+racialslurs:
+  - nigger
+  - nigga
+  - nibba
+  - nigqa
+  - niqqa
+  - niglet
+  - chink
+  - kike
 badwords:
   - anal
   - anus
@@ -53,12 +62,6 @@ badwords:
   - labia
   - lmao
   - lmfao
-  - nigger
-  - nigga
-  - nibba
-  - nigqa
-  - niqqa
-  - niglet
   - penis
   - piss
   - pube

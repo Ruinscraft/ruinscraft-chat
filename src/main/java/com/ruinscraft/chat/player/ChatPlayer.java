@@ -56,8 +56,6 @@ public class ChatPlayer {
         durationString = durationString.replace(" minute", "m");
         durationString = durationString.replace(" hours", "h");
         durationString = durationString.replace(" hour", "h");
-        durationString = durationString.replace(" years", "y");
-        durationString = durationString.replace(" year", "y");
         return durationString;
     }
 

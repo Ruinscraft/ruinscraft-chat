@@ -7,6 +7,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffectType;
 
 public class VanishCommand implements CommandExecutor {
 
@@ -31,6 +32,10 @@ public class VanishCommand implements CommandExecutor {
             player.sendMessage(ChatColor.GOLD + "You are now vanished.");
         } else {
             player.sendMessage(ChatColor.GOLD + "You are no longer vanished.");
+            
+            if (player.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
+                player.removePotionEffect(PotionEffectType.INVISIBILITY);
+            }
         }
 
         onlineChatPlayer.setVanished(vanished);
