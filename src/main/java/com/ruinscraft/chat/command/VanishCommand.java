@@ -32,7 +32,7 @@ public class VanishCommand implements CommandExecutor {
             player.sendMessage(ChatColor.GOLD + "You are now vanished.");
         } else {
             player.sendMessage(ChatColor.GOLD + "You are no longer vanished.");
-            
+
             if (player.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
                 player.removePotionEffect(PotionEffectType.INVISIBILITY);
             }

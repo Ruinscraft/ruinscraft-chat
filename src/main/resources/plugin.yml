@@ -7,13 +7,13 @@ depend: [ Vault ]
 softdepend: [ PlotSquared, Towny, CinemaDisplays ]
 commands:
   list:
-    aliases: [ who, online ]
+    aliases: [ who, online, l ]
   listall:
-    aliases: [ listeveryone ]
+    aliases: [ listeveryone, lall ]
   seen:
     aliases: [ lastseen ]
   friend:
-    aliases: [ friends ]
+    aliases: [ f ]
   mail:
   block:
     aliases: [ ignore ]

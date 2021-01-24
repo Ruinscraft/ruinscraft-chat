@@ -137,6 +137,10 @@ public class ListCommand implements CommandExecutor {
             List<String> onlineFriendNames = new ArrayList<>();
 
             for (FriendRequest friendRequest : onlineChatPlayer.getFriendRequests()) {
+                if (!friendRequest.isAccepted()) {
+                    continue;
+                }
+
                 ChatPlayer friend = friendRequest.getOther(onlineChatPlayer);
 
                 if (friend instanceof OnlineChatPlayer) {

@@ -119,10 +119,6 @@ public class FriendCommand implements CommandExecutor, TabCompleter {
                 }
 
                 friendListFull.add(stringJoiner.toString());
-
-                if (friendListFull.size() >= 10) {
-                    break;
-                }
             }
         }
 
@@ -210,7 +206,7 @@ public class FriendCommand implements CommandExecutor, TabCompleter {
                 ChatPlayer targetChatPlayer = chatPlayerQuery.getFirst();
                 FriendRequest friendRequest = onlineChatPlayer.getFriendRequest(targetChatPlayer);
 
-                if (friendRequest == null) {
+                if (friendRequest == null || !friendRequest.getTarget().equals(onlineChatPlayer)) {
                     onlineChatPlayer.sendMessage(ChatColor.GOLD + "You do not have a friend request from " + targetChatPlayer.getMinecraftUsername());
                 } else {
                     if (friendRequest.isAccepted()) {
