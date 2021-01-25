@@ -28,12 +28,13 @@ public class ChatPlayerManager {
             return (OnlineChatPlayer) chatPlayer;
         }
 
-        long updatedAt = System.currentTimeMillis();
+        long loggedInAt = System.currentTimeMillis();
+        long updatedAt = loggedInAt;
         String serverName = ChatPlugin.serverName == null ? "unknown" : ChatPlugin.serverName;
         String groupName = VaultUtil.getGroup(player);
         boolean vanished = false;
         UUID lastDm = null;
-        OnlineChatPlayer onlineChatPlayer = new OnlineChatPlayer(chatPlayer, updatedAt, serverName, groupName, vanished, lastDm);
+        OnlineChatPlayer onlineChatPlayer = new OnlineChatPlayer(chatPlayer, loggedInAt, updatedAt, serverName, groupName, vanished, lastDm);
 
         /* Fetch online chat player */
         chatPlugin.getChatStorage().queryOnlineChatPlayer(player.getUniqueId()).thenAccept(onlineChatPlayerQuery -> {

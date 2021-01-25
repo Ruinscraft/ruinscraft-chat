@@ -14,6 +14,7 @@ public class OnlineChatPlayer extends ChatPlayer {
 
     public static final int SECONDS_UNTIL_OFFLINE = 5;
 
+    private long loggedInAt;
     private long updatedAt;
     private String serverName;
     private String groupName;
@@ -25,8 +26,9 @@ public class OnlineChatPlayer extends ChatPlayer {
     private ChatChannel focused;
     private PersonalizationSettings personalizationSettings;
 
-    public OnlineChatPlayer(UUID mojangId, String minecraftUsername, long firstSeen, long lastSeen, long updatedAt, String serverName, String groupName, boolean vanished, UUID lastDm) {
+    public OnlineChatPlayer(UUID mojangId, String minecraftUsername, long firstSeen, long lastSeen, long loggedInAt, long updatedAt, String serverName, String groupName, boolean vanished, UUID lastDm) {
         super(mojangId, minecraftUsername, firstSeen, lastSeen);
+        this.loggedInAt = loggedInAt;
         this.updatedAt = updatedAt;
         this.serverName = serverName;
         this.groupName = groupName;
@@ -38,8 +40,12 @@ public class OnlineChatPlayer extends ChatPlayer {
         personalizationSettings = new PersonalizationSettings(ChatColor.GRAY, "", false, true, new ArrayList<>());
     }
 
-    public OnlineChatPlayer(ChatPlayer chatPlayer, long updatedAt, String serverName, String groupName, boolean vanished, UUID lastDm) {
-        this(chatPlayer.getMojangId(), chatPlayer.getMinecraftUsername(), chatPlayer.getFirstSeen(), chatPlayer.getLastSeen(), updatedAt, serverName, groupName, vanished, lastDm);
+    public OnlineChatPlayer(ChatPlayer chatPlayer, long loggedInAt, long updatedAt, String serverName, String groupName, boolean vanished, UUID lastDm) {
+        this(chatPlayer.getMojangId(), chatPlayer.getMinecraftUsername(), chatPlayer.getFirstSeen(), chatPlayer.getLastSeen(), loggedInAt, updatedAt, serverName, groupName, vanished, lastDm);
+    }
+
+    public long getLoggedInAt() {
+        return loggedInAt;
     }
 
     public long getUpdatedAt() {
