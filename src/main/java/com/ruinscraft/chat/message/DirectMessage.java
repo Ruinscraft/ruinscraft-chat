@@ -36,15 +36,24 @@ public class DirectMessage extends ChatMessage {
 
         // Is sender
         if (getSender().getMojangId().equals(to.getUniqueId())) {
+            boolean colorize = false;
+
             if (getSender() instanceof OnlineChatPlayer) {
                 OnlineChatPlayer onlineSender = (OnlineChatPlayer) getSender();
                 onlineSender.setLastDm(recipient.getMojangId());
+                if (!((OnlineChatPlayer) getSender()).getGroupName().toLowerCase().contains("default")) {
+                    colorize = true;
+                }
             }
 
             ComponentBuilder componentBuilder = new ComponentBuilder("[to: " + recipient.getMinecraftUsername() + "] ")
-                    .color(ChatColor.DARK_AQUA)
-                    .append(getContent())
-                    .color(ChatColor.AQUA);
+                    .color(ChatColor.DARK_AQUA);
+
+            if (colorize) {
+                componentBuilder.append(TextComponent.fromLegacyText(ChatColor.AQUA + ChatColor.translateAlternateColorCodes('&', getContent())));
+            } else {
+                componentBuilder.append(getContent()).color(ChatColor.AQUA);
+            }
 
             to.spigot().sendMessage(componentBuilder.create());
         }
@@ -61,13 +70,23 @@ public class DirectMessage extends ChatMessage {
             ComponentBuilder componentBuilder = new ComponentBuilder("[from: " + getSender().getMinecraftUsername() + "] ")
                     .color(ChatColor.DARK_AQUA);
 
+            boolean colorize = false;
+
             if (getSender() instanceof OnlineChatPlayer) {
                 OnlineChatPlayer onlineSender = (OnlineChatPlayer) getSender();
                 componentBuilder.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
                         TextComponent.fromLegacyText(onlineSender.getMinecraftUsername() + " is on " + onlineSender.getServerName())));
+                if (!((OnlineChatPlayer) getSender()).getGroupName().toLowerCase().contains("default")) {
+                    colorize = true;
+                }
             }
 
-            componentBuilder.append(getContent()).color(ChatColor.AQUA);
+            if (colorize) {
+                componentBuilder.append(TextComponent.fromLegacyText(ChatColor.AQUA + ChatColor.translateAlternateColorCodes('&', getContent()), ChatColor.AQUA));
+            } else {
+                componentBuilder.append(getContent()).color(ChatColor.AQUA);
+            }
+
             to.spigot().sendMessage(componentBuilder.create());
         }
     }

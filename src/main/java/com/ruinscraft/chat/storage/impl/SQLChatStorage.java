@@ -179,7 +179,7 @@ public abstract class SQLChatStorage extends ChatStorage {
     public CompletableFuture<Void> saveOnlineChatPlayer(OnlineChatPlayer chatPlayer) {
         return CompletableFuture.runAsync(() -> {
             try (Connection connection = createConnection()) {
-                try (PreparedStatement upsert = connection.prepareStatement("INSERT INTO " + Table.ONLINE_CHAT_PLAYERS + " (id, logged_in_at, updated_at, server_name, group_name, vanished, last_dm) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE updated_at = ?, server_name = ?, group_name = ?, vanished = ?, last_dm = ?;")) {
+                try (PreparedStatement upsert = connection.prepareStatement("INSERT INTO " + Table.ONLINE_CHAT_PLAYERS + " (id, logged_in_at, updated_at, server_name, group_name, vanished, last_dm) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE updated_at = ?, server_name = ?, group_name = ?, vanished = ?, last_dm = ?;")) {
                     upsert.setString(1, chatPlayer.getMojangId().toString());
                     upsert.setLong(2, chatPlayer.getLoggedInAt());
                     upsert.setLong(3, chatPlayer.getUpdatedAt());
