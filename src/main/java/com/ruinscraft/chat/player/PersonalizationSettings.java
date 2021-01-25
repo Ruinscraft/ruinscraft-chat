@@ -10,13 +10,15 @@ public class PersonalizationSettings {
     private String nickname;
     private boolean hideProfanity;
     private boolean allowDmsFromAnyone;
+    private boolean silentJoinLeave;
     private List<String> mutedChannelDbNames;
 
-    public PersonalizationSettings(ChatColor nameColor, String nickname, boolean hideProfanity, boolean allowDmsFromAnyone, List<String> mutedChannelDbNames) {
+    public PersonalizationSettings(ChatColor nameColor, String nickname, boolean hideProfanity, boolean allowDmsFromAnyone, boolean silentJoinLeave, List<String> mutedChannelDbNames) {
         this.nameColor = nameColor;
         this.nickname = nickname;
         this.hideProfanity = hideProfanity;
         this.allowDmsFromAnyone = allowDmsFromAnyone;
+        this.silentJoinLeave = silentJoinLeave;
         this.mutedChannelDbNames = mutedChannelDbNames;
     }
 
@@ -50,6 +52,14 @@ public class PersonalizationSettings {
 
     public void setAllowDmsFromAnyone(boolean allowDmsFromAnyone) {
         this.allowDmsFromAnyone = allowDmsFromAnyone;
+    }
+
+    public boolean isSilentJoinLeave() {
+        return silentJoinLeave;
+    }
+
+    public void setSilentJoinLeave(boolean silentJoinLeave) {
+        this.silentJoinLeave = silentJoinLeave;
     }
 
     public List<String> getMutedChannelDbNames() {

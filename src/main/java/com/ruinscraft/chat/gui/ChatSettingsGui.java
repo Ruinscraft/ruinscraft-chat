@@ -21,6 +21,8 @@ public class ChatSettingsGui extends Gui {
     private static final String DISABLE_FILTER = "Disable chat filter";
     private static final String ALLOW_DMS_FROM_ANYONE = "Allow direct messages from anyone";
     private static final String ALLOW_DMS_FROM_FRIENDS = "Only allow direct messages from friends";
+    private static final String ENABLE_SILENT_JOIN_LEAVE = "Do not show login/logout messages to your friends";
+    private static final String DISABLE_SILENT_JOIN_LEAVE = "Show login/logout messages to your friends";
     private ChatPlugin chatPlugin;
 
     public ChatSettingsGui(String name, int size, ChatPlugin chatPlugin) {
@@ -55,6 +57,12 @@ public class ChatSettingsGui extends Gui {
                 break;
             case ALLOW_DMS_FROM_FRIENDS:
                 onlineChatPlayer.getPersonalizationSettings().setAllowDmsFromAnyone(false);
+                break;
+            case ENABLE_SILENT_JOIN_LEAVE:
+                onlineChatPlayer.getPersonalizationSettings().setSilentJoinLeave(true);
+                break;
+            case DISABLE_SILENT_JOIN_LEAVE:
+                onlineChatPlayer.getPersonalizationSettings().setSilentJoinLeave(false);
                 break;
         }
 
@@ -115,6 +123,20 @@ public class ChatSettingsGui extends Gui {
             dmsItemStack.setItemMeta(itemMeta);
         }
         inventory.setItem(1, dmsItemStack);
+
+        final ItemStack silentJoinLeaveItemStack;
+        if (onlineChatPlayer.getPersonalizationSettings().isSilentJoinLeave()) {
+            silentJoinLeaveItemStack = new ItemStack(Material.MUSIC_DISC_CAT, 1);
+            ItemMeta itemMeta = silentJoinLeaveItemStack.getItemMeta();
+            itemMeta.setDisplayName(DISABLE_SILENT_JOIN_LEAVE);
+            silentJoinLeaveItemStack.setItemMeta(itemMeta);
+        } else {
+            silentJoinLeaveItemStack = new ItemStack(Material.MUSIC_DISC_BLOCKS, 1);
+            ItemMeta itemMeta = silentJoinLeaveItemStack.getItemMeta();
+            itemMeta.setDisplayName(ENABLE_SILENT_JOIN_LEAVE);
+            silentJoinLeaveItemStack.setItemMeta(itemMeta);
+        }
+        inventory.setItem(2, silentJoinLeaveItemStack);
 
         int index = 9;
 
