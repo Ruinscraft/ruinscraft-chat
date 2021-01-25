@@ -3,6 +3,7 @@ package com.ruinscraft.chat.command;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -54,7 +55,9 @@ public class SeenCommand implements CommandExecutor {
         if (chatPlayer instanceof OnlineChatPlayer &&
                 !((OnlineChatPlayer) chatPlayer).isVanished()) {
             OnlineChatPlayer onlineChatPlayer = (OnlineChatPlayer) chatPlayer;
-            sender.sendMessage(ChatColor.GOLD + chatPlayer.getMinecraftUsername() + " is" + ChatColor.GREEN + " online!");
+            long timeOnline = System.currentTimeMillis() - onlineChatPlayer.getLoggedInAt();
+            String timeOnlineString = DurationFormatUtils.formatDurationWords(timeOnline, true, true);
+            sender.sendMessage(ChatColor.GOLD + chatPlayer.getMinecraftUsername() + " has been " + ChatColor.GREEN + "online" + ChatColor.GOLD + " for " + timeOnlineString + ".");
             sender.sendMessage(ChatColor.GOLD + "They are currently on: " + ChatColor.LIGHT_PURPLE + onlineChatPlayer.getServerName());
         } else {
             StringBuilder stringBuilder = new StringBuilder();
