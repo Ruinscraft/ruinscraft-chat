@@ -47,14 +47,14 @@ public class NationChatChannel extends TownyChatChannel {
     }
 
     @Override
-    public String format(ChatMessage chatMessage) {
+    public String format(ChatMessage chatMessage, boolean addChannelPrefix) {
         Player player = Bukkit.getPlayer(chatMessage.getSender().getMojangId());
         Resident resident;
 
         try {
             resident = TownyUniverse.getInstance().getDataSource().getResident(player.getName());
         } catch (NotRegisteredException e) {
-            return super.format(chatMessage);
+            return super.format(chatMessage, true);
         }
 
         if (resident.hasTown()) {
@@ -63,17 +63,18 @@ public class NationChatChannel extends TownyChatChannel {
             try {
                 town = resident.getTown();
             } catch (NotRegisteredException e) {
-                return super.format(chatMessage);
+                return super.format(chatMessage, true);
             }
 
             StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(getPrefix() + " ");
             stringBuilder.append(ChatColor.GRAY + "[" + ChatColor.LIGHT_PURPLE + town.getName() + ChatColor.GRAY + "] ");
-            stringBuilder.append(super.format(chatMessage));
+            stringBuilder.append(super.format(chatMessage, false));
 
             return stringBuilder.toString();
         }
 
-        return super.format(chatMessage);
+        return super.format(chatMessage, true);
     }
 
 }

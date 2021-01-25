@@ -24,7 +24,7 @@ public class GlobalChatChannel extends ChatChannel {
     }
 
     @Override
-    public String format(ChatMessage chatMessage) {
+    public String format(ChatMessage chatMessage, boolean addChannelPrefix) {
         Player player = Bukkit.getPlayer(chatMessage.getSender().getMojangId());
 
         StringJoiner stringJoiner = new StringJoiner(" ");

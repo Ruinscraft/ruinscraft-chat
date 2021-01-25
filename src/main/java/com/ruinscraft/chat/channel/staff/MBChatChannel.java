@@ -24,7 +24,7 @@ public class MBChatChannel extends ChatChannel {
     }
 
     @Override
-    public String format(ChatMessage chatMessage) {
+    public String format(ChatMessage chatMessage, boolean addChannelPrefix) {
         StringJoiner stringJoiner = new StringJoiner(" ");
 
         stringJoiner.add(getPrefix() + ChatColor.RESET);

@@ -58,7 +58,7 @@ public class ChatMessage extends Message {
         }
 
         ChatChannel channel = chatPlugin.getChatChannelManager().getChannel(getChannelDbName());
-        String message = channel.format(this);
+        String message = channel.format(this, true);
 
         to.sendMessage(message);
     }
@@ -112,7 +112,7 @@ public class ChatMessage extends Message {
             }
         }
 
-        System.out.println(channel.format(this));
+        System.out.println(channel.format(this, true));
     }
 
 }

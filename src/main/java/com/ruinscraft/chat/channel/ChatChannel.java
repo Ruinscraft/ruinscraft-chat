@@ -63,12 +63,14 @@ public abstract class ChatChannel {
         return getCommand(chatPlugin).getPermission();
     }
 
-    public String format(ChatMessage chatMessage) {
+    public String format(ChatMessage chatMessage, boolean addChannelPrefix) {
         Player player = Bukkit.getPlayer(chatMessage.getSender().getMojangId());
         OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
         StringJoiner stringJoiner = new StringJoiner(" ");
-        stringJoiner.add(getPrefix() + ChatColor.RESET);
+        if (addChannelPrefix) {
+            stringJoiner.add(getPrefix() + ChatColor.RESET);
+        }
         stringJoiner.add(ChatColor.GRAY + "[" + VaultUtil.getPrefix(player) + ChatColor.GRAY + "]");
         stringJoiner.add(onlineChatPlayer.getPersonalizationSettings().getNameColor() + player.getName());
         stringJoiner.add(ChatColor.DARK_GRAY + ChatColor.BOLD.toString() + ">");

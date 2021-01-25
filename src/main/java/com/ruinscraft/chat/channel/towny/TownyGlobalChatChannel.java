@@ -19,14 +19,14 @@ public class TownyGlobalChatChannel extends GlobalChatChannel {
     }
 
     @Override
-    public String format(ChatMessage chatMessage) {
+    public String format(ChatMessage chatMessage, boolean addChannelPrefix) {
         Player player = Bukkit.getPlayer(chatMessage.getSender().getMojangId());
         Resident resident;
 
         try {
             resident = TownyUniverse.getInstance().getDataSource().getResident(player.getName());
         } catch (NotRegisteredException e) {
-            return super.format(chatMessage);
+            return super.format(chatMessage, false);
         }
 
         if (resident.hasTown()) {
@@ -35,7 +35,7 @@ public class TownyGlobalChatChannel extends GlobalChatChannel {
             try {
                 town = resident.getTown();
             } catch (NotRegisteredException e) {
-                return super.format(chatMessage);
+                return super.format(chatMessage, false);
             }
 
             StringBuilder stringBuilder = new StringBuilder();
@@ -47,7 +47,7 @@ public class TownyGlobalChatChannel extends GlobalChatChannel {
                 try {
                     nation = town.getNation();
                 } catch (NotRegisteredException e) {
-                    return super.format(chatMessage);
+                    return super.format(chatMessage, false);
                 }
 
                 stringBuilder.append(ChatColor.GRAY + ", " + ChatColor.DARK_PURPLE + nation.getName());
@@ -55,12 +55,12 @@ public class TownyGlobalChatChannel extends GlobalChatChannel {
 
             stringBuilder.append(ChatColor.GRAY + "]" + ChatColor.RESET);
             stringBuilder.append(" ");
-            stringBuilder.append(super.format(chatMessage));
+            stringBuilder.append(super.format(chatMessage, false));
 
             return stringBuilder.toString();
         }
 
-        return super.format(chatMessage);
+        return super.format(chatMessage, false);
     }
 
 }
