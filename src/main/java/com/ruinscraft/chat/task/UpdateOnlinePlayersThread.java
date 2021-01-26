@@ -47,6 +47,11 @@ public class UpdateOnlinePlayersThread extends Thread {
                 continue;
             }
 
+            if (!onlineChatPlayer.getMinecraftUsername().equals(player.getName())) {
+                onlineChatPlayer.setMinecraftUsername(player.getName());
+                chatPlugin.getChatStorage().saveChatPlayer(onlineChatPlayer);
+            }
+
             long now = System.currentTimeMillis();
             String group = VaultUtil.getGroup(player);
             String serverName = ChatPlugin.serverName == null ? "Unknown" : ChatPlugin.serverName;
@@ -66,6 +71,7 @@ public class UpdateOnlinePlayersThread extends Thread {
                     OnlineChatPlayer cached = (OnlineChatPlayer) chatPlugin.getChatPlayerManager().get(found.getMojangId());
 
                     if (player == null || !player.isOnline()) {
+                        cached.setMinecraftUsername(found.getMinecraftUsername());
                         cached.setUpdatedAt(found.getUpdatedAt());
                         cached.setGroupName(found.getGroupName());
                         cached.setServerName(found.getServerName());
