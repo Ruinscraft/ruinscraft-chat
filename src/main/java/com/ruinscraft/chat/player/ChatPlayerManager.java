@@ -24,6 +24,11 @@ public class ChatPlayerManager {
     public OnlineChatPlayer getAndLoad(Player player) {
         ChatPlayer chatPlayer = getAndLoad(player.getUniqueId());
 
+        if (!chatPlayer.getMinecraftUsername().equals(player.getName())) {
+            chatPlayer.setMinecraftUsername(player.getName());
+            chatPlugin.getChatStorage().saveChatPlayer(chatPlayer);
+        }
+
         if (chatPlayer instanceof OnlineChatPlayer) {
             return (OnlineChatPlayer) chatPlayer;
         }
