@@ -6,10 +6,7 @@ import com.ruinscraft.chat.command.completers.BlockedPlayersTabCompleter;
 import com.ruinscraft.chat.command.completers.ChatPlayersTabCompleter;
 import com.ruinscraft.chat.command.completers.EmptyTabCompleter;
 import com.ruinscraft.chat.gui.GuiManager;
-import com.ruinscraft.chat.listener.ChatListener;
-import com.ruinscraft.chat.listener.ChatPlayerListener;
-import com.ruinscraft.chat.listener.PlayerJoinQuitListener;
-import com.ruinscraft.chat.listener.VanishListener;
+import com.ruinscraft.chat.listener.*;
 import com.ruinscraft.chat.player.ChatPlayerManager;
 import com.ruinscraft.chat.storage.ChatStorage;
 import com.ruinscraft.chat.storage.impl.MySQLChatStorage;
@@ -89,6 +86,8 @@ public class ChatPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
         getServer().getPluginManager().registerEvents(new ChatPlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new VanishListener(this), this);
+        getServer().getPluginManager().registerEvents(new ItemChatFilterListener(this), this);
+        getServer().getPluginManager().registerEvents(new SignContentFilterListener(this), this);
 
         // Start tasks/threads
         new UpdateOnlinePlayersThread(this).start();
