@@ -44,11 +44,18 @@
             <systemPath>${basedir}/lib/VaultAPI-1.7.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>PlotSquared</groupId>
-            <artifactId>PlotSquared</artifactId>
+            <groupId>PlotSquaredV4</groupId>
+            <artifactId>PlotSquaredV4</artifactId>
             <version>unknown</version>
             <scope>system</scope>
             <systemPath>${basedir}/lib/PlotSquared-Bukkit-4.9999.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>PlotSquaredV5</groupId>
+            <artifactId>PlotSquaredV5</artifactId>
+            <version>unknown</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/PlotSquared-Bukkit-5.13.10-Premium.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>Towny</groupId>

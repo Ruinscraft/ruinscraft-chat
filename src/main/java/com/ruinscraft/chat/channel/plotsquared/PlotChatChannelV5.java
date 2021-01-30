@@ -1,7 +1,7 @@
 package com.ruinscraft.chat.channel.plotsquared;
 
-import com.github.intellectualsites.plotsquared.plot.object.Plot;
-import com.github.intellectualsites.plotsquared.plot.object.PlotPlayer;
+import com.plotsquared.core.player.PlotPlayer;
+import com.plotsquared.core.plot.Plot;
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.ChatMessage;
@@ -14,9 +14,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class PlotChatChannel extends ChatChannel {
+public class PlotChatChannelV5 extends ChatChannel {
 
-    public PlotChatChannel(ChatPlugin chatPlugin) {
+    public PlotChatChannelV5(ChatPlugin chatPlugin) {
         super(chatPlugin, "plotsquared", "plotchat", ChatColor.AQUA + "[P]", ChatColor.YELLOW, false);
     }
 

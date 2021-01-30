@@ -2,7 +2,8 @@ package com.ruinscraft.chat.channel;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.cinema.TheaterChatChannel;
-import com.ruinscraft.chat.channel.plotsquared.PlotChatChannel;
+import com.ruinscraft.chat.channel.plotsquared.PlotChatChannelV4;
+import com.ruinscraft.chat.channel.plotsquared.PlotChatChannelV5;
 import com.ruinscraft.chat.channel.staff.MBAChatChannel;
 import com.ruinscraft.chat.channel.staff.MBChatChannel;
 import com.ruinscraft.chat.channel.staff.MBSChatChannel;
@@ -32,7 +33,14 @@ public class ChatChannelManager {
         boolean cinemaDisplays = chatPlugin.getServer().getPluginManager().isPluginEnabled("CinemaDisplays");
 
         if (plotSquared) {
-            channels.add(new PlotChatChannel(chatPlugin));
+            try {
+                // Has V5
+                Class.forName("com.plotsquared.core.PlotSquared");
+                channels.add(new PlotChatChannelV5(chatPlugin));
+            } catch (ClassNotFoundException e) {
+                // Has V4
+                channels.add(new PlotChatChannelV4(chatPlugin));
+            }
         }
 
         if (towny) {
