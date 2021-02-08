@@ -15,9 +15,7 @@ import com.ruinscraft.chat.storage.query.*;
 import org.bukkit.ChatColor;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -340,10 +338,26 @@ public abstract class SQLChatStorage extends ChatStorage {
     }
 
     @Override
-    public CompletableFuture<Void> deleteOfflineChatPlayers() {
+    public CompletableFuture<Set<UUID>> deleteOfflineChatPlayers() {
         long thresholdTime = System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(OnlineChatPlayer.SECONDS_UNTIL_OFFLINE);
 
-        return CompletableFuture.runAsync(() -> {
+        return CompletableFuture.supplyAsync(() -> {
+            Set<UUID> offlineUuids = new HashSet<>();
+
+            try (Connection connection = createConnection()) {
+                try (PreparedStatement query = connection.prepareStatement("SELECT * FROM " + Table.ONLINE_CHAT_PLAYERS + " WHERE updated_at < ?;")) {
+                    query.setLong(1, thresholdTime);
+
+                    try (ResultSet resultSet = query.executeQuery()) {
+                        while (resultSet.next()) {
+                            offlineUuids.add(UUID.fromString(resultSet.getString("id")));
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
             try (Connection connection = createConnection()) {
                 try (PreparedStatement delete = connection.prepareStatement("DELETE FROM " + Table.ONLINE_CHAT_PLAYERS + " WHERE updated_at < ?;")) {
                     delete.setLong(1, thresholdTime);
@@ -352,6 +366,8 @@ public abstract class SQLChatStorage extends ChatStorage {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+
+            return offlineUuids;
         });
     }
 

@@ -9,6 +9,7 @@ import com.ruinscraft.chat.player.OnlineChatPlayer;
 import com.ruinscraft.chat.player.PersonalizationSettings;
 import com.ruinscraft.chat.storage.query.*;
 
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -36,7 +37,7 @@ public abstract class ChatStorage {
 
     public abstract CompletableFuture<FriendRequestQuery> queryFriendRequests(OnlineChatPlayer onlineChatPlayer);
 
-    public abstract CompletableFuture<Void> deleteOfflineChatPlayers();
+    public abstract CompletableFuture<Set<UUID>> deleteOfflineChatPlayers();
 
     public abstract CompletableFuture<Void> saveMailMessage(MailMessage mailMessage);
 

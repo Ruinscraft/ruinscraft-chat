@@ -2,12 +2,13 @@ package com.ruinscraft.chat.task;
 
 import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.event.ChatPlayerLogoutEvent;
+import com.ruinscraft.chat.player.ChatPlayer;
 import com.ruinscraft.chat.player.OnlineChatPlayer;
 import com.ruinscraft.chat.util.VaultUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.List;
+import java.util.UUID;
 
 public class UpdateOnlinePlayersThread extends Thread {
 
@@ -84,15 +85,17 @@ public class UpdateOnlinePlayersThread extends Thread {
         });
 
         // Delete players who have been offline for too long
-        chatPlugin.getChatStorage().deleteOfflineChatPlayers().thenRun(() -> {
-            List<OnlineChatPlayer> loggedOut = chatPlugin.getChatPlayerManager().purgeOfflinePlayers();
+        chatPlugin.getChatStorage().deleteOfflineChatPlayers().thenAccept(offlineUuids -> {
+            for (UUID id : offlineUuids) {
+                ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(id);
 
-            for (OnlineChatPlayer onlineChatPlayer : loggedOut) {
-                chatPlugin.getServer().getScheduler().runTask(chatPlugin, () -> {
-                    // Player has left
-                    ChatPlayerLogoutEvent event = new ChatPlayerLogoutEvent(onlineChatPlayer);
-                    chatPlugin.getServer().getPluginManager().callEvent(event);
-                });
+                if (chatPlayer instanceof OnlineChatPlayer) {
+                    chatPlugin.getServer().getScheduler().runTask(chatPlugin, () -> {
+                        // Player has left
+                        ChatPlayerLogoutEvent event = new ChatPlayerLogoutEvent((OnlineChatPlayer) chatPlayer);
+                        chatPlugin.getServer().getPluginManager().callEvent(event);
+                    });
+                }
             }
         });
     }
