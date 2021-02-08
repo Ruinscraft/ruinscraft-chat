@@ -86,6 +86,8 @@ public class UpdateOnlinePlayersThread extends Thread {
 
         // Delete players who have been offline for too long
         chatPlugin.getChatStorage().deleteOfflineChatPlayers().thenAccept(offlineUuids -> {
+            chatPlugin.getChatPlayerManager().purgeOfflinePlayers();
+
             for (UUID id : offlineUuids) {
                 ChatPlayer chatPlayer = chatPlugin.getChatPlayerManager().get(id);
 
