@@ -45,6 +45,10 @@ public class UpdateOnlinePlayersThread extends Thread {
 
             // Still loading from when they joined
             if (onlineChatPlayer == null) {
+                // Let's try to load them again
+                // It's possible the server froze for a long period of time and they were marked as offline
+                System.out.println("UpdateOnlinePlayersThread is force-loading player info for: " + player.getName() + ". Did the server freeze for a while?");
+                chatPlugin.getChatPlayerManager().getAndLoad(player);
                 continue;
             }
 

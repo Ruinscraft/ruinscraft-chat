@@ -23,6 +23,11 @@ public class VanishTask implements Runnable {
 
             OnlineChatPlayer onlineChatPlayer = chatPlugin.getChatPlayerManager().get(player);
 
+            if (onlineChatPlayer == null) {
+                System.out.println("ruinscraft-chat VanishTask could not get OnlineChatPlayer for: " + player.getName());
+                continue;
+            }
+
             if (!player.hasPermission("ruinscraft.command.vanish")) {
                 onlineChatPlayer.setVanished(false);
             }
