@@ -127,6 +127,10 @@ public class OnlineChatPlayer extends ChatPlayer {
     }
 
     public boolean isFriend(ChatPlayer chatPlayer) {
+        // You cannot be your own friend
+        if (chatPlayer.equals(this)) {
+            return false;
+        }
         for (FriendRequest request : getFriendRequestsInvolving(chatPlayer)) {
             if (request.isAccepted()) {
                 return true;

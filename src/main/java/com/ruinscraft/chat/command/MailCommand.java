@@ -144,7 +144,6 @@ public class MailCommand implements CommandExecutor, TabCompleter {
         options.add("send");
     }
 
-
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         List<String> completions = new ArrayList<>();
