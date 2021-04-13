@@ -54,12 +54,7 @@ public class OnlineChatPlayer extends ChatPlayer {
 
     public boolean isOnline() {
         long check = updatedAt + TimeUnit.SECONDS.toMillis(SECONDS_UNTIL_OFFLINE);
-
-        if (check > System.currentTimeMillis()) {
-            return true;
-        } else {
-            return false;
-        }
+        return check > System.currentTimeMillis();
     }
 
     public void setUpdatedAt(long updatedAt) {
@@ -112,30 +107,32 @@ public class OnlineChatPlayer extends ChatPlayer {
         return newFriendRequests;
     }
 
-    public FriendRequest getFriendRequest(ChatPlayer chatPlayer) {
+    public List<FriendRequest> getFriendRequestsInvolving(ChatPlayer chatPlayer) {
+        List<FriendRequest> requests = new ArrayList<>();
         for (FriendRequest friendRequest : friendRequests) {
-            if (friendRequest.getOther(this).equals(chatPlayer)) {
-                return friendRequest;
+            if (friendRequest.getTarget().equals(chatPlayer)
+                    || friendRequest.getRequester().equals(chatPlayer)) {
+                requests.add(friendRequest);
             }
         }
-
-        return null;
+        return requests;
     }
 
-    public FriendRequest removeFriendRequest(ChatPlayer chatPlayer) {
-        FriendRequest friendRequest = getFriendRequest(chatPlayer);
-        friendRequests.remove(friendRequest);
-        return friendRequest;
+    public List<FriendRequest> removeFriendRequestsInvolving(ChatPlayer chatPlayer) {
+        List<FriendRequest> requests = getFriendRequestsInvolving(chatPlayer);
+        for (FriendRequest request : requests) {
+            friendRequests.remove(request);
+        }
+        return requests;
     }
 
     public boolean isFriend(ChatPlayer chatPlayer) {
-        FriendRequest friendRequest = getFriendRequest(chatPlayer);
-
-        if (friendRequest != null && friendRequest.isAccepted()) {
-            return true;
-        } else {
-            return false;
+        for (FriendRequest request : getFriendRequestsInvolving(chatPlayer)) {
+            if (request.isAccepted()) {
+                return true;
+            }
         }
+        return false;
     }
 
     public List<MailMessage> getMailMessages() {
@@ -182,7 +179,6 @@ public class OnlineChatPlayer extends ChatPlayer {
         if (focused == null) {
             focused = chatPlugin.getChatChannelManager().getDefaultChannel();
         }
-
         return focused;
     }
 
@@ -192,7 +188,6 @@ public class OnlineChatPlayer extends ChatPlayer {
 
     public void sendMessage(String message) {
         Player player = Bukkit.getPlayer(getMojangId());
-
         if (player != null && player.isOnline()) {
             player.sendMessage(message);
         }

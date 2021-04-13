@@ -184,11 +184,11 @@ public class FriendCommand implements CommandExecutor, TabCompleter {
                 ChatPlayer targetChatPlayer = chatPlayerQuery.getFirst();
 
                 if (onlineChatPlayer.isFriend(targetChatPlayer)) {
-                    FriendRequest friendRequest = onlineChatPlayer.removeFriendRequest(targetChatPlayer);
-
-                    chatPlugin.getChatStorage().deleteFriendRequest(friendRequest).thenRun(() -> {
-                        onlineChatPlayer.sendMessage(ChatColor.GOLD + targetChatPlayer.getMinecraftUsername() + " has been removed from your friends list.");
-                    });
+                    for (FriendRequest request : onlineChatPlayer.removeFriendRequestsInvolving(targetChatPlayer)) {
+                        chatPlugin.getChatStorage().deleteFriendRequest(request).thenRun(() -> {
+                            onlineChatPlayer.sendMessage(ChatColor.GOLD + targetChatPlayer.getMinecraftUsername() + " has been removed from your friends list.");
+                        });
+                    }
                 } else {
                     onlineChatPlayer.sendMessage(ChatColor.RED + targetChatPlayer.getMinecraftUsername() + " is not your friend.");
                 }
@@ -204,17 +204,18 @@ public class FriendCommand implements CommandExecutor, TabCompleter {
         chatPlugin.getChatStorage().queryChatPlayer(target).thenAccept(chatPlayerQuery -> {
             if (chatPlayerQuery.hasResults()) {
                 ChatPlayer targetChatPlayer = chatPlayerQuery.getFirst();
-                FriendRequest friendRequest = onlineChatPlayer.getFriendRequest(targetChatPlayer);
+                List<FriendRequest> requests = onlineChatPlayer.getFriendRequestsInvolving(targetChatPlayer);
 
-                if (friendRequest == null || !friendRequest.getTarget().equals(onlineChatPlayer)) {
-                    onlineChatPlayer.sendMessage(ChatColor.GOLD + "You do not have a friend request from " + targetChatPlayer.getMinecraftUsername());
-                } else {
-                    if (friendRequest.isAccepted()) {
-                        onlineChatPlayer.sendMessage(ChatColor.GOLD + friendRequest.getOther(onlineChatPlayer).getMinecraftUsername() + " is already your friend.");
+                if (requests.isEmpty()) {
+                    onlineChatPlayer.sendMessage(ChatColor.GOLD + "You do not have a request from " + targetChatPlayer.getMinecraftUsername());
+                }
+
+                for (FriendRequest request : onlineChatPlayer.getFriendRequestsInvolving(targetChatPlayer)) {
+                    if (request.isAccepted()) {
+                        onlineChatPlayer.sendMessage(ChatColor.GOLD + request.getOther(onlineChatPlayer).getMinecraftUsername() + " is already your friend.");
                     } else {
-                        friendRequest.setAccepted(true);
-
-                        chatPlugin.getChatStorage().saveFriendRequest(friendRequest).thenRun(() -> {
+                        request.setAccepted(true);
+                        chatPlugin.getChatStorage().saveFriendRequest(request).thenRun(() -> {
                             onlineChatPlayer.sendMessage(ChatColor.GOLD + "You are now friends with " + targetChatPlayer.getMinecraftUsername() + "!");
                         });
                     }
@@ -231,14 +232,16 @@ public class FriendCommand implements CommandExecutor, TabCompleter {
         chatPlugin.getChatStorage().queryChatPlayer(target).thenAccept(chatPlayerQuery -> {
             if (chatPlayerQuery.hasResults()) {
                 ChatPlayer targetChatPlayer = chatPlayerQuery.getFirst();
-                FriendRequest friendRequest = onlineChatPlayer.getFriendRequest(targetChatPlayer);
+                List<FriendRequest> requests = onlineChatPlayer.getFriendRequestsInvolving(targetChatPlayer);
 
-                if (friendRequest == null || !friendRequest.isAccepted()) {
+                if (requests.isEmpty()) {
                     onlineChatPlayer.sendMessage(ChatColor.RED + "You do not have a friend request from " + targetChatPlayer.getMinecraftUsername());
-                } else {
-                    onlineChatPlayer.removeFriendRequest(targetChatPlayer);
+                }
 
-                    chatPlugin.getChatStorage().deleteFriendRequest(friendRequest).thenRun(() -> {
+                onlineChatPlayer.removeFriendRequestsInvolving(targetChatPlayer);
+
+                for (FriendRequest request : requests) {
+                    chatPlugin.getChatStorage().deleteFriendRequest(request).thenRun(() -> {
                         onlineChatPlayer.sendMessage(ChatColor.GOLD + "You've denied " + targetChatPlayer.getMinecraftUsername() + "'s friend request. They will not be notified.");
                     });
                 }
