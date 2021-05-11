@@ -1,7 +1,6 @@
 package com.ruinscraft.chat.channel.towny;
 
 import com.palmergames.bukkit.towny.TownyAPI;
-import com.palmergames.bukkit.towny.TownyUniverse;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
@@ -29,7 +28,7 @@ public class NationChatChannel extends TownyChatChannel {
         Nation nation;
 
         try {
-            resident = TownyUniverse.getInstance().getDataSource().getResident(player.getName());
+            resident = TownyAPI.getInstance().getDataSource().getResident(player.getName());
             nation = resident.getTown().getNation();
         } catch (NotRegisteredException e) {
             player.sendMessage(ChatColor.RED + "No one heard you because you are not in a nation. Switch back to global chat with /g");
@@ -52,7 +51,7 @@ public class NationChatChannel extends TownyChatChannel {
         Resident resident;
 
         try {
-            resident = TownyUniverse.getInstance().getDataSource().getResident(player.getName());
+            resident = TownyAPI.getInstance().getDataSource().getResident(player.getName());
         } catch (NotRegisteredException e) {
             return super.format(chatMessage, true);
         }
