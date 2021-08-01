@@ -13,8 +13,6 @@ import org.bukkit.entity.Player;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class TheaterChatChannel extends ChatChannel {
 
@@ -25,16 +23,6 @@ public class TheaterChatChannel extends ChatChannel {
         this.cinemaDisplaysPlugin = cinemaDisplaysPlugin;
     }
 
-    public boolean isInTheater(Player player) {
-        return cinemaDisplaysPlugin.getTheaterManager().getCurrentTheater(player) != null;
-    }
-
-    public Set<Player> getPlayersNotInTheater() {
-        return cinemaDisplaysPlugin.getServer().getOnlinePlayers().stream()
-                .filter(p -> cinemaDisplaysPlugin.getTheaterManager().getCurrentTheater(p) == null)
-                .collect(Collectors.toSet());
-    }
-
     @Override
     public Collection<? extends Player> getRecipients(ChatMessage chatMessage) {
         Player player = Bukkit.getPlayer(chatMessage.getSender().getMojangId());
@@ -43,12 +31,14 @@ public class TheaterChatChannel extends ChatChannel {
             return new HashSet<>();
         }
 
-        if (isInTheater(player) && !(cinemaDisplaysPlugin.getTheaterManager().getCurrentTheater(player) instanceof StaticTheater)) {
-            Theater theater = cinemaDisplaysPlugin.getTheaterManager().getCurrentTheater(player);
-            return theater.getViewers();
-        } else {
-            return getPlayersNotInTheater();
+        Theater theater = cinemaDisplaysPlugin.getTheaterManager().getCurrentTheater(player);
+
+        if (theater == null || theater instanceof StaticTheater) {
+            player.sendMessage(ChatColor.RED + "Not in a theater. Switch to global chat with: /global");
+            return new HashSet<>();
         }
+
+        return theater.getViewers();
     }
 
     @Override
