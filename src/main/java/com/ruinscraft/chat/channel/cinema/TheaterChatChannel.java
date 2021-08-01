@@ -4,9 +4,11 @@ import com.ruinscraft.chat.ChatPlugin;
 import com.ruinscraft.chat.channel.ChatChannel;
 import com.ruinscraft.chat.message.ChatMessage;
 import com.ruinscraft.cinemadisplays.CinemaDisplaysPlugin;
+import com.ruinscraft.cinemadisplays.theater.StaticTheater;
 import com.ruinscraft.cinemadisplays.theater.Theater;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
@@ -19,7 +21,7 @@ public class TheaterChatChannel extends ChatChannel {
     private CinemaDisplaysPlugin cinemaDisplaysPlugin;
 
     public TheaterChatChannel(ChatPlugin chatPlugin, CinemaDisplaysPlugin cinemaDisplaysPlugin) {
-        super(chatPlugin, "cinemadisplays", "theater", "[T]", ChatColor.YELLOW, false);
+        super(chatPlugin, "cinemadisplays", "theater", ChatColor.AQUA + "[T]", ChatColor.YELLOW, false);
         this.cinemaDisplaysPlugin = cinemaDisplaysPlugin;
     }
 
@@ -41,12 +43,19 @@ public class TheaterChatChannel extends ChatChannel {
             return new HashSet<>();
         }
 
-        if (isInTheater(player)) {
+        if (isInTheater(player) && !(cinemaDisplaysPlugin.getTheaterManager().getCurrentTheater(player) instanceof StaticTheater)) {
             Theater theater = cinemaDisplaysPlugin.getTheaterManager().getCurrentTheater(player);
             return theater.getViewers();
         } else {
             return getPlayersNotInTheater();
         }
+    }
+
+    @Override
+    public Command getCommand(ChatPlugin chatPlugin) {
+        Command command = super.getCommand(chatPlugin);
+        command.getAliases().add("local"); // legacy command support
+        return command;
     }
 
 }
