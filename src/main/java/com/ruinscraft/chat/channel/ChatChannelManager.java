@@ -10,6 +10,7 @@ import com.ruinscraft.chat.channel.staff.MBSChatChannel;
 import com.ruinscraft.chat.channel.towny.NationChatChannel;
 import com.ruinscraft.chat.channel.towny.TownChatChannel;
 import com.ruinscraft.chat.channel.towny.TownyGlobalChatChannel;
+import com.ruinscraft.cinemadisplays.CinemaDisplaysPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
 
@@ -50,7 +51,8 @@ public class ChatChannelManager {
         }
 
         if (cinemaDisplays) {
-            channels.add(new TheaterChatChannel(chatPlugin));
+            CinemaDisplaysPlugin cinemaDisplaysPlugin = (CinemaDisplaysPlugin) chatPlugin.getServer().getPluginManager().getPlugin("CinemaDisplays");
+            channels.add(new TheaterChatChannel(chatPlugin, cinemaDisplaysPlugin));
         }
 
         if (defaultChannel == null) {
